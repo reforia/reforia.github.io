@@ -27,5 +27,5 @@
   "terminal.integrated.profiles.osx": {
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
-  "cSpell.words": ["Jayden", "Ubisoft"]
+  "cSpell.words": ["Jayden", "Ubisoft", "Zhang"]
 }

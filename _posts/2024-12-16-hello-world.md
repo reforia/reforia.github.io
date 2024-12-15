@@ -3,9 +3,9 @@ layout: post
 title: Hello World
 description: >-
   This is a sample post in your Chirpy website.
-date: 2024-12-16 01:22
+date: 2024-12-16 01:22 +0800
 categories: [uncategorized]
-author: Jayden
+author: <author-id>
 tags: [hello world]
 pin: true
 ---
