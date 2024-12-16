@@ -27,5 +27,13 @@
   "terminal.integrated.profiles.osx": {
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
-  "cSpell.words": ["HLSL", "Jayden", "Singleplayer", "Ubisoft", "Zhang"]
+  "cSpell.words": [
+    "bpviewer",
+    "Gerstner",
+    "HLSL",
+    "Jayden",
+    "Singleplayer",
+    "Ubisoft",
+    "Zhang"
+  ]
 }
