@@ -7,20 +7,20 @@ date: 2019-06-17 01:22 +0800
 categories: [Archived Projects]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/underneath-shadow/
-slideshow_content: 
-- slide1: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-1.webp
-- slide2: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-2.webp
-- slide3: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-3.webp
-- slide4: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-4.webp
-- slide5: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-5.webp
-- slide6: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-6.webp
-- slide7: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-7.webp
-- slide8: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-8.webp
-- slide9: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-9.webp
-- slide10: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-10.webp
-- slide11: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-11.webp
-- slide12: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-12.webp
-- slide13: /assets/img/post-data/guildhall/underneath-shadow/underneath-shadow-13.webp
+slideshow-images:
+  - "underneath_shadow_1.webp"
+  - "underneath_shadow_2.webp"
+  - "underneath_shadow_3.webp"
+  - "underneath_shadow_4.webp"
+  - "underneath_shadow_5.webp"
+  - "underneath_shadow_6.webp"
+  - "underneath_shadow_7.webp"
+  - "underneath_shadow_8.webp"
+  - "underneath_shadow_9.webp"
+  - "underneath_shadow_10.webp"
+  - "underneath_shadow_11.webp"
+  - "underneath_shadow_12.webp"
+  - "underneath_shadow_13.webp"
 ---
 
 >This project is an archived student project, the content here is considered obsolete.
@@ -49,7 +49,7 @@ The play style of this quest is a kill target quest, with an active investigatio
 The story is about a family (owner of the pub) who wants to get rid of a weird and creepy noise from their neighbor, which eventually turned out to be a doctor (Dr. Naphtali) trying to save his daughter who was infected and became a ghoul. A player can choose to kill one side of them or none of them, either choice will proceed with the quest line forward.
 
 ## In Game Screenshots
-{% include slideshow.html images=page.slideshow_content %}
+{% include gallery.html images=page.slideshow-images %}
 
 [SMU Box]: https://smu.box.com/s/lmixlqk1jrgi7kicawdo2z36b36iyada
 
