@@ -2,7 +2,7 @@
   {% for image in include.images %}
   <div class="mySlides fade">
     <img
-      src="{{ site.baseurl }}{{ include.media_subpath }}{{ image }}"
+      src="{{ site.url }}{{ include.media_subpath }}{{ image }}"
       alt="Slideshow Image {{ forloop.index }}"
       class="slider-image"
     />
