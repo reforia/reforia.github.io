@@ -48,8 +48,8 @@ The play style of this quest is a kill target quest, with an active investigatio
 
 The story is about a family (owner of the pub) who wants to get rid of a weird and creepy noise from their neighbor, which eventually turned out to be a doctor (Dr. Naphtali) trying to save his daughter who was infected and became a ghoul. A player can choose to kill one side of them or none of them, either choice will proceed with the quest line forward.
 
-## In Game Screenshots
-{% include gallery.html images=page.slideshow-images %}
+<!-- ## In Game Screenshots
+{% include gallery.html images=page.slideshow-images %} -->
 
 [SMU Box]: https://smu.box.com/s/lmixlqk1jrgi7kicawdo2z36b36iyada
 
