@@ -9,6 +9,8 @@ image:
 media_subpath: /assets/img/post-data/misc/speed-level-practice/
 ---
 
+{% include obsolete_warning.html %}
+
 ## Final Result
 ![Final Result](speed_level_practice_1.webp)
 _Final Result_
@@ -16,6 +18,6 @@ _Final Result_
 ![Final Result](speed_level_practice_2.webp)
 _Final Result_
 
-## Trailer
-{% include embed/youtube.html id="coTvtExJIxM" %}
+A quick level concept composition practice with Flowscape, both scenes made in 1.5 hrs.
+
 

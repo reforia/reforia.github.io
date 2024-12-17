@@ -9,8 +9,7 @@ tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/encounter-design/
 ---
 
->This project is an archived student project, the content here is considered obsolete.
-{: .prompt-warning }
+{% include obsolete_warning.html %}
 
 ## Trailer
 {% include embed/youtube.html id="xvVoFAHi1BQ" %}

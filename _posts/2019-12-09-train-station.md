@@ -9,8 +9,7 @@ tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/train-station/
 ---
 
->This project is an archived student project, the content here is considered obsolete.
-{: .prompt-warning }
+{% include obsolete_warning.html %}
 
 ## Screenshots
 ![Screenshot](train_station_1.webp)

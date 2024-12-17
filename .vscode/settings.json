@@ -31,6 +31,9 @@
     "barebone",
     "Blockout",
     "bpviewer",
+    "cooldown",
+    "Dota",
+    "Flowscape",
     "Gerstner",
     "HLSL",
     "interactable",
@@ -38,10 +41,12 @@
     "Mechs",
     "papermap",
     "playtests",
+    "Precheck",
     "senario",
     "Singleplayer",
     "speedmap",
     "Ubisoft",
+    "youtrack",
     "Zhang"
   ]
 }

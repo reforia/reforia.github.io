@@ -11,8 +11,7 @@ image:
 media_subpath: /assets/img/post-data/misc/tomb-of-warrior/
 ---
 
->This project is an archived student project, the content here is considered obsolete.
-{: .prompt-warning }
+{% include obsolete_warning.html %}
 
 ## Blockout
 ![Tomb of Warrior - Blockout](tomb_of_warrior_1.webp)
