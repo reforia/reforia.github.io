@@ -28,11 +28,19 @@
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
   "cSpell.words": [
+    "barebone",
+    "Blockout",
     "bpviewer",
     "Gerstner",
     "HLSL",
+    "interactable",
     "Jayden",
+    "Mechs",
+    "papermap",
+    "playtests",
+    "senario",
     "Singleplayer",
+    "speedmap",
     "Ubisoft",
     "Zhang"
   ]
