@@ -4,8 +4,8 @@ title: Network Ability Framework in Unreal Engine 4
 description: 
   An Ability Framework in Unreal Engine 4 that fully supports Networks. The framework is intended for Designers to expand with and create new abilities without worrying about network and basic setups. The system should work on LAN and/or other Online Subsystems (Steam etc.)
 date: 2020-08-20 12:00 +0800
-categories: [Unreal, Gameplay, Network]
-tags: [Unreal, Gameplay, Network]
+categories: [Unreal, Network]
+tags: [Unreal, Network]
 media_subpath: /assets/img/post-data/unreal/network/nas/
 ---
 

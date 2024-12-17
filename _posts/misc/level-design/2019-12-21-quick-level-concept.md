@@ -2,7 +2,7 @@
 layout: post
 title: Speed Level Concept Composition
 date: 2019-12-21 12:00 +0800
-categories: [Misc]
+categories: [Misc, Level Design]
 tags: [Archived]
 image:
   path: speed_level_practice_1.webp

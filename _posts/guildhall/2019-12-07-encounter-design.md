@@ -4,7 +4,7 @@ title: Encounter Design - Doom (2016)
 description: >-
   A onboarding level for Doom 2016 encounter and level design practice
 date: 2019-12-07 06:09 +0800
-categories: [Archived Projects]
+categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/encounter-design/
 ---

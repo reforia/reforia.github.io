@@ -4,7 +4,7 @@ title: Train Station - Left4Dead
 description: >-
   The level "Train Station" belongs to the campaign "Finalstop", and is served as the first level. The whole campaign includes 4 levels, respectively they are Train Station, Sewer, Swamp, and Prison, here the blog is mainly focused on level 1 -- "Train Station".
 date: 2019-12-10 06:49 +0800
-categories: [Archived Projects]
+categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/train-station/
 ---

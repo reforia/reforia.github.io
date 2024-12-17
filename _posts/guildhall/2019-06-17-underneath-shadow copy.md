@@ -4,7 +4,7 @@ title: Underneath Shadow - Fallout 4
 description: >-
   “Underneath Shadow” is a 10 - 20 minutes long quest line for a level 15 player about a tragedy and discuss humanity under the big picture of Fallout 4’s post-war setting.
 date: 2019-06-17 01:22 +0800
-categories: [Archived Projects]
+categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/underneath-shadow/
 ---
