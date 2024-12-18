@@ -163,9 +163,6 @@ pwa:
 
 paginate: 10
 
-# Increment build activation
-# incremental: true
-
 # The base URL of your site
 baseurl: ""
 
