@@ -1,10 +1,7 @@
 ---
 ---
 
-@use 'main';
-{%- if jekyll.environment == 'production' -%}
-@use 'bundle';
-{%- endif -%}
+@use 'main.bundle';
 
 /* append your custom style below */
 #sidebar {
