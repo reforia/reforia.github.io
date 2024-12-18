@@ -164,7 +164,7 @@ pwa:
 paginate: 10
 
 # Increment build activation
-incremental: true
+# incremental: true
 
 # The background animation effect
 background_animation: true
