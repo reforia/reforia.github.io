@@ -166,9 +166,6 @@ paginate: 10
 # Increment build activation
 # incremental: true
 
-# The background animation effect
-background_animation: true
-
 # The base URL of your site
 baseurl: ""
 
