@@ -108,7 +108,8 @@ body {
       animation-duration: var(--circle-time);
       animation-delay: var(--circle-delay);
       pointer-events: none;
-      x @for $i from 0 through 50 {
+
+      @for $i from 0 through 50 {
         &:nth-child(#{$i}) {
           --circle-left: #{random_range(0%, 100%)};
           --grey: #{random_range(30, 100)};
