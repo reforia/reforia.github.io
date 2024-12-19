@@ -3,27 +3,129 @@
 
 @use 'main.bundle';
 
-/* append your custom style below */
-#sidebar {
-  background-image: url(/assets/img/sidebar/black_back.png); /* <- change background image */
-  background-size: cover; /* <- customize the image size */
-  background-repeat: no-repeat; /* <- no-repeat */
-  background-position: top; /* <- image position */
+// Sidebar
+#sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, #28242c, #2c2c2c, #62615c);
+  background-size: 200% 200%;
+  animation: radialGradientBG 10s ease infinite;
+  z-index: -1; /* Ensure the pseudo-element is behind the content */
+}
+
+@keyframes radialGradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 #sidebar .site-title {
   color: #c3c3c3;
-  text-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+  text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
 #sidebar .site-subtitle {
   color: #c3c3c3;
-  text-shadow: 2px 2px 3px rgba(0,0,0, 0.7);
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
 }
-#sidebar .sidebar-bottom .mode-toggle, #sidebar a {
+#sidebar .sidebar-bottom .mode-toggle,
+#sidebar a {
   color: #c3c3c3;
 }
 #sidebar .sidebar-bottom .btn {
   color: var(--sidebar-btn-color);
+}
+
+/* 生成动画 */
+@keyframes infirot {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+.icon-loading1 {
+  display: inline-block;
+  animation: infirot 1s linear infinite;
+  -webkit-animation: infirot 1s linear infinite;
+}
+
+@function random_range($min, $max) {
+  $rand: random();
+  $random_range: $min + floor($rand * (($max - $min) + 1));
+  @return $random_range;
+}
+
+#animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+
+  @keyframes animate {
+    0% {
+      transform: translateY(-1200px) rotate(720deg);
+      opacity: 1;
+      border-radius: 0;
+    }
+    100% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 0;
+      border-radius: 50%;
+    }
+  }
+
+  @media all and (min-width: 1200px) {
+    .animation-circle {
+      position: absolute;
+      left: var(--circle-left);
+      bottom: -300px;
+      display: block;
+      background: var(--circle-background);
+      width: var(--circle-side-length);
+      height: var(--circle-side-length);
+      animation: animate 25s linear infinite;
+      animation-duration: var(--circle-time);
+      animation-delay: var(--circle-delay);
+      pointer-events: none;
+
+      @for $i from 0 through 50 {
+        &:nth-child(#{$i}) {
+          --circle-left: #{random_range(0%, 100%)};
+          --circle-background: rgba(
+            #{random_range(0, 255)},
+            #{random_range(0, 255)},
+            #{random_range(0, 255)},
+            #{random_range(0.04, 0.06)}
+          ); // 最后一个数为透明度
+          --circle-side-length: #{random_range(100px, 200px)};
+          --circle-time: #{random_range(10s, 45s)};
+          --circle-delay: #{random_range(0s, 25s)};
+        }
+      }
+    }
+  }
+
+  @media all and (max-width: 1199px) {
+    .animation-circle {
+      display: none;
+    }
+  }
 }
 
 /* colorbox 样式设计 */
