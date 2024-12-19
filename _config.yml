@@ -16,7 +16,7 @@ timezone: Asia/Shanghai
 
 title: ebp # the main title
 
-tagline: move ebp esp     ; From here, the heart beats. # it will display as the subtitle
+tagline: mov ebp esp     ; From here, the heart beats. # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.

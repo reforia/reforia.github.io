@@ -5,7 +5,7 @@ order: 4
 title: ebp
 ---
 
-`push ebp esp` gets executed when entering a new function frame.
+`mov ebp esp` gets executed when entering a new function frame.
 
 From there, the shiny pixels, the glorious fantasies, the heroic tales and the epic battles, the sweet and sorrow, revolution and rebel, blood and sweat, the countless I/O that crafted the imaginary realm, shaped us, the Homo Ludens.
 
