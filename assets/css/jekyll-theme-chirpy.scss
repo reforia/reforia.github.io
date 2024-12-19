@@ -11,7 +11,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle, #28242c, #2c2c2c, #62615c);
+  background: radial-gradient(circle, #28242c, #2c2c2c, #40403e);
   background-size: 200% 200%;
   animation: radialGradientBG 10s ease infinite;
   z-index: -1; /* Ensure the pseudo-element is behind the content */
@@ -43,6 +43,11 @@
 }
 #sidebar .sidebar-bottom .btn {
   color: var(--sidebar-btn-color);
+}
+
+// Drop Line Animation
+body {
+  background: linear-gradient(0deg, #000000, #101010, #1e1e1e);
 }
 
 /* 生成动画 */
@@ -79,12 +84,12 @@
 
   @keyframes animate {
     0% {
-      transform: translateY(-1200px) rotate(720deg);
+      transform: translateY(0) rotate(0deg);
       opacity: 1;
       border-radius: 0;
     }
     100% {
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(-1200px) rotate(720deg);
       opacity: 0;
       border-radius: 50%;
     }
@@ -103,17 +108,17 @@
       animation-duration: var(--circle-time);
       animation-delay: var(--circle-delay);
       pointer-events: none;
-
-      @for $i from 0 through 50 {
+      x @for $i from 0 through 50 {
         &:nth-child(#{$i}) {
           --circle-left: #{random_range(0%, 100%)};
+          --grey: #{random_range(30, 100)};
           --circle-background: rgba(
-            #{random_range(0, 255)},
-            #{random_range(0, 255)},
-            #{random_range(0, 255)},
-            #{random_range(0.04, 0.06)}
+            var(--grey),
+            var(--grey),
+            var(--grey),
+            0.06
           ); // 最后一个数为透明度
-          --circle-side-length: #{random_range(100px, 200px)};
+          --circle-side-length: #{random_range(20px, 200px)};
           --circle-time: #{random_range(10s, 45s)};
           --circle-delay: #{random_range(0s, 25s)};
         }
