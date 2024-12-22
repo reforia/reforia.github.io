@@ -1,0 +1,97 @@
+[function ExecuteUbergraph_BPA_ByteCode]:
+Label_0x0:
+     $4E: Computed Jump, offset specified by expression:
+         $0: Local variable of type int32 named EntryPoint. Parameter flags: (Parameter).
+Label_0xA:
+     $5E: .. debug site ..
+Label_0xB:
+     $45: Local Virtual Script Function named CustomPrintString
+       $1F: literal ansi string "Hello World!"
+       $0: Local variable of type FString named CallFunc_CustomPrintString_NewString.
+       $16: EX_EndFunctionParms
+Label_0x30:
+     $5A: .. wire debug site ..
+Label_0x31:
+     $6: Jump to offset 0x3D
+Label_0x36:
+     $5E: .. debug site ..
+Label_0x37:
+     $5A: .. wire debug site ..
+Label_0x38:
+     $6: Jump to offset 0xA
+Label_0x3D:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x3F:
+     $53: EX_EndOfScript
+LogK2Compiler: 
+
+[function ReceiveBeginPlay]:
+Label_0x0:
+     $5E: .. debug site ..
+Label_0x1:
+     $5A: .. wire debug site ..
+Label_0x2:
+     $5E: .. debug site ..
+Label_0x3:
+     $46: Local Final Script Function (stack node BPA_ByteCode_C::ExecuteUbergraph_BPA_ByteCode)
+       $1D: literal int32 54
+       $16: EX_EndFunctionParms
+Label_0x12:
+     $5A: .. wire debug site ..
+Label_0x13:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x15:
+     $53: EX_EndOfScript
+LogK2Compiler: 
+
+[function CustomPrintString]:
+Label_0x0:
+     $5E: .. debug site ..
+Label_0x1:
+     $5A: .. wire debug site ..
+Label_0x2:
+     $5E: .. debug site ..
+Label_0x3:
+     $F: Let (Variable = Expression)
+       Variable:
+         $0: Local variable of type FString named LocPrintString.
+       Expression:
+         $0: Local variable of type FString named InString. Parameter flags: (Parameter).
+Label_0x1E:
+     $5A: .. wire debug site ..
+Label_0x1F:
+     $5E: .. debug site ..
+Label_0x20:
+     $68: Call Math (stack node KismetSystemLibrary::PrintString)
+       $17: EX_Self
+       $0: Local variable of type FString named LocPrintString.
+       $27: EX_True
+       $27: EX_True
+       $2F: literal struct LinearColor (serialized size: 16)
+         $1E: literal float 0.000000
+         $1E: literal float 0.660000
+         $1E: literal float 1.000000
+         $1E: literal float 1.000000
+         $30: EX_EndStructConst
+       $1E: literal float 2.000000
+       $21: literal name None
+       $16: EX_EndFunctionParms
+Label_0x6A:
+     $5A: .. wire debug site ..
+Label_0x6B:
+     $5E: .. debug site ..
+Label_0x6C:
+     $F: Let (Variable = Expression)
+       Variable:
+         $48: Local out variable of type FString named NewString. Parameter flags: (Parameter,Out).
+       Expression:
+         $0: Local variable of type FString named LocPrintString.
+Label_0x87:
+     $5A: .. wire debug site ..
+Label_0x88:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x8A:
+     $53: EX_EndOfScript
