@@ -39,7 +39,7 @@ _Blueprint System Overview_
 _Blueprint Structure (Source: [1])_ 
 
 ### UBlueprint
-When we click in the Content Browser to create a new Blueprint based on a custom class type, such as `ACustomClass`, we're creating a `Blueprint Asset`, more specifically, a `UBlueprint` object. This asset end with `.uasset` that we saw on our disk is a serialized representation that defines a *VIRTUAL* subclass of `ACustomClass` (more on that later) and exists solely within the editor environment.
+When we click in the Content Browser to create a new Blueprint based on a custom class type, such as `ACustomClass`, we're creating a `Blueprint Asset`, more specifically, a `UBlueprint` object that exists solely within the editor environment. I would also see an asset end with `.uasset` on our disk is the serialized form of this `UBlueprint` object.
 
 Let's take a look at the code:
 
