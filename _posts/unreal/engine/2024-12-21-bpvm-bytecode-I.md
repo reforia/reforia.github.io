@@ -520,7 +520,7 @@ Phew, that's a lot of information to digest. We've covered the basic structure o
 - `Skeleton Class`
 - `CDO`
 
-A secure chamber found and a bonfire lit, we've taken our first step into the dark castle of Blueprint. However, something seems to be in the shadows.
+A secure chamber found and a bonfire lit, we've taken our first step into the dark castle of Blueprint. However, something seems to be hidden in the shadows.
 
 
 [1]: https://www.cnblogs.com/ghl_carmack/p/5998693.html
