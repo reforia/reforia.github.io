@@ -64,7 +64,7 @@ analytics:
   google:
     id: # fill in your Google Analytics ID
   goatcounter:
-    id: reforia # fill in your GoatCounter ID
+    id: 1ao0e6qqzded41sda746s1kh03sf9jhpl5c8j4pms5xtzx8eh # fill in your GoatCounter ID
   umami:
     id: # fill in your Umami ID
     domain: # fill in your Umami domain
