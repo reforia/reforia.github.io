@@ -62,11 +62,9 @@ UBlueprint* FKismetEditorUtilities::CreateBlueprint(UClass* ParentClass, UObject
 we can see that upon calling `FKismetEditorUtilities::CreateBlueprint()` it immediately creates a UBlueprint instance, and set the `NewBP->ParentClass` to `ParentClass` (ACustomClass in this case). That's why some of the other documents were saying the created blueprint is a subclass of `ACustomClass`. This statement is technically incorrect, because it's actually just a UBlueprint object, with a `ParentClass` pointer pointing to `ACustomClass`.
 
 ### UBlueprintGeneratedClass
-It's also important to note that when executing the Blueprint's logic in a cooked package, we're not directly running the UBlueprint object created (Since it only exist in editor). Instead, we're executing a compiled version of that UBlueprint object, known as `UBlueprintGeneratedClass`.
+As mentioned before, when executing the Blueprint's logic, we're not directly running the UBlueprint object created (Since it only exist in editor). Instead, we're executing compiled bytecode stored in a compiled version of that `UBlueprint` object, known as `UBlueprintGeneratedClass`.
 
-`UBlueprintGeneratedClass` is a runtime class generated from the Blueprint by the Blueprint Editor*. It consolidates and optimizes the logic defined in the visual graph, making it the actual class instance executed during the game's runtime.
-
->*Technically, the Blueprint Editor initiates the generation of `UBlueprintGeneratedClass`, but that's just a placeholder. The actual compilation work is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and write back to `UBlueprintGeneratedClass`.
+>Technically, the Blueprint Editor initiates the generation of `UBlueprintGeneratedClass`, but that's just a placeholder. The actual compilation work is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and write back to `UBlueprintGeneratedClass`.
 {: .prompt-info}
 
 Just like `UBlueprint` is *NOT* a subclass of `ACustomClass`. `UBlueprintGeneratedClass` is *NOT* a subclass of `ACustomClass`, meaning there's no such thing as:
@@ -87,7 +85,7 @@ class UBlueprintGeneratedClass : public UClass, public IBlueprintPropertyGuidPro
 };
 ```
 
-Slightly Different to `UBlueprint` object. (Since the asset we are seeing in Content Browser is actually an instance of `UBlueprint`, which is a `UObject` and being serialized as `.uasset`), the `UBlueprintGeneratedClass` is just a class rather than an instance. So the parenting relationship is leveraging the idea of `SuperClass` (`SetSuperStruct()` when setting it, and `GetSuperClass()` when getting it), to act as if the `UBlueprintGeneratedClass` is a subclass of another `UClass`. Here's the codes right after the UBlueprint instance is created:
+Slightly different to `UBlueprint` object. (Since the asset we are seeing in Content Browser is actually an instance of `UBlueprint`, which is a `UObject` and being serialized as `.uasset`), the `UBlueprintGeneratedClass` is just a class rather than an instance. So the parenting relationship is leveraging the idea of `SuperClass` (`SetSuperStruct()` when setting it, and `GetSuperClass()` when getting it), to act as if the `UBlueprintGeneratedClass` is a subclass of another `UClass`. Here's the codes right after the UBlueprint instance is created:
 
 ```cpp
 /** Create a new Blueprint and initialize it to a valid state. */
@@ -116,9 +114,9 @@ UBlueprint* FKismetEditorUtilities::CreateBlueprint(UClass* ParentClass, UObject
 ### UEdGraph
 An `UEdGraph` is the representation of a graph, which is a collection of nodes and connections. In the context of Blueprint, `UEdGraph` is used to represent the data orchestrated in the visual scripting graph, such as the Event Graph, Function Graph, and Macro Graph. The `UEdGraph` is responsible for managing the nodes and connections within the graph, as well as providing the necessary interfaces for the Blueprint Editor to interact with the graph.
 
-There are a lot of subclasses of `UEdGraph`, such as `UAIGraph`, `UAnimationGraph`, `UAnimationStateMachineGraph`, `UMaterialGraph`, etc. Basically, when we open an asset and see a place for us to drag and drop nodes, the underlying type is an `UEdGraph`.
+`UEdGraph` has numerous subclasses, such as `UAIGraph`, `UAnimationGraph`, `UAnimationStateMachineGraph`, `UMaterialGraph`, etc. Basically, when we open an asset and see a place for us to drag and drop nodes, the underlying type is most likely an `UEdGraph`.
 
-We intentionally mentioned this is a  representation, because it's not the actual graph we are seeing in the editor (A.K.A the View). The visual graph is rendered by the Blueprint Editor, which is a Slate UI, `SGraphEditor`. It also contains the actual frontend interactions on the widget.
+We intentionally mentioned this is just a representation of a graph, not a view of it. Because it's not the actual graph widget that we are seeing in the editor. The visual representation is a Slate UI, `SGraphEditor`. It also contains the actual frontend interactions on the widget.
 
 ![UEdGraph](bytecode_uedgraph.png)
 _UEdGraph (Source: [1])_
@@ -128,7 +126,7 @@ _UEdGraph (Source: [1])_
 
 `UEdGraphNode` contains the logic and data necessary to execute or represent an operation in the graph. For example, a node could represent a function call, a variable assignment, or an action like “Print String.”
 
-There are various subclasses of `UEdGraphNode` that are used for specific graph types, such as `UAnimStatesNode`, `UNiagaraNode`, etc, Each of these classes introduces functionality specific to the type of graph being used. Not that the Blueprint Graph nodes are not called UBlueprintNode, but `UK2Node`.
+There are various subclasses of `UEdGraphNode` as well, such as `UAnimStatesNode`, `UNiagaraNode`, etc. Each of these classes introduces functionality specific to the type of graph being used. Note that the Blueprint Graph nodes are not called UBlueprintNode, but `UK2Node`.
 
 ![UEdGraphNode](bytecode_uk2nodes.png){: width="500" }
 _Various UK2Nodes_
@@ -139,9 +137,7 @@ Similar to UEdGraph, `UEdGraphNode` has visual representation of `SGraphNode`.
 _UEdGraphNode (Source: [1])_
 
 ### UEdGraphPin
-`UEdGraphNode` maintain connections to other nodes via `UEdGraphPin` objects, which allow the flow of execution or data between them. These pins represent inputs and outputs for each node.
-
-`UEdGraphPin` represents an input/output pin on a `UEdGraphNode`. These pins define how nodes are connected in the graph, allowing data or execution flow to pass between them. 
+`UEdGraphNode` maintain connections to other nodes via `UEdGraphPin` objects, which allow the flow of execution or data between them.
 
 A pin in `UEdGraphPin` is a communication point between nodes. It can either be an input pin (where data flows into the node) or an output pin (where data flows out of the node).
 
@@ -152,14 +148,12 @@ Same old, pins have a visual representation in the Blueprint Editor, allowing us
 ### UEdGraphSchema
 `UEdGraphSchema` defines the rules and conventions for a specific type of graph. It acts as a blueprint (literally) for how nodes and pins interact with each other, providing a way to describe valid node connections, node actions, and ensure that the graph behaves as expected.
 
-A schema defines the logical structure of the graph and how different nodes and pins can interact. It essentially provides the metadata for the graph type, specifying which types of nodes can connect, how data should flow, and any restrictions or validations that apply.
-
 For different types of graphs (Blueprint, Animation, AI, etc.), there are corresponding `UEdGraphSchema` subclasses. For example:
 
 ![UEdGraphSchema](bytecode_otherschemas.png){: width="500" }
 _Other Schemas_
 
-It can define custom rules for creating and placing nodes within the graph. For instance, it may define which nodes are available to a user when they right-click to add a new node. It also defines the rules around linking pins between nodes. For example, which types of pins can connect to each other or how connections should be made.
+It can also define custom rules for creating and placing nodes within the graph. For instance, it may define which nodes are available to a user when they right-click to add a new node. It also defines the rules around linking pins between nodes. For example, which types of pins can connect to each other or how connections should be made.
 
 ![UEdGraphSchema](bytecode_uedgraphschema.png)
 _UEdGraphSchema (Source: [1])_
@@ -178,7 +172,7 @@ _FKismetCompilerContext (Source: [1])_
 The `FKismetFunctionContext` tracks the local state of a function during compilation, including variables, temporaries, and flow control structures. It ensures that all nodes within the function are translated into valid intermediate representations (`FBlueprintCompiledStatement`).
 
 ### FBlueprintCompiledStatement
-`FBlueprintCompiledStatement` is an intermediate representation of a single executable operation in a Blueprint graph. It serves as a bridge between the visual graph and the low-level bytecode executed by the Blueprint VM.
+`FBlueprintCompiledStatement` is an intermediate representation of a single executable operation in a Blueprint graph. In other words, a function can have multiple `FBlueprintCompiledStatement` objects.
 
 Each `FBlueprintCompiledStatement` corresponds to a specific operation in the graph, Statements are generated during the compilation process and are later converted into VM bytecode. Here's a full list of `FBlueprintCompiledStatement` types from `BlueprintCompiledStatement.h`:
 
@@ -282,8 +276,6 @@ enum EKismetCompiledStatementType
 
 ### FBPTerminal
 `FBPTerminal` represents a variable or expression used within a `FBlueprintCompiledStatement`. It acts as a handle for data or objects in the Blueprint graph.
-
-A `FBPTerminal` represents an operand in the intermediate representation, such as a variable, a literal value, or a temporary result.
 
 ![FBPTerminal](bytecode_fbpterminal.png){: width="400"}
 _"Hello World" Literal FBPTerminal_
@@ -437,7 +429,6 @@ virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) overri
 
 Basically, there're 6 steps in `Compile()`, it first declares the `FBPTerminals`, then tries to get the value for these terms, creates a `FBlueprintCompiledStatement` for the `SelectNode` and set its type to `KCST_SwitchValue`, then it gets all the option pins, goes through each option and adds their value to the `SelectStatement`, finally adds the `DefaultTerm` to the `SelectStatement`.
 
-
 `Literal Term` 
 - For each option, a `FBPTerminal` of type Literal is created. This represents the literal value associated with that option (i.e., the index value that matches the option). If the option pin is associated with an enum, it uses the enum name, otherwise, it defaults to an index-based name.
 
@@ -496,6 +487,9 @@ public:
 ### Skeleton Class
 A Skeleton Class is an intermediate representation of a Blueprint class used during the compilation process. It serves as a lightweight placeholder that contains only basic information about the class structure (e.g., variables and functions) without full implementation details.
 
+>Think of SKEL class as a smarter forward declaration or a header file. It's created before any bytecode is compiled, and only provides metadata about the class structure. The nuance is there's no linkage process after compilation, unlike a header file.
+{: .prompt-info}
+
 This exists so Blueprints can reference each other in a cyclic manner during compilation. For example, if two Blueprints reference each other, their Skeleton Classes can be created first, resolving dependency issues.
 Acts as a minimal version of the class that can be used in the editor before full compilation is completed.
 
@@ -506,7 +500,7 @@ The Class Default Object is a special instance of a class that serves as the arc
 
 The purpose is to store the default property values and settings for the class. When a new instance of the class is created, it is initialized using the values stored in the CDO. so it acts as the canonical representation of a class's default state and configuration.
 
-When you edit default properties in a Blueprint's editor, you are modifying the CDO of the class. When you create an instance of the Blueprint, it inherits its properties from the CDO.
+When you edit default properties in a Blueprint's editor, you are modifying the CDO of the class. When you create an instance of the Blueprint, it inherits its properties from the CDO. When we edited a property of an instance, a small icon shows up and let us to revert our modification, what would it be reverted to? The CDO.
 
 ## Conclusion
 Phew, that's a lot of information to digest. We've covered the basic structure of the Blueprint system, including:
