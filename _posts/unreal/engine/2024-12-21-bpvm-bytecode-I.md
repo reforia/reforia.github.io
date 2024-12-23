@@ -25,11 +25,9 @@ Epic published a [document] that briefly covered how the Blueprint compilation p
 > These blogs above are written in Chinese, for english readers, a translation tools like ChatGPT could be helpful.
 {: .prompt-tip}
 
-Despite these are really high quality posts that absolutely worth a read, we will briefly summarize the key points from them so we can have a common ground to start with. For experienced readers, feel free to skip next part.
+Despite these are really high quality posts that absolutely worth a read, we will still try to go through the key terminologies for them in a more complete way. so we can have a common ground to face the next challenge.
 
-## Blueprint System Overview
-To eliminate ambiguity as much as possible, let's clarify some terms first: 
-
+## Blueprint System
 When people refer to a 'well-written Blueprint,' they're typically talking about the visual scripting graph created within the Blueprint Editor. Internally, this graph is managed by a `UEdGraph` object. The Graph (Event Graph for instance) is not the blueprint editor, but a part of it. The blueprint editor is a collection of `UEdGraphs` and panels, tools, etc.
 
 In short, creating a Blueprint Asset in the Content Browser involves selecting a parent class and defining a new subclass through the Blueprint system. The Blueprint Editor allows us to add functions and logic within `UEdGraph` instances, as well as set up various properties. When we click the compile button in the editor, it orchestrates the compilation process: the content within the `UEdGraph` is processed and encapsulated into a reused UBlueprintGeneratedClass. This generated class is what the engine executes during runtime, ensuring that our defined behaviors and logic are effectively integrated into the game.
