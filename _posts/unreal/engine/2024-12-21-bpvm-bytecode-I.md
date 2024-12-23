@@ -502,7 +502,7 @@ The purpose is to store the default property values and settings for the class. 
 
 When you edit default properties in a Blueprint's editor, you are modifying the CDO of the class. When you create an instance of the Blueprint, it inherits its properties from the CDO. When we edited a property of an instance, a small icon shows up and let us to revert our modification, what would it be reverted to? The CDO.
 
-## Conclusion
+## Bonfire Lit, What's Next?
 Phew, that's a lot of information to digest. We've covered the basic structure of the Blueprint system, including:
 - `UBlueprint`
 - `UBlueprintGeneratedClass`
