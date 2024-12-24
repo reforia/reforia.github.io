@@ -59,10 +59,10 @@ UBlueprint* FKismetEditorUtilities::CreateBlueprint(UClass* ParentClass, UObject
 }
 ```
 
-we can see that upon calling `FKismetEditorUtilities::CreateBlueprint()` it immediately creates a UBlueprint instance, and set the `NewBP->ParentClass` to `ParentClass` (ACustomClass in this case). That's why some of the other documents were saying the created blueprint is a subclass of `ACustomClass`. This statement is technically incorrect, because it's actually just a UBlueprint object, with a `ParentClass` pointer pointing to `ACustomClass`.
+we can see that upon calling `FKismetEditorUtilities::CreateBlueprint()` it immediately creates a `UBlueprint` instance, and set the `NewBP->ParentClass` to `ParentClass` (ACustomClass in this case). That's why some of the other documents were saying the created blueprint is a subclass of `ACustomClass`. This statement is technically incorrect, because it's actually just a `UBlueprint` object, with a `ParentClass` pointer pointing to `ACustomClass`.
 
 ### UBlueprintGeneratedClass
-As mentioned before, when executing the Blueprint's logic, we're not directly running the UBlueprint object created (Since it only exist in editor). Instead, we're executing compiled bytecode stored in a compiled version of that `UBlueprint` object, known as `UBlueprintGeneratedClass`.
+As mentioned before, when executing the Blueprint's logic, we're not directly running the `UBlueprint` object created (Since it only exist in editor). Instead, we're executing compiled bytecode stored in a compiled version of that `UBlueprint` object, known as `UBlueprintGeneratedClass`.
 
 >Technically, the Blueprint Editor initiates the generation of `UBlueprintGeneratedClass`, but that's just a placeholder. The actual compilation work is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and write back to `UBlueprintGeneratedClass`.
 {: .prompt-info}
@@ -76,7 +76,7 @@ class UBlueprintGeneratedClass : public ACustomClass
 };
 ```
 
-Instead, the UBlueprintGeneratedClass is already declared in `BlueprintGeneratedClass.h` as: 
+Instead, the `UBlueprintGeneratedClass` is already declared in `BlueprintGeneratedClass.h` as: 
 
 ```cpp
 class UBlueprintGeneratedClass : public UClass, public IBlueprintPropertyGuidProvider
@@ -85,7 +85,7 @@ class UBlueprintGeneratedClass : public UClass, public IBlueprintPropertyGuidPro
 };
 ```
 
-Slightly different to `UBlueprint` object. (Since the asset we are seeing in Content Browser is actually an instance of `UBlueprint`, which is a `UObject` and being serialized as `.uasset`), the `UBlueprintGeneratedClass` is just a class rather than an instance. So the parenting relationship is leveraging the idea of `SuperClass` (`SetSuperStruct()` when setting it, and `GetSuperClass()` when getting it), to act as if the `UBlueprintGeneratedClass` is a subclass of another `UClass`. Here's the codes right after the UBlueprint instance is created:
+Slightly different to `UBlueprint` object. (Since the asset we are seeing in Content Browser is actually an instance of `UBlueprint`, which is a `UObject` and being serialized as `.uasset`), the `UBlueprintGeneratedClass` is just a class rather than an instance. So the parenting relationship is leveraging the idea of `SuperClass` (`SetSuperStruct()` when setting it, and `GetSuperClass()` when getting it), to act as if the `UBlueprintGeneratedClass` is a subclass of another `UClass`. Here's the codes right after the `UBlueprint` instance is created:
 
 ```cpp
 /** Create a new Blueprint and initialize it to a valid state. */
@@ -126,12 +126,12 @@ _UEdGraph (Source: [1])_
 
 `UEdGraphNode` contains the logic and data necessary to execute or represent an operation in the graph. For example, a node could represent a function call, a variable assignment, or an action like “Print String.”
 
-There are various subclasses of `UEdGraphNode` as well, such as `UAnimStatesNode`, `UNiagaraNode`, etc. Each of these classes introduces functionality specific to the type of graph being used. Note that the Blueprint Graph nodes are not called UBlueprintNode, but `UK2Node`.
+There are various subclasses of `UEdGraphNode` as well, such as `UAnimStatesNode`, `UNiagaraNode`, etc. Each of these classes introduces functionality specific to the type of graph being used. Note that the Blueprint Graph nodes are not called `UBlueprintNode`, but `UK2Node`.
 
 ![UEdGraphNode](bytecode_uk2nodes.png){: width="500" }
 _Various UK2Nodes_
 
-Similar to UEdGraph, `UEdGraphNode` has visual representation of `SGraphNode`.
+Similar to `UEdGraph`, `UEdGraphNode` has visual representation of `SGraphNode`.
 
 ![UEdGraphNode](bytecode_uedgraphnode.png)
 _UEdGraphNode (Source: [1])_
@@ -161,7 +161,7 @@ _UEdGraphSchema (Source: [1])_
 ### FKismetCompilerContext
 `FKismetCompilerContext` is the core class responsible for compiling a Blueprint graph into executable bytecode that the Blueprint Virtual Machine (VM) can interpret. This class acts as the main driver for the compilation process, handling tasks such as node translation, validation, and generating the resulting intermediate representation.
 
-The `FKismetCompilerContext` first translates the visual scripting graphs (represented as UEdGraph, UEdGraphNode, etc.) into an intermediate format composed of `FBlueprintCompiledStatement` objects, which will then be compiled into bytecode for the VM (Blueprint Virtual Machine). It manages the flow of the compilation process, ensuring that all nodes in the graph are properly translated and connected.
+The `FKismetCompilerContext` first translates the visual scripting graphs (represented as `UEdGraph`, `UEdGraphNode`, etc.) into an intermediate format composed of `FBlueprintCompiledStatement` objects, which will then be compiled into bytecode for the VM (Blueprint Virtual Machine). It manages the flow of the compilation process, ensuring that all nodes in the graph are properly translated and connected.
 
 ![FKismetCompilerContext](bytecode_fkismetcompilercontext.png)
 _FKismetCompilerContext (Source: [1])_
@@ -376,7 +376,7 @@ void FKismetCompilerContext::CreateLocalsAndRegisterNets(FKismetFunctionContext&
 
 `CreateLocalsAndRegisterNets()` can be called in `PrecompileFunction()` or `CompileFunction()`, the reason we say "Or" is because normally `PrecompileFunction()` will call it, but if `EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo` is passed as parameter, then PrecompileFunction() will just omit this step, and `CompileFunction()` will call it later as that's "Phase Two".
 
->`EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo` will be passed to CompileFunction() in `FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl()`, `BlueprintCompilationManager` is a huge topic so we will not cover it here.
+>`EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo` will be passed to `CompileFunction()` in `FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl()`, `BlueprintCompilationManager` is another huge topic so we will not cover it here.
 {: .prompt-info}
 
 #### Compile()
