@@ -2,10 +2,10 @@
 layout: post
 title: "Compile and Good to Go. From Blueprint to Bytecode - II"
 description:
-  "Despite the exhausted challenges faced in the chamber of terminologies, the adventurers managed to reach their bonfire eventually. However, another monster is waiting in the darkness - Compilation"
-date: 2024-12-26 23:04 +0800
+  "Despite the exhausted challenges faced in the chamber of terminologies, the adventurers managed to reach their bonfire. However, another monster is waiting in the darkness - Compilation"
+date: 2024-12-26 01:04 +0800
 categories: [Unreal, Engine]
-published: false
+published: true
 tags: [Unreal, Engine, Blueprint]
 media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 ---
@@ -26,21 +26,21 @@ According to the official [document], the compilation process of a blueprint can
 Although technically, this is only a tiny tini bit of the whole compilation process after we hit the "Compile" button, it's still a lot to digest.
 
 The purpose behind it is pretty simple, let's break it down in a reverse order:
-- Eventually We want to have a class that contains functions, logics, properties that can be executed at runtime. And this class should have a optimized structure, that ditched out unnecessary graph representations (Since that's for human readability)
+- Eventually we want to have a class that contains functions, logics, properties that can be executed at runtime. And this class should have a optimized structure, that ditched out unnecessary graph representations (Since that's for human readability)
 - Which means, some sort of conversion should happen that takes in the graphs and functions, and transform them into the desired form (Bytecode)
 - Which means, we need to prepare the data for the compilation process
-- Since the process eventually just populates data and write to `UBlueprintGeneratedClass`, so the `UBlueprintGeneratedClass` looks just like a container, we can just dump data to the container, rather than always create a new one. But to ensure that old stuff doesn't mess with our new data, we better clean and sanitize it before we do anything (Hence the Clean and Sanitize Class)
+- Since the process eventually just populates data and write to `UBlueprintGeneratedClass`, so the `UBlueprintGeneratedClass` looks a bit like a container, we can just dump data to the container, rather than always create a new one. But to ensure that old stuff doesn't mess with our new data, we better clean and sanitize it before we do anything (Hence the Clean and Sanitize Class)
 
-Now we can understand why the process looks like this. Last but not least, since our modifications may have changed the class layout, existing instances in the world should be aware of that change, hence we Re-instance them. (The last bit)
+Now we can understand why the process looks like this. Last but not least, since our modifications may have changed the class layout, existing instances in the world should be aware of that change, so we Re-instance them.
 
->Note that this process above is compilation process of 1 blueprint, instead of the thorough compilation process. The whole picture is much more complex, as it involves blueprints, dependencies, and other factors. We will start from the very beginning, all the way until we reach the bottom.
+>Note that this process above is compilation process of 1 blueprint, instead of the thorough compilation process. The whole picture is much more complex that involves nearly 15 steps. We will start from the very beginning, all the way until we reach the bottom in this series.
 {: .prompt-info}
 
 ## Compile Button - The Trigger
-First of all, the button "Compile" is added because the calling of `FBlueprintEditorToolbar::AddCompileToolbar()` upon initialization of a `BlueprintEditorMode`. In this case, the `BlueprintEditorMode` is a `FBlueprintEditorApplicationMode`, which is used by the `BlueprintEditor`.
+First of all, the button "Compile" is added due to calling of `FBlueprintEditorToolbar::AddCompileToolbar()` upon initialization of a `BlueprintEditorMode`. In this case, the `BlueprintEditorMode` is a `FBlueprintEditorApplicationMode`, which is used by the `BlueprintEditor`.
 
 ![Editor Modes](bytecode_othereditormodes.png){: width="400"}
-__Various Editor Modes__
+_Various Editor Modes_
 
 From the codebase we can also see various of custom `EditorModes` that overrides or extends the default behavior, especially what kind of tool is available. This `AddCompileToolbar()` is just a pre-defined template to be reuseable across different `EditorModes`.
 
@@ -83,6 +83,7 @@ Pretty neat, it adds 2 entries, `CompileButton` and `CompileOptions`, `CompileOp
 
 ![Compile Toolbar](bytecode_compileoption.png){: width="400"}
 
+## From Compile to FlushCompilationQueueImpl 
 During the creation of the `CompileButton`, it basically called `InitToolBarButton` and feed in a `Commands.Compile` as it's parameter, which is a member o`FFullBlueprintEditorCommands`
 
 This command is registered at the very beginning of Blueprint Editor Initialization process, as can be seen here:
@@ -110,7 +111,6 @@ void FBlueprintEditor::CreateDefaultCommands()
 }
 ```
 
-## From Compile to FlushCompilationQueueImpl 
 Essentially it just act as an event handler, in this case, `Compile` function gets mapped to `FBlueprintEditor::Compile()`, and internally it calls `FKismetEditorUtilities::CompileBlueprint()` to do the actual compilation.
 
 ```cpp
@@ -198,8 +198,8 @@ void FBlueprintCompilationManagerImpl::CompileSynchronouslyImpl(const FBPCompile
 >You guessed it right, the `FlushCompilationQueueImpl()` is the main function that does the heavy lifting, it's written with a whopping 1200+ lines of codes, given the complexity of the scope, we are just gonna... well, we are not gonna give up until we see the bottom of it!
 {: .prompt-info}
 
-## `FlushCompilationQueueImpl` - The Heavy Lifter
-As mentioned before, this function comes from `FBlueprintCompilationManager` but We are lucky that the function is very well documented in the codebase, we can find such a paragraph in the class header:
+## FlushCompilationQueueImpl - The Heavy Lifter
+As mentioned before, this function comes from `FBlueprintCompilationManager` We are lucky that the function is very well documented in the codebase, a paragraph can be found in the class header:
 
 ```cpp
 /*
@@ -243,7 +243,7 @@ As mentioned before, this function comes from `FBlueprintCompilationManager` but
 ```
 
 ### Stage 0: The Before and After
-The scope is managed by a `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is a macro that is used to profile CPU events. It's a very useful tool to measure the performance of the code, especially when you are dealing with a large codebase. After a few checks, a FScopedSlowTask is created, it can create a progress bar that is shown to the user during the compilation process to avoid the user from thinking the application is frozen.
+The scope is managed by a `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is a macro that is used to profile CPU events. It's a very useful tool to measure the performance of the code, especially when you are dealing with a large codebase. After a few checks, a `FScopedSlowTask` is created, it can create a progress bar that is shown to the user during the compilation process to avoid the user from thinking the application is frozen.
 
 After all the works, it logs the time spent on compiling and reinstancing, and then reset the time counter. Sweet.
 
@@ -330,14 +330,16 @@ for(const FBPCompileRequestInternal& CompileJob : QueuedRequests)
 The purpose of this stage is to filter out data only and interface blueprints, and prevent 'pending kill' blueprints from being recompiled. Dependency gathering is currently done for the following reasons:
 - Update a caller's called functions when they are recreated
 - Update a child type's cached information about its superclass
-- Update a child type's class layout when
+- Update a child type's class layout when a parent type layout changes
 - Update a reader/writers references to member variables when member variables are recreated
 
 Pending kill objects do not need these updates and `StaticDuplicateObject` cannot duplicate them - so they cannot be updated as normal, anyway.
 
 Ultimately pending kill `UBlueprintGeneratedClass` instances rely on the `GetDerivedClasses/ReparentChild`
-calls in `FBlueprintCompileReinstancer()` to maintain accurate class layouts so that we 
-don't leak or scribble memory.
+calls in `FBlueprintCompileReinstancer()` to maintain accurate class layouts so that we don't leak or scribble memory.
+
+>Above comments are directly from the codebase.
+{: .prompt-info}
 
 ### Stage III: SORT
 This stage is responsible for sorting the blueprints to be compiled by hierarchy depth, and then by reinstancer order. The hierarchy depth sort is done by checking if the blueprint is an interface, and then by calling `FBlueprintCompileReinstancer::ReinstancerOrderingFunction` to sort by reinstancer order.
@@ -441,12 +443,12 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 At this stage, the compiler does the following behavior:
 - Purges null graphs
   - Get rid of null graphs from:
-  - UbergraphPages
-  - FunctionGraphs
-  - DelegateSignatureGraphs
-  - MacroGraphs
+  - `UbergraphPages`
+  - `FunctionGraphs`
+  - `DelegateSignatureGraphs`
+  - `MacroGraphs`
 - Conforms native components
-  - Updates the blueprint's OwnedComponents, such that they reflect changes made natively since the blueprint was last saved (a change in AttachParents, etc.) It's also a fix used to handle reparenting, etc
+  - Updates the blueprint's `OwnedComponents`, such that they reflect changes made natively since the blueprint was last saved (a change in `AttachParents`, etc.) It's also a fix used to handle reparenting
 - Changes the owner of templates for older blueprints
   - This is a backward compatibility fix for blueprints that were saved before the `VER_UE4_EDITORONLY_BLUEPRINTS` version
 
@@ -483,6 +485,9 @@ that are still parented to a valid SKEL (e. g. from MarkBlueprintAsStructurallyM
 and therefore need to be REINST_'d again before the SKEL is mutated... Normally
 these old REINST_ classes are GC'd but, there is no guarantee of that:
 
+>These comments are directly from the codebase.
+{: .prompt-info}
+
 ```cpp
 // STAGE VII: safely throw away old skeleton CDOs:
 using namespace UE::Kismet::BlueprintCompilationManager;
@@ -511,6 +516,9 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 
 ### Stage VIII: RECOMPILE SKELETON
 Detect any variable-based properties that are not in the old generated class, save them for after reinstancing. This can occur when a new variable is introduced in an ancestor class, and we'll need to use its default as our generated class's initial value.
+
+>These comments are directly from the codebase.
+{: .prompt-info}
 
 ### Stage IX: RECONSTRUCT NODES, REPLACE DEPRECATED NODES (LOAD ONLY)
 Go through all the nodes and call their corresponding `ReconstructNode()` function. Each node can now have the chance to establish their connections or do whatever they need to do during reconstruction. Similarly, the `ReplaceDeprecatedNodes()` is called so that `EditorSchema` class can have the chance to replace deprecated nodes with their newer counterparts.
@@ -548,6 +556,9 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 
 ### Stage X: CREATE REINSTANCER (DISCARD 'OLD' CLASS)
 Reinstance every blueprint that is queued, note that this means classes in the hierarchy that are *not* being compiled will be parented to REINST versions of the class, so type checks (IsA, etc) involving those types will be incoherent!
+
+>These comments are directly from the codebase.
+{: .prompt-info}
 
 ```cpp
 // STAGE X: reinstance every blueprint that is queued, note that this means classes in the hierarchy that are *not* being 
@@ -630,7 +641,7 @@ Reinstance every blueprint that is queued, note that this means classes in the h
 ```
 
 ### Stage XI: CREATE UPDATED CLASS HIERARCHY
-Two things are happening hereL first it updates the class hierarchy for the `GeneratedClass`, and then, it takes ownership of the `SparseClassData` for the `GeneratedClass`.
+Two things are happening here: first it updates the class hierarchy for the `GeneratedClass`, and then, it takes ownership of the `SparseClassData` for the `GeneratedClass`.
 
 The `SCD` or `Sparse Class Data` here is a new feature, what it does is it tries to reduce the memory footprint of the `GeneratedClass` by storing only the necessary data, while remaining one shared data for all instances of an actor. As a result, the memory usage in shipping build is reduced. Here is a comprehensive official [SCD Document].
 
@@ -651,9 +662,9 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 ```
 
 ### Stage XII: COMPILE CLASS LAYOUT
-Finally, we are at the beginning of this post, at a glance it's not too complex, however if we still remembered what the last post was about, we know that this `FKismetCompilerContext::CompileClassLayout()` is a very complex function that does a lot of things, so this chunk just hides the complexity.
+Finally, we are at the beginning of this post, at a glance it's not too complex, however if we still remembered what the last post was about, we know that this `FKismetCompilerContext::CompileClassLayout()` is nowhere near trivial, this chunk just hides the complexity.
 
-However, this stage alone is gonna take another post to cover, since we've already dumping too much stuff in this post.
+However, this stage alone is gonna take another post to cover, since we've already dumping too much stuff in this post. We will continue step into the `CompileClassLayout()` in the next post.
 
 ```cpp
 for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
@@ -696,7 +707,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 ```
 
 ## Checkpoint Reached
-Up to this point, we have covered the first 12 stages of the compilation process, yet we haven't even started talking about the image posted at the beginning. We will dedicate the next post to go through the rest stages, and sneak peek into the `Bytecode`. Until then, stay tuned!
+Up to this point, we have covered the first 12 stages of the compilation process, yet we haven't even started talking about the image posted at the beginning. The next post will be dedicated to go through the meat and juice, with a sneak peek of the `Bytecode`. Until then, stay tuned!
 
 [document]: https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-compiler-overview?application_version=4.27
 [88e52ed]: https://github.com/EpicGames/UnrealEngine/commit/88e52ed2a633d12292a6ce28b0f6f0cef380ce7f
