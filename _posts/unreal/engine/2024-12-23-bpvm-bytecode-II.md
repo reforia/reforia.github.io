@@ -20,7 +20,7 @@ In the previous post, we did a deep dive into the Blueprint System, specifically
 ## Blueprint Compilation Process
 According to the official [document], the compilation process can be briefly breakdown into the following steps:
 
-![Blueprint Compilation Process](bytecode_compilationflow.png)
+![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
 
 This looks like an overwhelming process, but the purpose behind it is pretty straight forward, in order to capture the idea here, we need to look at the process in a backward manner:
 - Eventually We want to have a class that contains functions, logics, properties that can be executed at runtime. And this class should have a optimized structure, that ditched out unnecessary graph representations (Since that's for human readability)
@@ -31,6 +31,51 @@ This looks like an overwhelming process, but the purpose behind it is pretty str
 By viewing it reversely, we can understand why the process looks like this. Last but not least, since our changes may have changed the class layout, existing instances in the world should be aware of that change, hence we Re-instance them.
 
 Great, now we have a rough idea of what's going on, let's dive into the details of each step.
+
+## The Compile Button
+First of all, the button "Compile" is added because the calling of `FBlueprintEditorToolbar::AddCompileToolbar()` upon initialization of a `BlueprintEditorMode`. In this case, the `BlueprintEditorMode` is a `FBlueprintEditorApplicationMode`, which is a `FApplicationMode` that is used by the `BlueprintEditor` to handle the Blueprint editing mode.
+
+But from the codebase we can also see various of custom `EditorModes` that overrides or extends the default behavior, especially what kind of tool is available.
+
+```cpp
+void FBlueprintEditorToolbar::AddCompileToolbar(UToolMenu* InMenu)
+{
+	FToolMenuSection& Section = InMenu->AddSection("Compile");
+	Section.InsertPosition = FToolMenuInsert("Asset", EToolMenuInsertType::Before);
+
+	Section.AddDynamicEntry("CompileCommands", FNewToolMenuSectionDelegate::CreateLambda([](FToolMenuSection& InSection)
+	{
+		const UBlueprintEditorToolMenuContext* Context = InSection.FindContext<UBlueprintEditorToolMenuContext>();
+		if (Context && Context->BlueprintEditor.IsValid() && Context->GetBlueprintObj())
+		{
+			TSharedPtr<class FBlueprintEditorToolbar> BlueprintEditorToolbar = Context->BlueprintEditor.Pin()->GetToolbarBuilder();
+			if (BlueprintEditorToolbar.IsValid())
+			{
+				const FFullBlueprintEditorCommands& Commands = FFullBlueprintEditorCommands::Get();
+
+				FToolMenuEntry& CompileButton = InSection.AddEntry(FToolMenuEntry::InitToolBarButton(
+					Commands.Compile,
+					TAttribute<FText>(),
+					TAttribute<FText>(BlueprintEditorToolbar.ToSharedRef(), &FBlueprintEditorToolbar::GetStatusTooltip),
+					TAttribute<FSlateIcon>(BlueprintEditorToolbar.ToSharedRef(), &FBlueprintEditorToolbar::GetStatusImage),
+					"CompileBlueprint"));
+				CompileButton.StyleNameOverride = "CalloutToolbar";
+
+				FToolMenuEntry& CompileOptions = InSection.AddEntry(FToolMenuEntry::InitComboButton(
+					"CompileComboButton",
+					FUIAction(),
+					FNewToolMenuDelegate::CreateStatic(&BlueprintEditorToolbarImpl::GenerateCompileOptionsMenu),
+					LOCTEXT("BlupeintCompileOptions_ToolbarTooltip", "Options to customize how Blueprints compile")
+				));
+				CompileOptions.StyleNameOverride = "CalloutToolbar";
+				CompileOptions.ToolBarData.bSimpleComboBox = true;
+			}
+		}
+	}));
+}
+```
+
+Pretty neat, it adds 2 buttons, `CompilerButton` and `CompileOptions`, `CompileOption` contains whether we should save on compile success or never.
 
 ## Clean and Sanitize Class
 Classes are compiled in place, which means the same `UBlueprintGeneratedClass` is cleaned and reused over and over, so that pointers to the class do not have to be fixed up. `CleanAndSanitizeClass()` moves properties and functions off the class and into a trash class in the transient package, and then clears any data on the class.
