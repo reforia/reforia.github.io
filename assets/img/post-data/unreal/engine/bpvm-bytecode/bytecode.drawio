@@ -1,18 +1,9 @@
 <mxfile host="65bd71144e">
     <diagram id="jK-o0WApMAdQ0l7wVcRw" name="Page-1">
-        <mxGraphModel dx="651" dy="740" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="392" dy="525" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="67" value="&amp;nbsp;Post-Compile&lt;br&gt;&amp;nbsp;Write to UBPGC" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;" vertex="1" parent="1">
-                    <mxGeometry x="980" y="590" width="310" height="170" as="geometry"/>
-                </mxCell>
-                <mxCell id="66" value="&amp;nbsp;Compile" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;" vertex="1" parent="1">
-                    <mxGeometry x="980" y="530" width="310" height="50" as="geometry"/>
-                </mxCell>
-                <mxCell id="65" value="&amp;nbsp;Prepare Class Data&lt;br&gt;&amp;nbsp;to compile" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;" parent="1" vertex="1">
-                    <mxGeometry x="980" y="200" width="310" height="270" as="geometry"/>
-                </mxCell>
                 <mxCell id="8" value="" style="edgeStyle=none;html=1;endArrow=open;endFill=0;dashed=1;" parent="1" source="2" target="7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
