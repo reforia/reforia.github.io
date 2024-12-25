@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "But what is Blueprint? from Blueprint to Bytecode - III"
+title: "Bytecode. From Blueprint to Bytecode - IV"
 description:
-  "Great enemies has fallen, the adventurers moved forward. Deep down the castle, a humongous machine is working on countless tiny pieces. We are so close to the heart of the secret - Bytecode"
+  "Great enemies fallen, the adventurers moved forward. Deep down the castle, a humongous machine is working on countless tiny pieces. We are so close to the heart of the secret - Bytecode"
 date: 2024-12-25 23:04 +0800
 categories: [Unreal, Engine]
 published: false
