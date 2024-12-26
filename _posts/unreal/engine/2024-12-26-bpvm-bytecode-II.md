@@ -756,7 +756,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage XIV: REINSTANCE (Pre)
+### Stage XIV: REINSTANCE (Preparation)
 This stage is responsible for moving old classes to new classes, corresponding *Part* to the step in the official document:
 - Reinstance
 
