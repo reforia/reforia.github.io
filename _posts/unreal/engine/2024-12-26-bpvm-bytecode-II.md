@@ -757,8 +757,11 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 ```
 
 ### Stage XIV: REINSTANCE
-This stage is responsible for moving old classes to new classes, corresponding to the step in the official document:
+This stage is responsible for moving old classes to new classes, corresponding *Part* to the step in the official document:
 - Reinstance
+
+>Here it's *Part* of the Reinstance step, because what this `ReinstanceBatch()` does is just populates the array that needs to be reinstanced to `ClassesToReinstance`, and that's it. More on this later.
+{: .prompt-info}
 
 ```cpp
 // STAGE XIV: Now we can finish the first stage of the reinstancing operation, moving old classes to new classes:
@@ -843,6 +846,45 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
             FFixupBytecodeReferences ValidateAr(CurrentFunction);
         }
     }
+}
+```
+
+## Actual Reinstance
+Almost done. Remember when we were overviewing the `FlushCompilationQueueImpl()`, how does the code snippet look like? Here's a refresher:
+
+```cpp
+void FBlueprintCompilationManagerImpl::CompileSynchronouslyImpl(const FBPCompileRequestInternal& Request)
+{
+    // ... Other Code
+    FlushCompilationQueueImpl(bSuppressBroadcastCompiled, &CompiledBlueprints, &SkeletonCompiledBlueprints, nullptr, bFindAndReplaceCDOReferences ? &OldToNewTemplates : nullptr);
+    FlushReinstancingQueueImpl(bFindAndReplaceCDOReferences, bFindAndReplaceCDOReferences ? &OldToNewTemplates : nullptr);
+    // ... Other Code
+}
+```
+
+We noticed that right after `FlushCompilationQueueImpl()`, there's a call to `FlushReinstancingQueueImpl()`, which is the actual function that does the reinstancing. This is where the actual reinstancing happens, in a nutshell, `FlushCompilationQueueImpl()` get's the class structure ready, and collected all the instances that needs reinstancing to `ClassToReinstance`, `FlushReinstancingQueueImpl()` then iterate through them and make it happen.
+
+```cpp
+void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndReplaceCDOReferences, TMap<UClass*, TMap<UObject*, UObject*>>* OldToNewTemplates /* = nullptr*/)
+{
+    // ... Other Code
+    if(ClassesToReinstance.Num() == 0)
+    {
+        return;
+    }
+
+    {
+        // ... Other Code
+        FReplaceInstancesOfClassParameters Options;
+        Options.bArchetypesAreUpToDate = true;
+        Options.bReplaceReferencesToOldCDOs = bFindAndReplaceCDOReferences;
+        Options.OldToNewTemplates = OldToNewTemplates;
+        FBlueprintCompileReinstancer::BatchReplaceInstancesOfClass(ClassesToReinstanceOwned, Options);
+        // ... Other Code
+    }
+    // ... Other Code
+    
+    UE_LOG(LogBlueprint, Display, TEXT("Time Compiling: %f, Time Reinstancing: %f"),  GTimeCompiling, GTimeReinstancing);
 }
 ```
 
