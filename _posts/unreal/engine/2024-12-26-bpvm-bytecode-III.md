@@ -15,7 +15,7 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 {% include ue_engine_post_disclaimer.html %}
 
 ## Story Continues
-In last post, we walked through the skeleton of a class compilation, all the way from hitting the `Compile` button, to
+In the last post, we walked through the whole skeleton of compilation process, from hitting the `Compile` button all the way to the `Reinstancing` for all instances. We briefly went through the actual stages of a blueprint compilation, so now let's explore from there.
 
 ## Clean and Sanitize Class
 <div class="box-info" markdown="1">

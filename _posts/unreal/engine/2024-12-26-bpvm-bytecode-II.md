@@ -756,7 +756,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage XIV: REINSTANCE
+### Stage XIV: REINSTANCE (Pre)
 This stage is responsible for moving old classes to new classes, corresponding *Part* to the step in the official document:
 - Reinstance
 
@@ -883,7 +883,7 @@ void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndR
         // ... Other Code
     }
     // ... Other Code
-    
+
     UE_LOG(LogBlueprint, Display, TEXT("Time Compiling: %f, Time Reinstancing: %f"),  GTimeCompiling, GTimeReinstancing);
 }
 ```
