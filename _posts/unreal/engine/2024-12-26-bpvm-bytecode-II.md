@@ -862,7 +862,7 @@ void FBlueprintCompilationManagerImpl::CompileSynchronouslyImpl(const FBPCompile
 }
 ```
 
-We noticed that right after `FlushCompilationQueueImpl()`, there's a call to `FlushReinstancingQueueImpl()`, which is the actual function that does the reinstancing. This is where the actual reinstancing happens, in a nutshell, `FlushCompilationQueueImpl()` get's the class structure ready, and collected all the instances that needs reinstancing to `ClassToReinstance`, `FlushReinstancingQueueImpl()` then iterate through them and make it happen.
+We noticed that right after `FlushCompilationQueueImpl()`, there's a call to `FlushReinstancingQueueImpl()`, which is the actual function that does the reinstancing. In a nutshell, `FlushCompilationQueueImpl()` collected all the instances that needs reinstancing into the array `ClassToReinstance`, `FlushReinstancingQueueImpl()` then iterate through them and make it happen.
 
 ```cpp
 void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndReplaceCDOReferences, TMap<UClass*, TMap<UObject*, UObject*>>* OldToNewTemplates /* = nullptr*/)
