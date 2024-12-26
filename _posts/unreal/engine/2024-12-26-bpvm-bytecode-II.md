@@ -22,6 +22,9 @@ According to the official [document], the compilation process of a blueprint can
 
 ![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
 
+> Note that the order in that document is slightly different from the actual codebase, the image reflects the actual order.
+{: .prompt-info}
+
 ### Digesting the Process
 Although technically, this is only a tiny tini bit of the whole compilation process after we hit the "Compile" button, it's still a lot to digest.
 
@@ -84,7 +87,7 @@ Pretty neat, it adds 2 entries, `CompileButton` and `CompileOptions`, `CompileOp
 ![Compile Toolbar](bytecode_compileoption.png){: width="400"}
 
 ## From Compile to FlushCompilationQueueImpl 
-During the creation of the `CompileButton`, it basically called `InitToolBarButton` and feed in a `Commands.Compile` as it's parameter, which is a member o`FFullBlueprintEditorCommands`
+During the creation of the `CompileButton`, it basically called `InitToolBarButton` and feed in a `Commands.Compile` as it's parameter, which is a member of `FFullBlueprintEditorCommands`
 
 This command is registered at the very beginning of Blueprint Editor Initialization process, as can be seen here:
 
@@ -661,10 +664,19 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
+>we will briefly go through Stage XII to Stage XIV here, and explore them in detail in the next post, as there are too much stuff to cover.
+{: .prompt-info}
+
 ### Stage XII: COMPILE CLASS LAYOUT
 Finally, we are at the beginning of this post, at a glance it's not too complex, however if we still remembered what the last post was about, we know that this `FKismetCompilerContext::CompileClassLayout()` is nowhere near trivial, this chunk just hides the complexity.
 
-However, this stage alone is gonna take another post to cover, since we've already dumping too much stuff in this post. We will continue step into the `CompileClassLayout()` in the next post.
+Among all the steps for compiling a blueprint (The image at the beginning), the following steps are finished in `CompileClassLayout()`:
+- Clean and Sanitize Class
+- Create Class Variables From Blueprint
+- Create Functions List
+  - Create and Process Ubergraph
+  - Process One Function Graph
+  - Precompile Function
 
 ```cpp
 for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
@@ -690,15 +702,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
             FKismetCompilerContext& CompilerContext = *(CompilerData.Compiler);
             CompilerContext.CompileClassLayout(EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo);
 
-            // We immediately relink children so that iterative compilation logic has an easier time:
-            TArray<UClass*> ClassesToRelink;
-            GetDerivedClasses(BP->GeneratedClass, ClassesToRelink, false);
-            for (UClass* ChildClass : ClassesToRelink)
-            {
-                ChildClass->Bind();
-                ChildClass->StaticLink();
-                ensure(ChildClass->ClassDefaultObject == nullptr);
-            }
+            // ... Other Code
         }
         // ... Other Code
     }
@@ -706,8 +710,144 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
+Then, `Bind` and `StaticLink` is performend. As the step:
+- Bind and Link
+
+```cpp
+// We immediately relink children so that iterative compilation logic has an easier time:
+TArray<UClass*> ClassesToRelink;
+GetDerivedClasses(BP->GeneratedClass, ClassesToRelink, false);
+for (UClass* ChildClass : ClassesToRelink)
+{
+    ChildClass->Bind();
+    ChildClass->StaticLink();
+    ensure(ChildClass->ClassDefaultObject == nullptr);
+}
+```
+
+### Stage XIII: COMPILE FUNCTIONS
+A lot of checks and misc operations are being performed in this function, but the major part is the `CompileFunctions()` function call, this matches with the step in Epic's official document:
+- Copy CDO Properties
+- Backend Generate Bytecode
+- Finish Compiling Class
+
+```cpp
+// STAGE XIII: Compile functions
+// ... Other Code
+for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
+{
+    // ... Other Code
+    {
+        // ... Other Code
+        // default value propagation occurs below:
+        if(BPGC)
+        {
+            // ... Other Code
+            FKismetCompilerContext& CompilerContext = *(CompilerData.Compiler);
+            CompilerContext.CompileFunctions(
+                EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo
+                |EInternalCompilerFlags::PostponeDefaultObjectAssignmentUntilReinstancing
+                |EInternalCompilerFlags::SkipRefreshExternalBlueprintDependencyNodes
+            ); 
+        }
+        // ... Other Code
+    }
+    // ... Other Code
+}
+```
+
+### Stage XIV: REINSTANCE
+This stage is responsible for moving old classes to new classes, corresponding to the step in the official document:
+- Reinstance
+
+```cpp
+// STAGE XIV: Now we can finish the first stage of the reinstancing operation, moving old classes to new classes:
+{
+    TRACE_CPUPROFILER_EVENT_SCOPE(MoveOldClassesToNewClasses);
+
+    TArray<FReinstancingJob> Reinstancers;
+    // Set up reinstancing jobs - we need a reference to the compiler in order to honor 
+    // CopyTermDefaultsToDefaultObject
+    for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
+    {
+        if(CompilerData.Reinstancer.IsValid() && CompilerData.Reinstancer->ClassToReinstance)
+        {
+            Reinstancers.Push(
+                FReinstancingJob( CompilerData.Reinstancer, CompilerData.Compiler )
+            );
+        }
+    }
+
+    FScopedDurationTimer ReinstTimer(GTimeReinstancing);
+    ReinstanceBatch(Reinstancers, MutableView(ClassesToReinstance), InLoadContext, OldToNewTemplates);
+
+    // We purposefully do not remove the OldCDOs yet, need to keep them in memory past first GC
+}
+```
+
+### Stage XV: POST CDO COMPILED
+At this point, the blueprint is already compiled, only a few housekeeping tasks are left, such as calling the `PostCDOCompiled()` function, which act as a callback event for the blueprint to do any post-compilation tasks.
+
+```cpp
+// STAGE XV: POST CDO COMPILED
+for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
+{
+    TRACE_CPUPROFILER_EVENT_SCOPE(PostCDOCompiled);
+
+    if (CompilerData.Compiler.IsValid())
+    {
+        SCOPED_LOADTIMER_ASSET_TEXT(*CompilerData.BP->GetPathName());
+        UObject::FPostCDOCompiledContext PostCDOCompiledContext;
+        PostCDOCompiledContext.bIsRegeneratingOnLoad = CompilerData.BP->bIsRegeneratingOnLoad;
+        PostCDOCompiledContext.bIsSkeletonOnly = CompilerData.IsSkeletonOnly();
+
+        CompilerData.Compiler->PostCDOCompiled(PostCDOCompiledContext);
+    }
+}
+```
+
+### Stage XVI: CLEAR TEMPORARY FLAGS
+Then, this stage is to clear the temporary flags that were set in the beginning of the compilation process. So that the blueprint compilation is ready from outer perspective (Other class checking the RF flags of this class won't find temporary flags anymore).
+
+### Stage AFTERMATH
+The function description didn't mention this, but the last bit is clear junk in bytecode, store the compiled blueprints, and broadcast the compiled event. After that, log the necessary information, and we've reached the actual end of the compilation process.
+
+```cpp
+// Make sure no junk in bytecode, this can happen only for blueprints that were in CurrentlyCompilingBPs because
+// the reinstancer can detect all other references (see UpdateBytecodeReferences):
+for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
+{
+    if(CompilerData.ShouldCompileClassFunctions())
+    {
+        if(BlueprintsCompiled)
+        {
+            BlueprintsCompiled->Add(CompilerData.BP);
+        }
+        
+        if(!bSuppressBroadcastCompiled)
+        {
+            // Some logic (e.g. UObject::ProcessInternal) uses this flag to suppress warnings:
+            TGuardValue<bool> ReinstancingGuard(GIsReinstancing, true);
+            CompilerData.BP->BroadcastCompiled();
+        }
+
+        continue;
+    }
+
+    UBlueprint* BP = CompilerData.BP;
+    for( TFieldIterator<UFunction> FuncIter(BP->GeneratedClass, EFieldIteratorFlags::ExcludeSuper); FuncIter; ++FuncIter )
+    {
+        UFunction* CurrentFunction = *FuncIter;
+        if( CurrentFunction->Script.Num() > 0 )
+        {
+            FFixupBytecodeReferences ValidateAr(CurrentFunction);
+        }
+    }
+}
+```
+
 ## Checkpoint Reached
-Up to this point, we have covered the first 12 stages of the compilation process, yet we haven't even started talking about the image posted at the beginning. The next post will be dedicated to go through the meat and juice, with a sneak peek of the `Bytecode`. Until then, stay tuned!
+Up to this point, we have covered all the stages of the compilation process, yet we only briefly talked the most important Stage XII to Stage XIV. The next post will be dedicated to go through the meat and juice, with a sneak peek of the `Bytecode`. Until then, stay tuned!
 
 [document]: https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-compiler-overview?application_version=4.27
 [88e52ed]: https://github.com/EpicGames/UnrealEngine/commit/88e52ed2a633d12292a6ce28b0f6f0cef380ce7f

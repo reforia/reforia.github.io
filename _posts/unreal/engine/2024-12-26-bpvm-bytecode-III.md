@@ -64,6 +64,35 @@ Now that the compiler is aware of all of the `UProperties` and `UFunctions` for 
 
 ### Stage XIII: COMPILE CLASS FUNCTIONS
 
+#### Finish Compile Class
+<div class="box-info" markdown="1">
+<div class="title"> Epic's Definition </div>
+To finish compiling the class, compiler finalizes the class flags and propagates flags and metadata from the parent class before finally performing a few final checks to make sure everything went alright in the compile.
+</div>
+
+#### Backend Emits Generated Code
+<div class="box-info" markdown="1">
+<div class="title"> Epic's Definition </div>
+The backends convert the collection of statements from each function context into code. There are two backends in use:
+
+- FKismetCompilerVMBackend - Converts FKCS to UnrealScript VM bytecode which are then serialized into the function's script array.
+- FKismetCppBackend - Emits C++-like code for debugging purposes only.
+</div>
+
+#### Copy Class Default Object Properties
+<div class="box-info" markdown="1">
+<div class="title"> Epic's Definition </div>
+Using a special function, CopyPropertiesForUnrelatedObjects(), the compiler copies the values from the old CDO of the class into the new CDO. Properties are copied via tagged serialization, so as long as the names are consistent, they should properly be transferred. Components of the CDO are re-instanced and fixed up appropriately at this stage. The GeneratedClass CDO is authoritative.
+</div>
+
+#### Re-instance
+<div class="box-info" markdown="1">
+<div class="title"> Epic's Definition </div>
+Since the class may have changed size and properties may have been added or removed, the compiler needs to re-instance all objects with the class that were just compiled. This process uses a TObjectIterator to find all instances of the class, spawn a new one, and then uses the CopyPropertiesForUnrelatedObjects() function to copy from the old instance to the new one.
+
+For details, see the FBlueprintCompileReinstancer class.
+</div>
+
 ### Stage XIV: REINSTANCE
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
