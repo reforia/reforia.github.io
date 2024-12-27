@@ -441,7 +441,7 @@ if (!ConvertibleDelegates.IsEmpty())
 }
 ```
 
-Decompose ``CreateFunctionList()`, we can see the anatomy looks like this:
+Decompose `CreateFunctionList()`, we can see the anatomy looks like this:
 - Allow blueprint extensions for the blueprint to generate function graphs
 - Process the ubergraph if one should be present by calling `CreateAndProcessUbergraph()`
 - Process all 4 types of function graphs by calling `ProcessOneFunctionGraph()`
