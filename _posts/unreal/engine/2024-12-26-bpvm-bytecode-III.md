@@ -18,7 +18,7 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 In the last post, we explored the entire Blueprint compilation process, from hitting the `Compile` button to `Reinstancing` all instances. We briefly covered the actual stages of Blueprint compilation, so now let’s dive deeper into the details.
 
 ## Class Compilation Kick off
-At `Stage XII: COMPILE CLASS LAYOUT`, the compilation process begins with a call to `CompileClassLayout()`. However, before we get to the first step described by Epic in the official [documentation] (which is Clean and Sanitize Class), there are a few pre-compilation steps that need to be addressed:
+At `Stage XII: COMPILE CLASS LAYOUT`, the compilation process begins with a call to `CompileClassLayout()`. However, before we get to the first step described by Epic in the official [document] (which is Clean and Sanitize Class), there are a few pre-compilation steps that need to be addressed:
 
 First, a `UEdGraphSchema` is created as part of the compilation process. This schema, which we covered in the [first post], defines the rules and conventions that govern how nodes and pins interact in a Blueprint graph.
 
@@ -305,7 +305,7 @@ KismetCompilerModule.ValidateBPAndClassType(Blueprint, MessageLog);
 ```
 
 ## Construct Class Layout
-At this stage, the primary goal is to determine what the new Blueprint-edited class actually looks like. This process is similar to how the Unreal Header Tool (`UHT`) parses .h files and compiles them into a .generated.h file. We want to ensure that the class's metadata or skeleton is set up correctly. This involves creating the class variables, instances, and function lists.
+At this stage, the primary goal is to determine what the new Blueprint-edited class actually looks like. This process is similar to how the Unreal Header Tool (`UHT`) parses `.h` files and compiles them into a `.generated.h` file. We want to ensure that the class's metadata or skeleton is set up correctly. This involves creating the class variables, instances, and function lists.
 
 ### Create Class Variables From Blueprint
 <div class="box-info" markdown="1">
