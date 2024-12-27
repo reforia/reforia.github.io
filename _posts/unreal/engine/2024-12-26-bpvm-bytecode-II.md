@@ -26,7 +26,7 @@ According to the official [document], the blueprint compilation process can be b
 {: .prompt-info}
 
 ### Digesting the Process
-While this may seem like only a small part of the entire compilation process triggered when you hit the "`Compile`" button, there's still a lot to digest.
+While this may seem like the entire compilation process triggered when you hit the "`Compile`" button, the content in the image is just a small part of it.
 
 Let’s break it down in reverse order to understand the purpose behind it all:
 - Final Goal: 
@@ -250,7 +250,7 @@ As mentioned before, this function comes from `FBlueprintCompilationManager` We 
 ```
 
 ### Stage 0: The Before and After
-The scope is managed by the `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is used to profile CPU events. This is an invaluable tool for measuring the performance of code, especially in large codebases. After performing some checks, a `FScopedSlowTask` is created. This task is responsible for showing a progress bar to the user during the compilation process, preventing them from thinking the application has frozen.
+The scope is managed by the `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is used to profile CPU events. This is an great tool for measuring the performance of code, especially in large codebases. After performing some checks, a `FScopedSlowTask` is created. This task is responsible for showing a progress bar to the user during the compilation process, preventing them from thinking the application has frozen.
 
 Once the process is complete, it logs the time spent on compiling and reinstancing, then resets the timer. Sweet.
 

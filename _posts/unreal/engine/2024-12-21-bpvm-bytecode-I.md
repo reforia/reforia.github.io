@@ -282,7 +282,7 @@ enum EKismetCompiledStatementType
 _"Hello World" Literal FBPTerminal_
 
 ### FNodeHandlingFunctor
-`FNodeHandlingFunctor` is an abstraction used to handle the translation of specific node types during the compilation process. Each UEdGraphNode type has an associated `FNodeHandlingFunctor` that understands how to convert that node into an intermediate representation (`FBlueprintCompiledStatement`).
+`FNodeHandlingFunctor` is an abstraction used to handle the translation of specific node types during the compilation process. Each `UEdGraphNode` type has an associated `FNodeHandlingFunctor` that understands how to convert that node into an intermediate representation (`FBlueprintCompiledStatement`).
 
 ![FNodeHandlingFunctor](bytecode_fnodehandlingfunctor.png)
 _FNodeHandlingFunctor (Source: [1])_
@@ -429,7 +429,7 @@ virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) overri
 ```
 
 The `Compile()` function for the `SelectNode` essentially follows six steps:
-- Declare FBPTerminals:
+- Declare `FBPTerminals`:
   -  It starts by declaring the necessary `FBPTerminal` objects.
 - Get Values for Terms:
   - It retrieves the values for these terms.
@@ -449,7 +449,7 @@ The `Compile()` function for the `SelectNode` essentially follows six steps:
 `Value Term`
 - For each option pin, the corresponding value term is retrieved from the context. If it isn’t found, an error is logged. The value is then added to the RHS (right-hand side) of the operation.
 
-At this point, it’s clear that the `Compile()` function for the `SelectNode` creates a `FBlueprintCompiledStatement`, sets its type to `KCST_SwitchValue`, and then feeds all the necessary data into the SelectStatement object.
+At this point, it’s clear that the `Compile()` function for the `SelectNode` creates a `FBlueprintCompiledStatement`, sets its type to `KCST_SwitchValue`, and then feeds all the necessary data into the `SelectStatement` object.
 
 ### FBlueprintCompileReinstancer
 `FBlueprintCompileReinstancer` is a utility class in Unreal Engine that helps with reinstancing objects when a Blueprint class is recompiled. Reinstancing is necessary because existing instances of a Blueprint class in the game world need to be updated to reflect the newly compiled version of the class.
@@ -498,12 +498,12 @@ public:
 ```
 
 ### Skeleton Class
-A Skeleton Class is an intermediate representation of a Blueprint class used during the compilation process. It serves as a lightweight placeholder that contains only basic information about the class structure (such as variables and functions) but without full implementation details.
+A `Skeleton Class` is an intermediate representation of a Blueprint class used during the compilation process. It serves as a lightweight placeholder that contains only basic information about the class structure (such as variables and functions) but without full implementation details.
 
->Think of the SKEL class as a more intelligent forward declaration or a header file. It is created before any bytecode is compiled and only provides metadata about the class structure. The key difference is that there’s no linkage process after compilation, unlike a traditional header file. 
+>Think of the `SKEL` class as a more intelligent forward declaration or a header file. It is created before any bytecode is compiled and only provides metadata about the class structure. The key difference is that there’s no linkage process after compilation, unlike a traditional header file. 
 {: .prompt-info}
 
-The Skeleton Class exists to allow Blueprints to reference each other in a cyclic manner during compilation. For example, if two Blueprints reference each other, their Skeleton Classes are created first, resolving dependency issues. It acts as a minimal version of the class that can be used in the editor before full compilation is completed.
+The `Skeleton Class` exists to allow Blueprints to reference each other in a cyclic manner during compilation. For example, if two Blueprints reference each other, their `Skeleton Classes` are created first, resolving dependency issues. It acts as a minimal version of the class that can be used in the editor before full compilation is completed.
 
 When one Blueprint calls a function on another Blueprint class that hasn’t been fully compiled yet, the Skeleton Class is used to temporarily represent the target class.
 
