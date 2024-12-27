@@ -63,7 +63,7 @@ When we call `FKismetEditorUtilities::CreateBlueprint()`, it immediately creates
 ### UBlueprintGeneratedClass
 As mentioned earlier, when executing a Blueprint’s logic, we’re not running the `UBlueprint` object directly (since it only exists in the editor). Instead, we’re executing the compiled bytecode stored in a compiled version of the `UBlueprint` object, which is known as `UBlueprintGeneratedClass`.
 
->Technically, the Blueprint Editor triggers the generation of the `UBlueprintGeneratedClass`, but that’s merely a placeholder. The actual compilation process is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and writes this back into the `UBlueprintGeneratedClass`. {: .prompt-info}
+>Technically, the Blueprint Editor triggers the generation of the `UBlueprintGeneratedClass`, but that’s merely a placeholder. The actual compilation process is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and writes this back into the `UBlueprintGeneratedClass`.
 {: .prompt-info}
 
 Just as `UBlueprint` is *NOT* a subclass of `ACustomClass`, `UBlueprintGeneratedClass` is also *NOT* a subclass of `ACustomClass`. This means there’s no such thing as:
