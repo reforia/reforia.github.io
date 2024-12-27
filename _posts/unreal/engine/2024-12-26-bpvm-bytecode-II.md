@@ -889,7 +889,7 @@ void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndR
 ```
 
 ## Checkpoint Reached
-Up to this point, we have covered all the stages of the compilation process, yet we only briefly talked the most important Stage XII to Stage XIV. The next post will be dedicated to go through the meat and juice, with a sneak peek of the `Bytecode`. Until then, stay tuned!
+Up to this point, we have covered all the stages of the compilation process, yet we only briefly talked the most important Stage XII to Stage XIV. The next post will be dedicated to go through the class compilation process, with a sneak peak of function compilation. Until then, stay tuned!
 
 [document]: https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-compiler-overview?application_version=4.27
 [88e52ed]: https://github.com/EpicGames/UnrealEngine/commit/88e52ed2a633d12292a6ce28b0f6f0cef380ce7f

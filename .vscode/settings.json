@@ -30,6 +30,7 @@
   "cSpell.words": [
     "barebone",
     "Blockout",
+    "BPTYPE",
     "bpviewer",
     "BPVM",
     "cooldown",
@@ -55,6 +56,7 @@
     "Precheck",
     "REINST",
     "reinstance",
+    "reinstanced",
     "Reinstancer",
     "Reinstancing",
     "Reparent",
@@ -64,6 +66,7 @@
     "Singleplayer",
     "SKEL",
     "speedmap",
+    "subobjects",
     "uasset",
     "Ubergraph",
     "Ubisoft",
