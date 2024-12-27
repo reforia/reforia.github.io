@@ -15,37 +15,41 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 {% include ue_engine_post_disclaimer.html %}
 
 ## Load Checkpoint
-In the previous post, we did a deep dive into the Blueprint System, specifically the numerous terminologies and concepts. Now it's time to connect these dots and understand the process of blueprint compilation.
+In the previous post, we explored the Blueprint System in depth, covering its various terminologies and concepts. Now, it’s time to connect the dots and take a closer look at the blueprint compilation process.
 
 ## Compilation Process - From Document
-According to the official [document], the compilation process of a blueprint can be briefly breakdown into the following steps:
+According to the official [document], the blueprint compilation process can be broken down into the following steps:
 
 ![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
 
-> Note that the order in that document is slightly different from the actual codebase, the image reflects the actual order.
+>Note: The order in the official document is slightly different from the actual codebase. The image above reflects the correct order
 {: .prompt-info}
 
 ### Digesting the Process
-Although technically, this is only a tiny tini bit of the whole compilation process after we hit the "Compile" button, it's still a lot to digest.
+While this may seem like only a small part of the entire compilation process triggered when you hit the "`Compile`" button, there's still a lot to digest.
 
-The purpose behind it is pretty simple, let's break it down in a reverse order:
-- Eventually we want to have a class that contains functions, logics, properties that can be executed at runtime. And this class should have a optimized structure, that ditched out unnecessary graph representations (Since that's for human readability)
-- Which means, some sort of conversion should happen that takes in the graphs and functions, and transform them into the desired form (Bytecode)
-- Which means, we need to prepare the data for the compilation process
-- Since the process eventually just populates data and write to `UBlueprintGeneratedClass`, so the `UBlueprintGeneratedClass` looks a bit like a container, we can just dump data to the container, rather than always create a new one. But to ensure that old stuff doesn't mess with our new data, we better clean and sanitize it before we do anything (Hence the Clean and Sanitize Class)
+Let’s break it down in reverse order to understand the purpose behind it all:
+- Final Goal: 
+  - The ultimate aim is to generate a class that contains functions, logic, and properties, all of which can be executed at runtime. This class needs to be structured efficiently, with unnecessary graph representations removed (since those are primarily for human readability).
+- Conversion: 
+  - This means that the graphs and functions need to be converted into an optimized format, namely Bytecode.
+- Data Preparation: 
+  - To achieve this conversion, we need to prepare the data for the compilation process.
+- Data Population: 
+  - The process essentially populates data into a `UBlueprintGeneratedClass`. This class serves as a container, where we can store the data. Instead of creating a new class each time, we reuse the existing one, but before doing so, we need to ensure the data is clean and doesn’t interfere with new data (hence, the "Clean and Sanitize Class" step).
 
-Now we can understand why the process looks like this. Last but not least, since our modifications may have changed the class layout, existing instances in the world should be aware of that change, so we Re-instance them.
+Now we can better understand why the process unfolds in this particular way. And lastly, because our modifications may alter the class layout, we need to ensure that existing instances in the world reflect these changes. This is why we "Re-instance" them.
 
->Note that this process above is compilation process of 1 blueprint, instead of the thorough compilation process. The whole picture is much more complex that involves nearly 15 steps. We will start from the very beginning, all the way until we reach the bottom in this series.
+>Note: The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
 {: .prompt-info}
 
 ## Compile Button - The Trigger
-First of all, the button "Compile" is added due to calling of `FBlueprintEditorToolbar::AddCompileToolbar()` upon initialization of a `BlueprintEditorMode`. In this case, the `BlueprintEditorMode` is a `FBlueprintEditorApplicationMode`, which is used by the `BlueprintEditor`.
+The "`Compile`" button itself is part of the `FBlueprintEditorToolbar::AddCompileToolbar()` function, which is called during the initialization of a `BlueprintEditorMode`. This mode is specifically an instance of `FBlueprintEditorApplicationMode`, which is used by the BlueprintEditor.
 
 ![Editor Modes](bytecode_othereditormodes.png){: width="400"}
 _Various Editor Modes_
 
-From the codebase we can also see various of custom `EditorModes` that overrides or extends the default behavior, especially what kind of tool is available. This `AddCompileToolbar()` is just a pre-defined template to be reuseable across different `EditorModes`.
+From the codebase, we can also see several custom EditorModes that override or extend the default behavior, including the available tools. The `AddCompileToolbar()` function is essentially a pre-defined template that can be reused across different EditorModes.
 
 ```cpp
 void FBlueprintEditorToolbar::AddCompileToolbar(UToolMenu* InMenu)
@@ -87,9 +91,9 @@ Pretty neat, it adds 2 entries, `CompileButton` and `CompileOptions`, `CompileOp
 ![Compile Toolbar](bytecode_compileoption.png){: width="400"}
 
 ## From Compile to FlushCompilationQueueImpl 
-During the creation of the `CompileButton`, it basically called `InitToolBarButton` and feed in a `Commands.Compile` as it's parameter, which is a member of `FFullBlueprintEditorCommands`
+When the `CompileButton` is created, it triggers the `InitToolBarButton` function and passes in `Commands.Compile` as a parameter. This `Commands.Compile` is part of `FFullBlueprintEditorCommands`.
 
-This command is registered at the very beginning of Blueprint Editor Initialization process, as can be seen here:
+This command is registered early in the Blueprint Editor initialization process, as shown here:
 
 ```cpp
 void FBlueprintEditor::InitBlueprintEditor(
@@ -114,7 +118,7 @@ void FBlueprintEditor::CreateDefaultCommands()
 }
 ```
 
-Essentially it just act as an event handler, in this case, `Compile` function gets mapped to `FBlueprintEditor::Compile()`, and internally it calls `FKismetEditorUtilities::CompileBlueprint()` to do the actual compilation.
+Essentially it just act as an event handler, in this case, `Compile` gets mapped to `FBlueprintEditor::Compile()`, and internally it calls `FKismetEditorUtilities::CompileBlueprint()` to do the actual compilation.
 
 ```cpp
 void FBlueprintEditor::Compile()
@@ -246,9 +250,9 @@ As mentioned before, this function comes from `FBlueprintCompilationManager` We 
 ```
 
 ### Stage 0: The Before and After
-The scope is managed by a `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is a macro that is used to profile CPU events. It's a very useful tool to measure the performance of the code, especially when you are dealing with a large codebase. After a few checks, a `FScopedSlowTask` is created, it can create a progress bar that is shown to the user during the compilation process to avoid the user from thinking the application is frozen.
+The scope is managed by the `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is used to profile CPU events. This is an invaluable tool for measuring the performance of code, especially in large codebases. After performing some checks, a `FScopedSlowTask` is created. This task is responsible for showing a progress bar to the user during the compilation process, preventing them from thinking the application has frozen.
 
-After all the works, it logs the time spent on compiling and reinstancing, and then reset the time counter. Sweet.
+Once the process is complete, it logs the time spent on compiling and reinstancing, then resets the timer. Sweet.
 
 ```cpp
 void FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl(bool bSuppressBroadcastCompiled, TArray<UBlueprint*>* BlueprintsCompiled, TArray<UBlueprint*>* BlueprintsCompiledOrSkeletonCompiled, FUObjectSerializeContext* InLoadContext, TMap<UClass*, TMap<UObject*, UObject*>>* OldToNewTemplates /* = nullptr*/)
