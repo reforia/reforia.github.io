@@ -22,9 +22,6 @@ According to the official [document], the blueprint compilation process can be b
 
 ![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
 
->Note: The order in the official document is slightly different from the actual codebase. The image above reflects the correct order
-{: .prompt-info}
-
 ### Digesting the Process
 While this may seem like the entire compilation process triggered when you hit the "`Compile`" button, the content in the image is just a small part of it.
 
@@ -38,7 +35,7 @@ Let’s break it down in reverse order to understand the purpose behind it all:
 - Data Population: 
   - The process essentially populates data into a `UBlueprintGeneratedClass`. This class serves as a container, where we can store the data. Instead of creating a new class each time, we reuse the existing one, but before doing so, we need to ensure the data is clean and doesn’t interfere with new data (hence, the "Clean and Sanitize Class" step).
 
-Now we can better understand why the process unfolds in this particular way. And lastly, because our modifications may alter the class layout, we need to ensure that existing instances in the world reflect these changes. This is why we "Re-instance" them.
+Now we can better understand why the process unfolds in this particular way. And lastly, because our modifications may alter the class layout, so we need to "Re-instance" it to reflect the change, we also need to ensure that existing instances in the world are aware of it. So they are also being "Reinstanced".
 
 >Note: The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
 {: .prompt-info}
@@ -760,11 +757,24 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage XIV: REINSTANCE (Preparation)
+### Stage XIV: REINSTANCE (Class)
 This stage is responsible for moving old classes to new classes, corresponding *Part* to the step in the official document:
+- Copy Class Default Object Properties
 - Reinstance
 
->Here it's *Part* of the Reinstance step, because what this `ReinstanceBatch()` does is just populates the array that needs to be reinstanced to `ClassesToReinstance`, and that's it. More on this later.
+`ReinstanceBatch()` calls `CopyPropertiesForUnrelatedClasses()` to copy properties from the old class to the new class, as well as from old instance to new instance. This resonates with Epic's official document:
+
+<div class="box-info" markdown="1">
+<div class="title"> Copy Class Default Object Properties </div>
+Using a special function, `CopyPropertiesForUnrelatedObjects()`, the compiler copies the values from the old CDO of the class into the new CDO. Properties are copied via tagged serialization, so as long as the names are consistent, they should properly be transferred. Components of the CDO are re-instanced and fixed up appropriately at this stage. The GeneratedClass CDO is authoritative.
+</div>
+
+<div class="box-info" markdown="1">
+<div class="title"> Re-Instance </div>
+Since the class may have changed size and properties may have been added or removed, the compiler needs to re-instance all objects with the class that were just compiled. This process uses a TObjectIterator to find all instances of the class, spawn a new one, and then uses the `CopyPropertiesForUnrelatedObjects()` function to copy from the old instance to the new one.
+</div>
+
+>Note that at this moment we are just reinstancing the class, not the instances of the class, this will be handled later
 {: .prompt-info}
 
 ```cpp
@@ -853,7 +863,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-## Actual Reinstance
+## Reinstancing Instances
 Almost done. Remember when we were overviewing the `FlushCompilationQueueImpl()`, how does the code snippet look like? Here's a refresher:
 
 ```cpp
@@ -866,7 +876,7 @@ void FBlueprintCompilationManagerImpl::CompileSynchronouslyImpl(const FBPCompile
 }
 ```
 
-We noticed that right after `FlushCompilationQueueImpl()`, there's a call to `FlushReinstancingQueueImpl()`, which is the actual function that does the reinstancing. In a nutshell, `FlushCompilationQueueImpl()` collected all the instances that needs reinstancing into the array `ClassToReinstance`, `FlushReinstancingQueueImpl()` then iterate through them and make it happen.
+We noticed that right after `FlushCompilationQueueImpl()`, there's a call to `FlushReinstancingQueueImpl()`, but we also know that `ReinstancingBatch()` has already been called in `FlushCompilationQueueImpl()`, then what this `FlushReinstancingQueueImpl()` is all about? In a nutshell, `ReinstancingBatch()` called in `FlushCompilationQueueImpl()` is to reinstance the class, while `FlushReinstancingQueueImpl()` is to replace the instances of the class.
 
 ```cpp
 void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndReplaceCDOReferences, TMap<UClass*, TMap<UObject*, UObject*>>* OldToNewTemplates /* = nullptr*/)
