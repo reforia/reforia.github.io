@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Bytecode. From Blueprint to Bytecode - IV"
+title: "Road to the Root. From Blueprint to Bytecode - IV"
 description:
-  "Great enemies fallen, the adventurers moved forward. Deep down the castle, a humongous machine is working on countless tiny pieces. We are so close to the heart of the secret - Bytecode"
-date: 2024-12-30 23:04 +0800
+  "There's only last challenge left before we can finally see the bytecode, and that is to compile the functions. In this post, we will go through this very step."
+date: 2024-12-27 21:45 +0800
 categories: [Unreal, Engine]
 published: false
 tags: [Unreal, Engine, Blueprint]
@@ -14,7 +14,7 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-## Compile Functions
+## Compile Functions Kick off
 
 ### Copy Class Default Object Properties
 <div class="box-info" markdown="1">
@@ -36,28 +36,6 @@ The backends convert the collection of statements from each function context int
 <div class="title"> Epic's Definition </div>
 To finish compiling the class, compiler finalizes the class flags and propagates flags and metadata from the parent class before finally performing a few final checks to make sure everything went alright in the compile.
 </div>
-
-## BPVM
-
-## BPVM Architecture
-
-## Blueprint Bytecode Example
-
-### Prerequisite
-
-### Create a Blueprint Asset
-
-### Add a custom function
-
-### Call the function in event graph
-
-### Compile and Save
-
-## Bytecode Analysis
-
-### Ubergraph
-
-### CustomPrintString
 
 ## Dive Even Deeper
 At this point, we should already have a clear concept of how the blueprint works: When we write logic in the blueprint graph, we are essentially orchestrate connections or flow or logics, these information were wrapped by their abstract representations - `UEdGraphNode`, in order to reconstruct this flow for execution, we need to disassemble the whole `UBlueprint` into some byte sized commands. Aside from properties, for each function and the `Ubergraph` we expand their corresponding lists of `UEdGraphNode`, then for each `UEdGraphNode` we feed in `FBPTerminal` via `UEdGraphNodePin` by calling `RegisterNets()`, they then gets compiled into `FBlueprintCompiledStatement` by their own `FNodeHandlingFunctor`. Finally, `FBlueprintCompiledStatement` gets parsed into bytecode by `FKismetCompilerVMBackend`.

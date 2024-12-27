@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Tear Apart a Class. From Blueprint to Bytecode - III"
+title: "Tear a Class Apart. From Blueprint to Bytecode - III"
 description:
   "Series of stages were presented to the adventurers from the void, each leads to the next. A few of them were more shiny than the others - Class Compilation"
 date: 2024-12-26 14:50 +0800
