@@ -14,15 +14,15 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-## Load Checkpoint
+# Load Checkpoint
 In the previous post, we explored the Blueprint System in depth, covering its various terminologies and concepts. Now, it’s time to connect the dots and take a closer look at the blueprint compilation process.
 
-## Compilation Process - From Document
+# Compilation Process - From Document
 According to the official [document], the blueprint compilation process can be broken down into the following steps:
 
 ![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
 
-### Digesting the Process
+# Digesting the Process
 While this may seem like the entire compilation process triggered when you hit the "`Compile`" button, the content in the image is just a small part of it.
 
 Let’s break it down in reverse order to understand the purpose behind it all:
@@ -40,7 +40,7 @@ Now we can better understand why the process unfolds in this particular way. And
 >Note: The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
 {: .prompt-info}
 
-## Compile Button - The Trigger
+# Compile Button - The Trigger
 The "`Compile`" button itself is part of the `FBlueprintEditorToolbar::AddCompileToolbar()` function, which is called during the initialization of a `BlueprintEditorMode`. This mode is specifically an instance of `FBlueprintEditorApplicationMode`, which is used by the BlueprintEditor.
 
 ![Editor Modes](bytecode_othereditormodes.png){: width="400"}
@@ -87,7 +87,7 @@ Pretty neat, it adds 2 entries, `CompileButton` and `CompileOptions`, `CompileOp
 
 ![Compile Toolbar](bytecode_compileoption.png){: width="400"}
 
-## From Compile to FlushCompilationQueueImpl 
+# From Compile to FlushCompilationQueueImpl 
 When the `CompileButton` is created, it triggers the `InitToolBarButton` function and passes in `Commands.Compile` as a parameter. This `Commands.Compile` is part of `FFullBlueprintEditorCommands`.
 
 This command is registered early in the Blueprint Editor initialization process, as shown here:
@@ -202,7 +202,7 @@ void FBlueprintCompilationManagerImpl::CompileSynchronouslyImpl(const FBPCompile
 >You guessed it right, the `FlushCompilationQueueImpl()` is the main function that does the heavy lifting, it's written with a whopping 1200+ lines of codes, given the complexity of the scope, we are just gonna... well, we are not gonna give up until we see the bottom of it!
 {: .prompt-info}
 
-## FlushCompilationQueueImpl - The Heavy Lifter
+# FlushCompilationQueueImpl - The Heavy Lifter
 As mentioned before, this function comes from `FBlueprintCompilationManager` We are lucky that the function is very well documented in the codebase, a paragraph can be found in the class header:
 
 ```cpp
@@ -246,7 +246,7 @@ As mentioned before, this function comes from `FBlueprintCompilationManager` We 
 */
 ```
 
-### Stage 0: The Before and After
+# Stage 0: The Before and After
 The scope is managed by the `TRACE_CPUPROFILER_EVENT_SCOPE` macro, which is used to profile CPU events. This is an great tool for measuring the performance of code, especially in large codebases. After performing some checks, a `FScopedSlowTask` is created. This task is responsible for showing a progress bar to the user during the compilation process, preventing them from thinking the application has frozen.
 
 Once the process is complete, it logs the time spent on compiling and reinstancing, then resets the timer. Sweet.
@@ -280,7 +280,7 @@ void FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl(bool bSuppressB
 }
 ```
 
-### Stage I: GATHER
+# Stage I: GATHER
 This stage is responsible for gathering all the blueprints that need to be compiled, and then add any children
 
 ```cpp
@@ -330,7 +330,7 @@ for(const FBPCompileRequestInternal& CompileJob : QueuedRequests)
 }
 ```
 
-### Stage II: FILTER
+# Stage II: FILTER
 The purpose of this stage is to filter out data only and interface blueprints, and prevent 'pending kill' blueprints from being recompiled. Dependency gathering is currently done for the following reasons:
 - Update a caller's called functions when they are recreated
 - Update a child type's cached information about its superclass
@@ -345,7 +345,7 @@ calls in `FBlueprintCompileReinstancer()` to maintain accurate class layouts so 
 >Above comments are directly from the codebase.
 {: .prompt-info}
 
-### Stage III: SORT
+# Stage III: SORT
 This stage is responsible for sorting the blueprints to be compiled by hierarchy depth, and then by reinstancer order. The hierarchy depth sort is done by checking if the blueprint is an interface, and then by calling `FBlueprintCompileReinstancer::ReinstancerOrderingFunction` to sort by reinstancer order.
 
 ```cpp
@@ -371,7 +371,7 @@ auto HierarchyDepthSortFn = [](const FCompilerData& CompilerDataA, const FCompil
 CurrentlyCompilingBPs.Sort( HierarchyDepthSortFn );
 ```
 
-### Stage IV: SET TEMPORARY BLUEPRINT FLAGS
+# Stage IV: SET TEMPORARY BLUEPRINT FLAGS
 For each blueprint that is being compiled, set the `bBeingCompiled` flag to true, and set the `CurrentMessageLog` to the `ActiveResultsLog`. If the blueprint has not been regenerated and has a linker, set the `bIsRegeneratingOnLoad` flag to true. If the blueprint should reset its error state, clear all compiler messages from the blueprint's graphs.
 
 ```cpp
@@ -406,7 +406,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage V - Phase 1: VALIDATE
+# Stage V - Phase 1: VALIDATE
 This is a pretty good checkpoint to validate the variable names and class property defaults for each blueprint that is being compiled, before the actual per blueprint compilation process begins.
 
 ```cpp
@@ -427,7 +427,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 
 The whole idea of `ValidateClassPropertyDefaults()` is to check if the default value of a class property is of the correct type. If the variable type has been changed since the last check, and a newer CDO has not been generated yet, it will check the default type of the property and log an error if the default type is invalid.
 
-### Stage V - Phase 2: Give the blueprint the possibility for edits
+# Stage V - Phase 2: Give the blueprint the possibility for edits
 Used for performing custom patching during stage IX of the compilation during load.
 
 ```cpp
@@ -443,7 +443,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage VI: PURGE (LOAD ONLY)
+# Stage VI: PURGE (LOAD ONLY)
 At this stage, the compiler does the following behavior:
 - Purges null graphs
   - Get rid of null graphs from:
@@ -476,7 +476,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage VII: DISCARD SKELETON CDO
+# Stage VII: DISCARD SKELETON CDO
 Two functions are mainly used in this stage:
 
 `MoveDependentSkelToReinst`:
@@ -518,13 +518,13 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage VIII: RECOMPILE SKELETON
+# Stage VIII: RECOMPILE SKELETON
 Detect any variable-based properties that are not in the old generated class, save them for after reinstancing. This can occur when a new variable is introduced in an ancestor class, and we'll need to use its default as our generated class's initial value.
 
 >These comments are directly from the codebase.
 {: .prompt-info}
 
-### Stage IX: RECONSTRUCT NODES, REPLACE DEPRECATED NODES (LOAD ONLY)
+# Stage IX: RECONSTRUCT NODES, REPLACE DEPRECATED NODES (LOAD ONLY)
 Go through all the nodes and call their corresponding `ReconstructNode()` function. Each node can now have the chance to establish their connections or do whatever they need to do during reconstruction. Similarly, the `ReplaceDeprecatedNodes()` is called so that `EditorSchema` class can have the chance to replace deprecated nodes with their newer counterparts.
 
 ```cpp
@@ -558,7 +558,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage X: CREATE REINSTANCER (DISCARD 'OLD' CLASS)
+# Stage X: CREATE REINSTANCER (DISCARD 'OLD' CLASS)
 Reinstance every blueprint that is queued, note that this means classes in the hierarchy that are *not* being compiled will be parented to REINST versions of the class, so type checks (IsA, etc) involving those types will be incoherent!
 
 >These comments are directly from the codebase.
@@ -644,7 +644,7 @@ Reinstance every blueprint that is queued, note that this means classes in the h
 }
 ```
 
-### Stage XI: CREATE UPDATED CLASS HIERARCHY
+# Stage XI: CREATE UPDATED CLASS HIERARCHY
 Two things are happening here: first it updates the class hierarchy for the `GeneratedClass`, and then, it takes ownership of the `SparseClassData` for the `GeneratedClass`.
 
 The `SCD` or `Sparse Class Data` here is a new feature, what it does is it tries to reduce the memory footprint of the `GeneratedClass` by storing only the necessary data, while remaining one shared data for all instances of an actor. As a result, the memory usage in shipping build is reduced. Here is a comprehensive official [SCD Document].
@@ -668,7 +668,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 >we will briefly go through Stage XII to Stage XIV here, and explore them in detail in the next post, as there are too much stuff to cover.
 {: .prompt-info}
 
-### Stage XII: COMPILE CLASS LAYOUT
+# Stage XII: COMPILE CLASS LAYOUT
 Finally, we are at the beginning of this post, at a glance it's not too complex, however if we still remembered what the last post was about, we know that this `FKismetCompilerContext::CompileClassLayout()` is nowhere near trivial, this chunk just hides the complexity.
 
 Among all the steps for compiling a blueprint (The image at the beginning), the following steps are finished in `CompileClassLayout()`:
@@ -726,7 +726,7 @@ for (UClass* ChildClass : ClassesToRelink)
 }
 ```
 
-### Stage XIII: COMPILE FUNCTIONS
+# Stage XIII: COMPILE FUNCTIONS
 A lot of checks and misc operations are being performed in this function, but the major part is the `CompileFunctions()` function call, this matches with the step in Epic's official document:
 - Copy CDO Properties
 - Backend Generate Bytecode
@@ -757,7 +757,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage XIV: REINSTANCE (Class)
+# Stage XIV: REINSTANCE (Class)
 This stage is responsible for moving old classes to new classes, corresponding *Part* to the step in the official document:
 - Copy Class Default Object Properties
 - Reinstance
@@ -802,7 +802,7 @@ Since the class may have changed size and properties may have been added or remo
 }
 ```
 
-### Stage XV: POST CDO COMPILED
+# Stage XV: POST CDO COMPILED
 At this point, the blueprint is already compiled, only a few housekeeping tasks are left, such as calling the `PostCDOCompiled()` function, which act as a callback event for the blueprint to do any post-compilation tasks.
 
 ```cpp
@@ -823,10 +823,10 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-### Stage XVI: CLEAR TEMPORARY FLAGS
+# Stage XVI: CLEAR TEMPORARY FLAGS
 Then, this stage is to clear the temporary flags that were set in the beginning of the compilation process. So that the blueprint compilation is ready from outer perspective (Other class checking the RF flags of this class won't find temporary flags anymore).
 
-### Stage AFTERMATH
+# Stage AFTERMATH
 The function description didn't mention this, but the last bit is clear junk in bytecode, store the compiled blueprints, and broadcast the compiled event. After that, log the necessary information, and we've reached the actual end of the compilation process.
 
 ```cpp
@@ -863,7 +863,7 @@ for (FCompilerData& CompilerData : CurrentlyCompilingBPs)
 }
 ```
 
-## Reinstancing Instances
+# Reinstancing Instances
 Almost done. Remember when we were overviewing the `FlushCompilationQueueImpl()`, how does the code snippet look like? Here's a refresher:
 
 ```cpp
@@ -902,7 +902,7 @@ void FBlueprintCompilationManagerImpl::FlushReinstancingQueueImpl(bool bFindAndR
 }
 ```
 
-## Checkpoint Reached
+# Checkpoint Reached
 Up to this point, we have covered all the stages of the compilation process, yet we only briefly talked the most important Stage XII to Stage XIV. The next post will be dedicated to go through the class compilation process, with a sneak peak of function compilation. Until then, stay tuned!
 
 [document]: https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-compiler-overview?application_version=4.27

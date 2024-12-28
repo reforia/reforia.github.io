@@ -14,7 +14,7 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-## Compile Functions Kick off
+# Compile Functions Kick off
 The first bit of the function `FKismetCompilerContext::CompileFunctions()` is to check the internal flags, and then decide whether to generate locals, propagate values to CDO, and refresh external blueprint dependency nodes. The `FKismetCompilerVMBackend` is then initialized with the blueprint, schema, and the compiler context. The validation is skipped if the values are not propagated to CDO. Pretty simple stuff to start with.
 
 ```cpp
@@ -34,7 +34,7 @@ void FKismetCompilerContext::CompileFunctions(EInternalCompilerFlags InternalFla
 }
 ```
 
-## Generate Locals
+# Generate Locals
 For each of the functions, we call `CreateLocalsAndRegisterNets()` on them. Which calls `RegisterNets()` As mentioned in the [first post], this basically tries to link input and output pin to a `FBPTerminal`, so that when the function is compilee later, the input and output values can be passed from or to a concrete place.
 
 ```cpp
@@ -95,15 +95,15 @@ void FKismetCompilerContext::CreateLocalsAndRegisterNets(FKismetFunctionContext&
 }
 ```
 
-## Create Execution Schedule
+# Create Execution Schedule
 One tiny but very important step in the above code is the `CreateExecutionSchedule()`, it performs a topological sort on the graph of nodes passed in (which is expected to form a `DAG`), then schedule them. If there are cycles or unconnected nodes present in the graph, an error will be output for each node that failed to be scheduled. The value is then stored in `Context.LinearExecutionList` for later use.
 
 The concept of `DAG` (Directed Acyclic Graph) is very common in computer science, it's a graph that has no cycles, which means you can't go from a node back to itself by following the edges. This is very important in the blueprint graph, as it ensures that the logic is executed in a linear order, and there are no circular dependencies.
 
 For more information on `DAG`, you can check out the [DAG Wiki].
 
-## Anatomy of CompileFunctions()
-### Distinguish Skeleton Only Compile and Full Compile
+# Anatomy of CompileFunctions()
+# Distinguish Skeleton Only Compile and Full Compile
 Let's start with the simpler one, if this is not a full compile, then we just go through each function and call `FinishCompilingFunction()` on them. This is to set flags on the functions even for a skeleton class.
 
 >Note: `bIsFullCompile` might be a bit misleading here, basically, if this is false, then we are compiling a skeleton class
@@ -129,7 +129,7 @@ else
 }
 ```
 
-### Full Compile Process
+# Full Compile Process
 Now let's take a look at the `bIsFullCompile` path, simple enough, we just go through each function and call `CompileFunction()` on them. This is where the actual compilation happens. Then, we call `PostcompileFunction()` on them to finalize the function. Finally, we check if there are any `FMulticastDelegateProperty` that doesn't have a `SignatureFunction` set, and log a warning if so.
 
 ```cpp
@@ -163,7 +163,7 @@ for (TFieldIterator<FMulticastDelegateProperty> PropertyIt(NewClass); PropertyIt
 }
 ```
 
-### Post Compile Function
+# Post Compile Function
 We will dive into `CompileFunction()` in the next section. So here let's skip it for now, assuming the compilation is done, `PostcompileFunction()` is called to finalize the function. This marks the final phase of compiling a function graph; It patches up cross-references, etc..., and performs final validation.
 
 ```cpp
@@ -214,14 +214,14 @@ void FKismetFunctionContext::ResolveStatements()
 }
 ```
 
-#### FinalSortLinearExecList
+# FinalSortLinearExecList
 Sort the linear execution list for the last time to ensure the correctness of execution order, it's a complex function but here's briefly how it works:
 - Get rid of any null nodes as a cleanup
 - Copy all the nodes from `LinearExecutionList` to `UnsortedExecutionSet`
 - Iterate through the `UnsortedExecutionSet`, starting from the `EntryPoint` from the `FKismetFunctionContext` and then crawl through the whole chain, place `UnconditionalGoto` connected chains together, and also take care of `Branches`
 - Finally, copy the sorted nodes back to `LinearExecutionList`
 
-#### ResolveGoToFixups
+# ResolveGoToFixups
 Resolve any goto fixups in the function, it basically just trying to figure out which kind of `Goto` we need to use here.
 
 The actual implementation for this `Goto` involves replacing any `KCST_Goto` with the correct `KCST_GotoReturn` or `KCST_EndOfThread`, `KCST_GotoIfNot` gets replaced with corresponding `KCST_GotoReturnIfNot` or `KCST_EndOfThreadIfNot`. As mentioned before, the significance here is the usage of Flow Stack Execution. If Flow Stack Execution is not required, then `GotoReturn` is used instead of `EndOfThread`, vice versa. `EndOfThread` pops the Flow Stack, while `GotoReturn` does not.
@@ -243,14 +243,14 @@ bool FKismetFunctionContext::DoesStatementRequiresFlowStack(const FBlueprintComp
 >Note: The Goto we are talking about here is not a node that the designer can write in Blueprint, this concept is more close to assembly code where the code is jumping to another address.
 {: .prompt-info}
 
-#### MergeAdjacentStates
+# MergeAdjacentStates
 Merge adjacent states in the function. This is done by iterating over the statements and merging any adjacent `KCST_State` statements into a single `KCST_State` statement. There's a bit more than that, specifically, this function is concerning a special case of `KCST_Goto`, and a special case of `KCST_GotoReturn`
 
 Imagine we have a function A , it calls function B, which calls function C at the end, when we compile it, the end of function B would have an unconditional `KCST_Goto` pointing at the address of C, but if C is right after B in the compiled code, this goto is completely unnecessary and can be removed, that's the first part of the optimization.
 
 A second case is, if we are already at the end of a function, and the last `KCST` is an unconditional `KCST_GotoReturn`, and if no other code cares about this return address, then this state is also removed as redundant because the function would just naturally exit and moving forward even without it.
 
-### Broadcast Event and Save Intermediate Products
+# Broadcast Event and Save Intermediate Products
 Once that's done, we broadcast the event out, and then we just set the flags for the intermediate products if requested.
 
 ```cpp
@@ -274,7 +274,7 @@ if (bIsFullCompile && CompileOptions.bSaveIntermediateProducts && !Blueprint->bI
 }
 ```
 
-### Finish Compile Class
+# Finish Compile Class
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 To finish compiling the class, compiler finalizes the class flags and propagates flags and metadata from the parent class before finally performing a few final checks to make sure everything went alright in the compile.
@@ -342,7 +342,7 @@ At this moment, we will wrap up the final few steps for the class compilation. W
 }
 ```
 
-### Generate Bytecode from FBlueprintCompiledStatement
+# Generate Bytecode from FBlueprintCompiledStatement
 Follow up, we called the `Backend_VM` to generate the bytecode based from function's `FBlueprintCompiledStatement`, `GenerateCodeFromClass()` does the heavy lifting, more on this later.
 
 ```cpp
@@ -354,7 +354,7 @@ Follow up, we called the `Backend_VM` to generate the bytecode based from functi
 }
 ```
 
-### Serialize Expressions
+# Serialize Expressions
 Afterwards, we serialize all expressions to an archive.
 
 ```cpp
@@ -393,7 +393,7 @@ EExprToken UStruct::SerializeExpr( int32& iCode, FArchive& Ar )
 
 What?! At a glance this might be a bit confusing, but it's actually a clever way to serialize the expressions. The `#include` ensured the content are being embedded here inplace. Which means the actual implementation is done in this `UObject/ScriptSerialization.h` file. This is a very neat way to keep the code clean and organized, as well as reusability.
 
-### Generate Debug Bytecode
+# Generate Debug Bytecode
 At this moment, we already have all the bytecode generated, but as a human we can't read them, unless `bDisplayBytecode` is set to true, then we will disassemble the bytecode and print them out.
 
 ```cpp
@@ -416,7 +416,7 @@ if (bDisplayBytecode && bIsFullCompile && !IsRunningCommandlet())
 }
 ```
 
-### Mark Dependencies Dirty
+# Mark Dependencies Dirty
 This step is pretty simple, if we have compiled the functions, we should mark the dependent blueprints dirty, so that they will be recompiled if necessary.
 
 ```cpp
@@ -450,7 +450,7 @@ if( bIsFullCompile && !Blueprint->bIsRegeneratingOnLoad && !bSkipRefreshExternal
 }
 ```
 
-### Housekeeping
+# Housekeeping
 Finally, we do some housekeeping, we finalize the class flags, propagate flags and metadata from the parent class, and store the crc32 checksums for the CDO and the signature. In the end, we call `PostCompile()` to broadcast the event and finish the compilation.
 
 ```cpp
@@ -500,7 +500,7 @@ if (bIsFullCompile)
 PostCompile();
 ```
 
-## The Anatomy of CompileFunction()
+# The Anatomy of CompileFunction()
 Obviously, the magic happens in `CompileFunction()`, which converts each function into several `FBlueprintCompiledStatement`. In the next batch (After all functions has been compiled) a BPVM Backend converts them to bytecode in another batch.
 
 In a big picture, the `CompileFunction()` is responsible for generating statements for each node in the linear execution order, then pull out pure chains and inline their generated code into the nodes that need it. Finally, it propagates thread-safe flags.
@@ -539,7 +539,7 @@ void FKismetCompilerContext::CompileFunction(FKismetFunctionContext& Context)
 }
 ```
 
-### Generate Statements for Each Node
+# Generate Statements for Each Node
 This looks like rocket science, but it really isn't, we already have the `LinearExecutionList` which is a list of `UEdGraphNode` in the correct order, we just need to go through them and generate statements for each node. We also add debug comments and opcode insertion points for debugging purposes. the 70% of the code just for adding debugging purposed `FBlueprintCompiledStatement` like `KCST_Comment`. The actual work is just one line of code, `Handler->Compile(Context, Node);`. As mentioned in the [first post], this allows the `FNodeHandlingFunctor` to compile the node and populate `FBlueprintCompiledStatement`.
 
 ```cpp
@@ -583,7 +583,7 @@ for (int32 i = 0; i < Context.LinearExecutionList.Num(); ++i)
 }
 ```
 
-### Inline Pure Nodes
+# Inline Pure Nodes
 This step is concerned with pure nodes, it walk through the whole list, and divide them into two groups, one is the pure nodes, they are being pushed to the requirement list for other nodes. And for non pure nodes, they are doing the actual inlining of the pure nodes' code.
 
 A caveat here is: a pure node can depend on another pure node, in this case `Context.CopyAndPrependStatements(Node, NodeToInline);` will be called to inline the antecedent pure nodes' code.
@@ -640,7 +640,7 @@ for (int32 TestIndex = 0; TestIndex < Context.LinearExecutionList.Num(); )
 }
 ```
 
-### Set Meta Data
+# Set Meta Data
 Finally, we set the meta data for the function, this is where we propagate thread-safe flags in the first pass. Also gets called from `SetCalculatedMetaDataAndFlags` in the second pass to catch skeleton class generation.
 
 `MD_ThreadSafe` is a specific metadata key that indicates whether a function is thread-safe. Thread safety means that a function can be safely called from multiple threads simultaneously without causing data corruption or unexpected behavior.
@@ -654,7 +654,7 @@ if (Context.EntryPoint->MetaData.bThreadSafe)
 }
 ```
 
-## Backend Emits Generated Code
+# Backend Emits Generated Code
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 The backends convert the collection of statements from each function context into code. There are two backends in use:
@@ -699,7 +699,7 @@ void FKismetCompilerVMBackend::GenerateCodeFromClass(UClass* SourceClass, TIndir
 }
 ```
 
-### Construct Function
+# Construct Function
 For each of the function, `ConstructFunction()` is called, by the comment of the function signature in codebase, it says `builds both the header declaration and body implementation of a function` But this might be a bit ambiguous, as it is actually generating the bytecode for the whole function. The process can be broken down into several steps:
 - Push the return address to the Flow Stack if necessary
 - Generate code for each statement in the linear execution list
@@ -781,7 +781,7 @@ void FKismetCompilerVMBackend::ConstructFunction(FKismetFunctionContext& Functio
 }
 ```
 
-#### Initialization
+# Initialization
 The function first retrieves the `UFunction` and the `UBlueprintGeneratedClass` from the `FunctionContext` as well as gets the function's name and stores it in `FunctionName`. It also hold a reference to the function script property.
 
 ```cpp
@@ -794,7 +794,7 @@ Function->GetName(FunctionName);
 TArray<uint8>& ScriptArray = Function->Script;
 ```
 
-#### Prepare Return Statement
+# Prepare Return Statement
 A return statement is created with type set to `KCST_Return`, and created a `ScriptWriter` for further processing, the `ScriptWriter`.
 
 ```cpp
@@ -804,10 +804,10 @@ ReturnStatement.Type = KCST_Return;
 FScriptBuilderBase ScriptWriter(ScriptArray, Class, Schema, UbergraphStatementLabelMap, bIsUbergraph, ReturnStatement);
 ```
 
-#### Generate Code for Each Statement
+# Generate Code for Each Statement
 if `bGenerateStubOnly` is true, then this process is simply skipped. Otherwise we will keep processing each function statements
 
-##### Push Return Address
+# Push Return Address
 Marks the `ReturnStatement` as a jump target, meaning other parts of the bytecode can jump to this point. If the function uses a flow stack (a stack-based execution flow), it pushes the return address onto the stack using `ScriptWriter`.
 
 ```cpp
@@ -818,7 +818,7 @@ if (FunctionContext.bUseFlowStack)
 }
 ```
 
-##### GenerateCodeForStatement()
+# GenerateCodeForStatement()
 Iterates through each statement in the function's linear execution list, and for each statement, it generates code for the statement using `ScriptWriter.GenerateCodeForStatement()`. If an error is raised during code generation, the function aborts code generation and reduces the function to a stub. We will expand this function later.
 
 ```cpp
@@ -854,7 +854,7 @@ for (int32 NodeIndex = 0; NodeIndex < FunctionContext.LinearExecutionList.Num();
 }
 ```
 
-##### Handle the Function Return Value
+# Handle the Function Return Value
 Generates code for the function return value using `ScriptWriter.GenerateCodeForStatement()`.
 
 ```cpp
@@ -862,7 +862,7 @@ Generates code for the function return value using `ScriptWriter.GenerateCodeFor
 ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, ReturnStatement, nullptr);
 ```
 
-#### Fix Up Jump Addresses
+# Fix Up Jump Addresses
 The primary role of `PerformFixups` is to resolve all placeholder jump addresses within the generated bytecode. During bytecode generation, jump instructions (like branches, loops, or function calls) may reference targets that are not yet known. These placeholders need to be "fixed up" with the correct bytecode offsets once all target addresses are determined. This function is fix up the jump address for the function. For more infomation on the `CommitSkip()` act on each `FBlueprintCompiledStatement`, check section "Fix Up End Goto Index" below.
 
 ```cpp
@@ -889,7 +889,7 @@ void PerformFixups()
 }
 ```
 
-#### Close Out the Script
+# Close Out the Script
 Just push in an `EX_EndOfScript` to mark the end of the script. `EX_EndOfScript` is a bytecode token, we will talk about them later.
 
 ```cpp
@@ -899,7 +899,7 @@ void CloseScript()
 }
 ```
 
-#### Save the Label Map Offsets in Ubergraph
+# Save the Label Map Offsets in Ubergraph
 If we are compiling a Ubergraph, we need to copy the statement map to the Ubergraph map, this is because the ubergraph is just a giant graph with a bunch of function stubs, when we return back from a statement, we need to know where to jump back to. So this essentially act as an offset of the each **jumpable** statement in the ubergraph.
 
 ```cpp
@@ -912,7 +912,7 @@ void CopyStatementMapToUbergraphMap()
 >We said "jumpable" because only those statements that are marked as `bIsJumpTarget` will be added to the `StatementLabelMap`, who fits into this criteria? In section "Push Return Address" we know that all return statements are having `bIsJumpTarget` marked true
 {: .prompt-info}
 
-### GenerateCodeForStatement() Deep Dive
+# GenerateCodeForStatement() Deep Dive
 We are only one step away from our final goal, the bytecode. Once we figured out the in and out of `GenerateCodeForStatement()`, we will have a clear understanding of how the bytecode is generated. Prepare for the final showdown!
 
 ```cpp
@@ -1190,7 +1190,7 @@ enum EExprToken : uint8
 };
 ```
 
-### EmitSwitchValue() Deep Dive
+# EmitSwitchValue() Deep Dive
 It would took probably another 10 posts to cover all the `EmitXXX` functions (So we aren't planning to do that :D), we are just gonna take a look at a simpler one, `EmitSwitchValue()`, since this is also the example we used in the [first post] when going through `FNodeHandlingFunctor` and `FBlueprintCompiledStatement`. As a refresher, here's briefly the `FBlueprintCompiledStatement` we've generated back then, note that we've pushed the value of the `IndexTerm`, `LiteralTerm` - `ValueTerm` Pair for all the options, and the `DefaultTerm`, all to the `RHS` (Right Hand Side) array of the `SelectStatement`.
 
 ```cpp
@@ -1215,7 +1215,7 @@ SelectStatement->RHS.Add(DefaultTerm);
 
 Since the statement type is `KCST_SwitchValue`, the `EmitSwitchValue()` will be called, and here's a walkthrough of how this statement gets compiled into bytecode:
 
-#### Prepare the Statement
+# Prepare the Statement
 First, we defined `TermsBeforeCases` and `TermsPerCase`, `TermsBeforeCases` is 1, because that's the `IndexTerm`, and `TermsPerCase` is 2, because that's the `LiteralTerm` and `ValueTerm` pair for each case.
 
 Then we will check the number of terms in the `RHS` array, it should at least have 4 terms, because we need at least 1 term for the `IndexTerm`, and 2 terms for at least 1 case, and 1 term for the default case. We also checks the modulo of the number of terms, it should always be an even number, because each case should have a pair of `LiteralTerm` and `ValueTerm`. And the `IndexTerm` and `DefaultTerm` already counted as 2 terms, so the total terms should always be an even number.
@@ -1236,14 +1236,14 @@ void EmitSwitchValue(FBlueprintCompiledStatement& Statement)
 }
 ```
 
-#### Emit the Switch EExprToken
+# Emit the Switch EExprToken
 First token gets pushed to the stream is an `EX_SwitchValue`, this is the switch statement expression.
 
 ```cpp
 Writer << EX_SwitchValue;
 ```
 
-#### Calculate the Number of Cases
+# Calculate the Number of Cases
 The calculation is pretty simple, out of all the `RHS` elements, we subtract the `IndexTerm` and `DefaultTerm`, then divide by `TermsPerCase` (2 in this case, as `LiteralTerm` and `ValueTerm`), the result is the number of cases.
 
 ```cpp
@@ -1252,7 +1252,7 @@ uint16 NumCases = IntCastChecked<uint16, int32>((Statement.RHS.Num() - 2) / Term
 Writer << NumCases;
 ```
 
-#### Emit End Goto Index
+# Emit End Goto Index
 This is a interesting step, this line actually pushes a placeholder to the ScriptBuffer's end, the idea for that is we need to store the actual size of the bytecode of the statement at the beginning, but at this moment it's impossible to know the actual value, so we just store -1 at the end, and later when the whole bytecode for the statement is generated, we can then patch up this value.
 
 ```cpp
@@ -1285,7 +1285,7 @@ E.g:
 
 Next, we are going to process the actual values from the `RHS` array, but there're two important concepts to cover: `EmitTerm()` and `EmitTermExpr()`, 
 
-##### Emit Term
+# Emit Term
 it took a `FBPTerminal`, however, it is possible that this `FBPTerminal` is a `InlineGeneratedParameter`, meaning we need to further expand it, hence another `GenerateCodeForStatement()` is called, this is a recursive process, and it will keep expanding until all the `InlineGeneratedParameter` are resolved.
 
 If this is not an `InlineGeneratedParameter`, then we will check if it's a `StructContextType`, if it is, we will emit a `EX_StructMemberContext` token, and then call `EmitTerm()` again with the `Context` of the `FBPTerminal`. This is also a recursive process, eventually, all the path should lead to a `EmitTermExpr()` function, which is the lowest level of the bytecode generation.
@@ -1339,7 +1339,7 @@ void EmitTerm(FBPTerminal* Term, const FProperty* CoerceProperty = NULL, FBPTerm
 }
 ```
 
-##### Emit Term Expr
+# Emit Term Expr
 But there are so many types of different value types, how do we generate the corresponding bytecode for them? Well if you are sensing another giant switch case... Yes.
 
 Eventually, a corresponding `EExprToken` will be pushed to the stream based on the term type, followed by the term value, if any. Here's a snippet of the `EmitTermExpr()` function:
@@ -1418,7 +1418,7 @@ void EmitTermExpr(FBPTerminal* Term, const FProperty* CoerceProperty = NULL, boo
 }
 ```
 
-#### Emit Index Term
+# Emit Index Term
 Next part is to get the `IndexTerm` at the `Statement.RHS[0]` and emit it to the stream. This is done by calling `EmitTerm()` function, which is a helper function to emit the bytecode for a `FBPTerminal`.
 
 ```cpp
@@ -1430,7 +1430,7 @@ FProperty* VirtualIndexProperty = IndexTerm->AssociatedVarProperty;
 check(VirtualIndexProperty);
 ```
 
-#### Emit Each Case
+# Emit Each Case
 For each case, we will push their `LiteralTerm` and `ValueTerm` to the stream:
 
 ```cpp
@@ -1444,7 +1444,7 @@ for (uint16 TermIndex = TermsBeforeCases; TermIndex < (NumCases * TermsPerCase);
 }
 ```
 
-#### Emit Default Term
+# Emit Default Term
 Afterwards, we will push the `DefaultTerm` to the stream, this is the last term in the `RHS` array, and it's always the default case.
 
 ```cpp
@@ -1456,7 +1456,7 @@ check(VirtualValueProperty);
 EmitTerm(DefaultTerm);
 ```
 
-#### Fix Up End Goto Index
+# Fix Up End Goto Index
 Finally, we will fix up the end go to addresses, since at this moment we already know the size of our function body, we can now replace the placeholder we pushed in the beginning with the actual bytecode offset.
 
 ```cpp
@@ -1482,10 +1482,10 @@ void CommitSkip(CodeSkipSizeType WriteOffset, CodeSkipSizeType NewValue)
 
 Since the `NewValue` is a `uint32`, but the `ScriptBuffer` is a `TArray<uint8>`, we need to split the `NewValue` into 4 bytes and write them to the `ScriptBuffer` accordingly. (Hence WriteOffset + 1, +2, +3)
 
-## Grab a Beer!
+# Grab a Beer!
 And that's it! We've successfully compiled a `KCST_SwitchValue` statement into bytecode! What an incredible journey! Grab a beer and celebrate! 🍻
 
-## Dive Even Deeper
+# Dive Even Deeper
 At this point, we should already have a clear idea of how the blueprint works: When we write logic in the blueprint graph, we are essentially orchestrate connections or flow or logics, these information were wrapped by their abstract representations - `UEdGraphNode`, in order to reconstruct this flow for execution, upon hitting `Compile` button, we need to disassemble the whole `UBlueprint` into some byte sized commands. Aside from properties, for each function and the `Ubergraph` we expand their corresponding lists of `UEdGraphNode`, then for each `UEdGraphNode` we feed in `FBPTerminal` via `UEdGraphNodePin` by calling `RegisterNets()`, they then gets compiled into `FBlueprintCompiledStatement` by their own `FNodeHandlingFunctor`. Finally, `FBlueprintCompiledStatement` gets parsed into bytecode by `FKismetCompilerVMBackend`. Final validation and serialization would happen, and our blueprint is ready to be executed by the VM.
 
 It makes sense but it might still feel a bit abstract, a real world example would be nice. In the next and last post in this series, we will walk through a simple blueprint example and inspect the bytecodes line by line and see how the magic flows.

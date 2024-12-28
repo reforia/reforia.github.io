@@ -14,23 +14,23 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-## Blueprint Bytecode Example
+# Blueprint Bytecode Example
 
-### Prerequisite
+## Prerequisite
 
-### Create a Blueprint Asset
+## Create a Blueprint Asset
 
-### Add a custom function
+## Add a custom function
 
-### Call the function in event graph
+## Call the function in event graph
 
-### Compile and Save
+## Compile and Save
 
-## Bytecode Analysis
+# Bytecode Analysis
 
-### Ubergraph
+## Ubergraph
 
-### CustomPrintString
+## CustomPrintString
 
-## Conclusion
+# Conclusion
 
