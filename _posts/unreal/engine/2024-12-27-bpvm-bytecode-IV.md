@@ -35,7 +35,7 @@ void FKismetCompilerContext::CompileFunctions(EInternalCompilerFlags InternalFla
 ```
 
 ## Generate Locals
-For each of the functions, we call `CreateLocalsAndRegisterNets()` on them. Which calls `RegisterNets()` As mentioned in the [first post], this basically tries to link input and output pin to a `FBPTerminal`, so that when the function is called, the input and output values can be passed in and out.
+For each of the functions, we call `CreateLocalsAndRegisterNets()` on them. Which calls `RegisterNets()` As mentioned in the [first post], this basically tries to link input and output pin to a `FBPTerminal`, so that when the function is compilee later, the input and output values can be passed from or to a concrete place.
 
 ```cpp
 if( bGenerateLocals )
@@ -96,11 +96,11 @@ void FKismetCompilerContext::CreateLocalsAndRegisterNets(FKismetFunctionContext&
 ```
 
 ## Create Execution Schedule
-One tiny but very important step in the above code is the `CreateExecutionSchedule()`, it performs a topological sort on the graph of nodes passed in (which is expected to form a DAG), scheduling them. If there are cycles or unconnected nodes present in the graph, an error will be output for each node that failed to be scheduled. The value is then stored in `Context.LinearExecutionList` for later use.
+One tiny but very important step in the above code is the `CreateExecutionSchedule()`, it performs a topological sort on the graph of nodes passed in (which is expected to form a `DAG`), then schedule them. If there are cycles or unconnected nodes present in the graph, an error will be output for each node that failed to be scheduled. The value is then stored in `Context.LinearExecutionList` for later use.
 
-The concept of DAG (Directed Acyclic Graph) is very important in computer science, it's a graph that has no cycles, which means you can't go from a node back to itself by following the edges. This is very important in the blueprint graph, as it ensures that the logic is executed in a linear order, and there are no circular dependencies.
+The concept of `DAG` (Directed Acyclic Graph) is very common in computer science, it's a graph that has no cycles, which means you can't go from a node back to itself by following the edges. This is very important in the blueprint graph, as it ensures that the logic is executed in a linear order, and there are no circular dependencies.
 
-For more information on DAG, you can check out the [DAG Wiki].
+For more information on `DAG`, you can check out the [DAG Wiki].
 
 ## Anatomy of CompileFunctions()
 ### Distinguish Skeleton Only Compile and Full Compile
@@ -188,9 +188,9 @@ void FKismetCompilerContext::PostcompileFunction(FKismetFunctionContext& Context
 {: .prompt-info }
 
 A couple of important steps gets executed in the `ResolveStatements()` function:
-- FinalSortLinearExecList
-- ResolveGoToFixups
-- MergeAdjacentStates
+- `FinalSortLinearExecList`
+- `ResolveGoToFixups`
+- `MergeAdjacentStates`
 
 ```cpp
 void FKismetFunctionContext::ResolveStatements()
@@ -222,9 +222,9 @@ Sort the linear execution list for the last time to ensure the correctness of ex
 - Finally, copy the sorted nodes back to `LinearExecutionList`
 
 #### ResolveGoToFixups
-Resolve any goto fixups in the function, mostly taking care of the end of execution chain. This is done by iterating over the statements and check if the current goto actually has a valid `TargetNode`, if not, then we have finished executing the function, so we either jump back to the return address (just like writing assembly code) or let the Flow Stack deal with it by `Pop` out the current execution frame.
+Resolve any goto fixups in the function, it basically just trying to figure out which kind of `Goto` we need to use here.
 
-The actual implementation for this last `Goto` involves replacing any `KCST_Goto` with the correct `KCST_GotoReturn` or `KCST_EndOfThread`, `KCST_GotoIfNot` gets replaced with corresponding `KCST_GotoReturnIfNot` or `KCST_EndOfThreadIfNot`. As mentioned before, the significance here is the usage of Flow Stack Execution. If Flow Stack Execution is not required, then `GotoReturn` is used instead of `EndOfThread`, vice versa. `EndOfThread` pops the Flow Stack, while `GotoReturn` does not.
+The actual implementation for this `Goto` involves replacing any `KCST_Goto` with the correct `KCST_GotoReturn` or `KCST_EndOfThread`, `KCST_GotoIfNot` gets replaced with corresponding `KCST_GotoReturnIfNot` or `KCST_EndOfThreadIfNot`. As mentioned before, the significance here is the usage of Flow Stack Execution. If Flow Stack Execution is not required, then `GotoReturn` is used instead of `EndOfThread`, vice versa. `EndOfThread` pops the Flow Stack, while `GotoReturn` does not.
 
 The `IfNot` suffix represents whether this is a `ConditionalGoto` or `UnconditionalGoto`. For an `UnconditionalGoto` we simply jump to the corresponding address, and for a `ConditionalGoto` we will check the condition first, if it's not met, then we jump to the corresponding address.
 
@@ -246,9 +246,9 @@ bool FKismetFunctionContext::DoesStatementRequiresFlowStack(const FBlueprintComp
 #### MergeAdjacentStates
 Merge adjacent states in the function. This is done by iterating over the statements and merging any adjacent `KCST_State` statements into a single `KCST_State` statement. There's a bit more than that, specifically, this function is concerning a special case of `KCST_Goto`, and a special case of `KCST_GotoReturn`
 
-Imagine we have a function A , it calls function B, then function C, when we compile it, the end of function B would have an unconditional `KCST_Goto` pointing at the address of C, but if C is right after B in the compiled code, this goto is completely unnecessary and can be removed, that's the first part of the optimization.
+Imagine we have a function A , it calls function B, which calls function C at the end, when we compile it, the end of function B would have an unconditional `KCST_Goto` pointing at the address of C, but if C is right after B in the compiled code, this goto is completely unnecessary and can be removed, that's the first part of the optimization.
 
-A second case is, if we are already at the end of a function, and the last `KCST` is an unconditional `KCST_GotoReturn`, and if no other code cares about this return address, then this state is also removed as redundant because the function would just naturally exit without it.
+A second case is, if we are already at the end of a function, and the last `KCST` is an unconditional `KCST_GotoReturn`, and if no other code cares about this return address, then this state is also removed as redundant because the function would just naturally exit and moving forward even without it.
 
 ### Broadcast Event and Save Intermediate Products
 Once that's done, we broadcast the event out, and then we just set the flags for the intermediate products if requested.
@@ -343,7 +343,7 @@ At this moment, we will wrap up the final few steps for the class compilation. W
 ```
 
 ### Generate Bytecode from FBlueprintCompiledStatement
-Follow up, we called the `Backend_VM` to parse the bytecode based from function's `FBlueprintCompiledStatement`, `GenerateCodeFromClass()` does the heavy lifting, more on this later.
+Follow up, we called the `Backend_VM` to generate the bytecode based from function's `FBlueprintCompiledStatement`, `GenerateCodeFromClass()` does the heavy lifting, more on this later.
 
 ```cpp
 // Always run the VM backend, it's needed for more than just debug printing
@@ -503,7 +503,7 @@ PostCompile();
 ## The Anatomy of CompileFunction()
 Obviously, the magic happens in `CompileFunction()`, which converts each function into several `FBlueprintCompiledStatement`. In the next batch (After all functions has been compiled) a BPVM Backend converts them to bytecode in another batch.
 
-In a big picture, the `CompileFunction()` function is responsible for generating statements for each node in the linear execution order, then pull out pure chains and inline their generated code into the nodes that need it. Finally, it propagates thread-safe flags in the first pass, and also gets called from `SetCalculatedMetaDataAndFlags` in the second pass to catch skeleton class generation.
+In a big picture, the `CompileFunction()` is responsible for generating statements for each node in the linear execution order, then pull out pure chains and inline their generated code into the nodes that need it. Finally, it propagates thread-safe flags.
 
 ```cpp
 void FKismetCompilerContext::CompileFunction(FKismetFunctionContext& Context)
@@ -663,7 +663,7 @@ The backends convert the collection of statements from each function context int
 - FKismetCppBackend - Emits C++-like code for debugging purposes only.
 </div>
 
-As introduced in the [first post] and in prior section "Generate Bytecode from FBlueprintCompiledStatement
+As introduced in the [first post] and in prior section "Generate Bytecode from `FBlueprintCompiledStatement`
 ". The code in question is:
 
 ```cpp
@@ -673,7 +673,7 @@ Backend_VM.GenerateCodeFromClass(NewClass, FunctionList, bGenerateStubsOnly);
 >Note: the `FKismetCppBackend` has been moved to it's own module and for debugging purpose only, we will just focus on the `FKismetCompilerVMBackend` here.
 {: .prompt-info}
 
-The implementation is not that complicated, it's just a loop through each function and call `ConstructFunction()` on them. Then we remove duplicates from `CalledFunctions` in the `UBlueprintGeneratedClass`.
+The implementation is not that complicated, it's just loop through each function and call `ConstructFunction()` on them. Then remove duplicates from `CalledFunctions` in the `UBlueprintGeneratedClass`.
 
 ```cpp
 //////////////////////////////////////////////////////////////////////////
@@ -700,7 +700,7 @@ void FKismetCompilerVMBackend::GenerateCodeFromClass(UClass* SourceClass, TIndir
 ```
 
 ### Construct Function
-For each of the function, `ConstructFunction()` is called, by the comment of the function signature in codebase, it says `builds both the header declaration and body implementation of a function` But this might be a bit ambiguous, as this function here is actually generating the bytecode for the function. The whole process can be broken down into several steps:
+For each of the function, `ConstructFunction()` is called, by the comment of the function signature in codebase, it says `builds both the header declaration and body implementation of a function` But this might be a bit ambiguous, as it is actually generating the bytecode for the whole function. The process can be broken down into several steps:
 - Push the return address to the Flow Stack if necessary
 - Generate code for each statement in the linear execution list
 - Handle the function return value
@@ -795,7 +795,7 @@ TArray<uint8>& ScriptArray = Function->Script;
 ```
 
 #### Prepare Return Statement
-A return statement is created with type set to `KCST_Return`, and created a `ScriptWriter` for further processing.
+A return statement is created with type set to `KCST_Return`, and created a `ScriptWriter` for further processing, the `ScriptWriter`.
 
 ```cpp
 FBlueprintCompiledStatement ReturnStatement;
@@ -890,7 +890,7 @@ void PerformFixups()
 ```
 
 #### Close Out the Script
-Just push in an `EX_EndOfScript` to mark the end of the script.
+Just push in an `EX_EndOfScript` to mark the end of the script. `EX_EndOfScript` is a bytecode token, we will talk about them later.
 
 ```cpp
 void CloseScript()
@@ -1062,7 +1062,7 @@ Yes, after all the hassle and head scratching days, it's just that simple: a gia
 - EmitCreateMapStatement
 - EmitCastStatement
 
-All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, while `EX_Int64Const` is an integer constant. (Usually an actual value of Int64 will be append after this type).
+All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, it does not mean the code will trigger a return here, but some other code will jump to this place, while `EX_Int64Const` is an integer constant. (Usually an actual value of Int64 will be append after this type).
 
 ```cpp
 //

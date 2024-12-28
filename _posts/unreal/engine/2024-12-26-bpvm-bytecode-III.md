@@ -145,6 +145,8 @@ Classes are compiled in place, which means the same `UBlueprintGeneratedClass` i
 
 From the code, the first half is quite simple: We try to extract important info like parent class from the `ClassToClean`, and we want to safely get rid of the old CDO.
 
+One important step here is `SetNewClass( ClassToClean );` at this moment, the `FKismetCompilerContext` is aware of the `UBlueprintGeneratedClass` that is going to be compiled. So that for the rest of the compilation, the data are correctly wrote to the `UBlueprintGeneratedClass`, rather than the `UBlueprint` object.
+
 >It's a common practice to just rename an existing object that takes `TransientPackage` as outer for a safe deletion, the object will be taken care of during next GC cycle.
 {: .prompt-tip }
 
