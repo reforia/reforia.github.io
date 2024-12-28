@@ -419,6 +419,11 @@ void FKismetCompilerContext::AddInterfacesFromBlueprint(UClass* Class)
 }
 ```
 
+<div class="box-info" markdown="1">
+<div class="title"> Good To Know </div>
+The `new (Class->Interfaces) FImplementedInterface(Interface, 0, true);` syntax is called placement new, it constructs an object at a specific memory location. In this case, it constructs an `FImplementedInterface` object at the `Class->Interfaces`.
+</div>
+
 ### Create Functions List
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
@@ -539,6 +544,9 @@ Processing of the event graphs is performed by the `CreateAndProcessUberGraph()`
 </div>
 
 The concept behind this step is simple: Designers might have created multiple event graph pages for better readability, but for the compiler, this is essentially meaningless. So, the natural approach is to merge them into one large graph, known as the `Ubergraph`. While we say "merge," in reality, a new graph is created, and all the nodes from the individual graphs are copied into this new graph.
+
+>Ever wondered why the `CreateAndProcessUbergraph()` is called under `CreateFunctionList()`? It's because the `Ubergraph` is just a giant function graph, and it's part of the function list. The following steps that works for functions will also be applied to the `Ubergraph`.
+{: .prompt-tip }
 
 ```cpp
 // Merges pages and creates function stubs, etc... from the ubergraph entry points

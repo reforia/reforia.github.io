@@ -103,7 +103,7 @@ The concept of DAG (Directed Acyclic Graph) is very important in computer scienc
 For more information on DAG, you can check out the [DAG Wiki].
 
 ## Anatomy of CompileFunctions()
-### Generate FBlueprintCompiledStatement for each Function
+### Distinguish Skeleton Only Compile and Full Compile
 Let's start with the simpler one, if this is not a full compile, then we just go through each function and call `FinishCompilingFunction()` on them. This is to set flags on the functions even for a skeleton class.
 
 >Note: `bIsFullCompile` might be a bit misleading here, basically, if this is false, then we are compiling a skeleton class
@@ -129,6 +129,7 @@ else
 }
 ```
 
+### Full Compile Process
 Now let's take a look at the `bIsFullCompile` path, simple enough, we just go through each function and call `CompileFunction()` on them. This is where the actual compilation happens. Then, we call `PostcompileFunction()` on them to finalize the function. Finally, we check if there are any `FMulticastDelegateProperty` that doesn't have a `SignatureFunction` set, and log a warning if so.
 
 ```cpp
@@ -161,6 +162,93 @@ for (TFieldIterator<FMulticastDelegateProperty> PropertyIt(NewClass); PropertyIt
     }
 }
 ```
+
+### Post Compile Function
+We will dive into `CompileFunction()` in the next section. So here let's skip it for now, assuming the compilation is done, `PostcompileFunction()` is called to finalize the function. This marks the final phase of compiling a function graph; It patches up cross-references, etc..., and performs final validation.
+
+```cpp
+/**
+ * Final phase of compiling a function graph; called after all functions have had CompileFunction called
+ *   - Patches up cross-references, etc..., and performs final validation
+ */
+void FKismetCompilerContext::PostcompileFunction(FKismetFunctionContext& Context)
+{
+    BP_SCOPED_COMPILER_EVENT_STAT(EKismetCompilerStats_PostcompileFunction);
+
+    // The function links gotos, sorts statments, and merges adjacent ones. 
+    Context.ResolveStatements();
+
+    //@TODO: Code generation (should probably call backend here, not later)
+
+    // Seal the function, it's done!
+    FinishCompilingFunction(Context);
+}
+```
+>The term "Seal" here means that we are setting the final metadata and flags on the function, passing this point, the function is considered done compiling.
+{: .prompt-info }
+
+A couple of important steps gets executed in the `ResolveStatements()` function:
+- FinalSortLinearExecList
+- ResolveGoToFixups
+- MergeAdjacentStates
+
+```cpp
+void FKismetFunctionContext::ResolveStatements()
+{
+    BP_SCOPED_COMPILER_EVENT_STAT(EKismetCompilerStats_ResolveCompiledStatements);
+    FinalSortLinearExecList();
+
+    static const FBoolConfigValueHelper OptimizeExecutionFlowStack(TEXT("Kismet"), TEXT("bOptimizeExecutionFlowStack"), GEngineIni);
+    if (OptimizeExecutionFlowStack)
+    {
+        bUseFlowStack = AllGeneratedStatements.ContainsByPredicate(&FKismetFunctionContext::DoesStatementRequiresFlowStack);
+    }
+
+    ResolveGotoFixups();
+
+    static const FBoolConfigValueHelper OptimizeAdjacentStates(TEXT("Kismet"), TEXT("bOptimizeAdjacentStates"), GEngineIni);
+    if (OptimizeAdjacentStates)
+    {
+        MergeAdjacentStates();
+    }
+}
+```
+
+#### FinalSortLinearExecList
+Sort the linear execution list for the last time to ensure the correctness of execution order, it's a complex function but here's briefly how it works:
+- Get rid of any null nodes as a cleanup
+- Copy all the nodes from `LinearExecutionList` to `UnsortedExecutionSet`
+- Iterate through the `UnsortedExecutionSet`, starting from the `EntryPoint` from the `FKismetFunctionContext` and then crawl through the whole chain, place `UnconditionalGoto` connected chains together, and also take care of `Branches`
+- Finally, copy the sorted nodes back to `LinearExecutionList`
+
+#### ResolveGoToFixups
+Resolve any goto fixups in the function, mostly taking care of the end of execution chain. This is done by iterating over the statements and check if the current goto actually has a valid `TargetNode`, if not, then we have finished executing the function, so we either jump back to the return address (just like writing assembly code) or let the Flow Stack deal with it by `Pop` out the current execution frame.
+
+The actual implementation for this last `Goto` involves replacing any `KCST_Goto` with the correct `KCST_GotoReturn` or `KCST_EndOfThread`, `KCST_GotoIfNot` gets replaced with corresponding `KCST_GotoReturnIfNot` or `KCST_EndOfThreadIfNot`. As mentioned before, the significance here is the usage of Flow Stack Execution. If Flow Stack Execution is not required, then `GotoReturn` is used instead of `EndOfThread`, vice versa. `EndOfThread` pops the Flow Stack, while `GotoReturn` does not.
+
+The `IfNot` suffix represents whether this is a `ConditionalGoto` or `UnconditionalGoto`. For an `UnconditionalGoto` we simply jump to the corresponding address, and for a `ConditionalGoto` we will check the condition first, if it's not met, then we jump to the corresponding address.
+
+The only question left is, who has the final say of whether we need to use Flow Stack Execution or not? The answer is `FKismetFunctionContext::DoesStatementRequiresFlowStack()`, if the current statement is `KCST_EndOfThreadIfNot`, `KCST_EndOfThread`, or `KCST_PushState`, then we need to use Flow Stack Execution. Which means the `FNodeHandlingFunctor` can have the freedom to decide whether to use Flow Stack Execution or not.
+
+```cpp
+bool FKismetFunctionContext::DoesStatementRequiresFlowStack(const FBlueprintCompiledStatement* Statement)
+{
+    return Statement && (
+        (Statement->Type == KCST_EndOfThreadIfNot) ||
+        (Statement->Type == KCST_EndOfThread) ||
+        (Statement->Type == KCST_PushState));
+}
+```
+
+>Note: The Goto we are talking about here is not a node that the designer can write in Blueprint, this concept is more close to assembly code where the code is jumping to another address.
+{: .prompt-info}
+
+#### MergeAdjacentStates
+Merge adjacent states in the function. This is done by iterating over the statements and merging any adjacent `KCST_State` statements into a single `KCST_State` statement. There's a bit more than that, specifically, this function is concerning a special case of `KCST_Goto`, and a special case of `KCST_GotoReturn`
+
+Imagine we have a function A , it calls function B, then function C, when we compile it, the end of function B would have an unconditional `KCST_Goto` pointing at the address of C, but if C is right after B in the compiled code, this goto is completely unnecessary and can be removed, that's the first part of the optimization.
+
+A second case is, if we are already at the end of a function, and the last `KCST` is an unconditional `KCST_GotoReturn`, and if no other code cares about this return address, then this state is also removed as redundant because the function would just naturally exit without it.
 
 ### Broadcast Event and Save Intermediate Products
 Once that's done, we broadcast the event out, and then we just set the flags for the intermediate products if requested.
@@ -303,7 +391,7 @@ EExprToken UStruct::SerializeExpr( int32& iCode, FArchive& Ar )
 }
 ```
 
-What?! At a glance this might be a bit confusing, but it's actually a clever way to serialize the expressions. The `#include` ensured the content are being embeded here inplace. Which means the actual implementation is done in this `UObject/ScriptSerialization.h` file. This is a very neat way to keep the code clean and organized, as well as reusability.
+What?! At a glance this might be a bit confusing, but it's actually a clever way to serialize the expressions. The `#include` ensured the content are being embedded here inplace. Which means the actual implementation is done in this `UObject/ScriptSerialization.h` file. This is a very neat way to keep the code clean and organized, as well as reusability.
 
 ### Generate Debug Bytecode
 At this moment, we already have all the bytecode generated, but as a human we can't read them, unless `bDisplayBytecode` is set to true, then we will disassemble the bytecode and print them out.
@@ -412,10 +500,9 @@ if (bIsFullCompile)
 PostCompile();
 ```
 
-## Generate FBlueprintCompiledStatement for each Function
+## The Anatomy of CompileFunction()
 Obviously, the magic happens in `CompileFunction()`, which converts each function into several `FBlueprintCompiledStatement`. In the next batch (After all functions has been compiled) a BPVM Backend converts them to bytecode in another batch.
 
-### The Anatomy of CompileFunction()
 In a big picture, the `CompileFunction()` function is responsible for generating statements for each node in the linear execution order, then pull out pure chains and inline their generated code into the nodes that need it. Finally, it propagates thread-safe flags in the first pass, and also gets called from `SetCalculatedMetaDataAndFlags` in the second pass to catch skeleton class generation.
 
 ```cpp
@@ -499,6 +586,8 @@ for (int32 i = 0; i < Context.LinearExecutionList.Num(); ++i)
 ### Inline Pure Nodes
 This step is concerned with pure nodes, it walk through the whole list, and divide them into two groups, one is the pure nodes, they are being pushed to the requirement list for other nodes. And for non pure nodes, they are doing the actual inlining of the pure nodes' code.
 
+A caveat here is: a pure node can depend on another pure node, in this case `Context.CopyAndPrependStatements(Node, NodeToInline);` will be called to inline the antecedent pure nodes' code.
+
 ```cpp
 // Now pull out pure chains and inline their generated code into the nodes that need it
 TMap< UEdGraphNode*, TSet<UEdGraphNode*> > PureNodesNeeded;
@@ -573,6 +662,46 @@ The backends convert the collection of statements from each function context int
 - FKismetCompilerVMBackend - Converts FKCS to UnrealScript VM bytecode which are then serialized into the function's script array.
 - FKismetCppBackend - Emits C++-like code for debugging purposes only.
 </div>
+
+As introduced in the [first post] and in prior section "Generate Bytecode from FBlueprintCompiledStatement
+". The code in question is:
+
+```cpp
+Backend_VM.GenerateCodeFromClass(NewClass, FunctionList, bGenerateStubsOnly);
+```
+
+>Note: the `FKismetCppBackend` has been moved to it's own module and for debugging purpose only, we will just focus on the `FKismetCompilerVMBackend` here.
+{: .prompt-info}
+
+The implementation is not that complicated, it's just a loop through each function and call `ConstructFunction()` on them. Then we remove duplicates from `CalledFunctions` in the `UBlueprintGeneratedClass`.
+
+```cpp
+//////////////////////////////////////////////////////////////////////////
+// FKismetCompilerVMBackend
+
+void FKismetCompilerVMBackend::GenerateCodeFromClass(UClass* SourceClass, TIndirectArray<FKismetFunctionContext>& Functions, bool bGenerateStubsOnly)
+{
+    // Generate script bytecode
+    for (int32 i = 0; i < Functions.Num(); ++i)
+    {
+        FKismetFunctionContext& Function = Functions[i];
+        if (Function.IsValid())
+        {
+            const bool bIsUbergraph = (i == 0);
+            ConstructFunction(Function, bIsUbergraph, bGenerateStubsOnly);
+        }
+    }
+
+    // Remove duplicates from CalledFunctions:
+    UBlueprintGeneratedClass* ClassBeingBuilt = CastChecked<UBlueprintGeneratedClass>(SourceClass);
+    TSet<UFunction*> Unique(ClassBeingBuilt->CalledFunctions);
+    ClassBeingBuilt->CalledFunctions = Unique.Array();
+}
+```
+
+### Construct Function
+
+
 
 ## Dive Even Deeper
 At this point, we should already have a clear concept of how the blueprint works: When we write logic in the blueprint graph, we are essentially orchestrate connections or flow or logics, these information were wrapped by their abstract representations - `UEdGraphNode`, in order to reconstruct this flow for execution, we need to disassemble the whole `UBlueprint` into some byte sized commands. Aside from properties, for each function and the `Ubergraph` we expand their corresponding lists of `UEdGraphNode`, then for each `UEdGraphNode` we feed in `FBPTerminal` via `UEdGraphNodePin` by calling `RegisterNets()`, they then gets compiled into `FBlueprintCompiledStatement` by their own `FNodeHandlingFunctor`. Finally, `FBlueprintCompiledStatement` gets parsed into bytecode by `FKismetCompilerVMBackend`.
