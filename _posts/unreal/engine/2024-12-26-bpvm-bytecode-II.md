@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Compile and Good to Go. From Blueprint to Bytecode - II"
+title: "From Blueprint to Bytecode II - Compile and Good to Go"
 description:
   "Despite the exhausted challenges faced in the chamber of terminologies, the adventurers managed to reach their bonfire. However, another monster is waiting in the darkness - Compilation"
 date: 2024-12-26 01:04 +0800

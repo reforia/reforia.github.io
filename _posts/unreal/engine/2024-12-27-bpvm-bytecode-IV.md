@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Road to the Root. From Blueprint to Bytecode - IV"
+title: "From Blueprint to Bytecode IV - Road to the Root"
 description:
     "There's only one last challenge left before we can finally see the bytecode, and that is to compile the functions. In this post, we will go through this very step."
 date: 2024-12-27 21:45 +0800

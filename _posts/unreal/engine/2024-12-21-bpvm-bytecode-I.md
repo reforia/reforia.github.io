@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "But what is Blueprint? From Blueprint to Bytecode - I"
+title: "From Blueprint to Bytecode I - But what is Blueprint? "
 description:
   Curiosity calls adventurers to embark towards an ancient castle - Blueprint. We've heard a lot about how to wield it's magical power over the decades. But little did we know what's actually beneath it. So buckle up, because we are going deep.
 date: 2024-12-21 18:27 +0800

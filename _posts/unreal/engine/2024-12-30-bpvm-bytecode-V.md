@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Bytecode. From Blueprint to Bytecode - V"
+title: "From Blueprint to Bytecode V - Bytecode"
 description:
   "Great enemies fallen, the adventurers moved forward. Deep down the castle, a humongous machine is working on countless tiny pieces. We are so close to the heart of the secret - Bytecode"
 date: 2024-12-30 23:04 +0800
