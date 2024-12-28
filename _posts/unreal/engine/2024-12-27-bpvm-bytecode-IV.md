@@ -5,7 +5,7 @@ description:
     "There's only one last challenge left before we can finally see the bytecode, and that is to compile the functions. In this post, we will go through this very step."
 date: 2024-12-27 21:45 +0800
 categories: [Unreal, Engine]
-published: false
+published: true
 tags: [Unreal, Engine, Blueprint]
 media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 ---
