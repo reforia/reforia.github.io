@@ -14,10 +14,10 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-# Story Continues
+## Story Continues
 In the last post, we explored the entire Blueprint compilation process, from hitting the `Compile` button to `Reinstancing` all instances. We briefly covered the actual stages of Blueprint compilation, so now let’s dive deeper into the details.
 
-# Class Compilation Kick off
+## Class Compilation Kick off
 At `Stage XII: COMPILE CLASS LAYOUT`, the compilation process begins with a call to `CompileClassLayout()`. However, before we get to the first step described by Epic in the official [document] (which is Clean and Sanitize Class), there are a few pre-compilation steps that need to be addressed:
 
 First, a `UEdGraphSchema` is created as part of the compilation process. This schema, which we covered in the [first post], defines the rules and conventions that govern how nodes and pins interact in a Blueprint graph.
@@ -137,7 +137,7 @@ for (int32 TimelineIndex = 0; TimelineIndex < Blueprint->Timelines.Num(); )
 
 After did all the above steps, the very next line is `CleanAndSanitizeClass()`
 
-# Clean and Sanitize Class
+## Clean and Sanitize Class
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 Classes are compiled in place, which means the same `UBlueprintGeneratedClass` is cleaned and reused over and over, so that pointers to the class do not have to be fixed up. `CleanAndSanitizeClass()` moves properties and functions off the class and into a trash class in the transient package, and then clears any data on the class.
@@ -270,7 +270,7 @@ if (bLayoutChanging)
 }
 ```
 
-# Set Class Metadata, then Validate
+## Set Class Metadata, then Validate
 Next, the flags for the `NewClass` are adjusted to match those of the parent class. Specifically, the `CLASS_Interface` flag is set if the Blueprint is an interface Blueprint, and the `CLASS_Const` flag is set if `bGenerateConstClass` is true.
 
 Afterward, the class type is validated, and any delegate proxy functions, along with their associated captured actor variables, are registered.
@@ -306,10 +306,10 @@ IKismetCompilerInterface& KismetCompilerModule = FModuleManager::LoadModuleCheck
 KismetCompilerModule.ValidateBPAndClassType(Blueprint, MessageLog);
 ```
 
-# Construct Class Layout
+## Construct Class Layout
 At this stage, the primary goal is to determine what the new Blueprint-edited class actually looks like. This process is similar to how the Unreal Header Tool (`UHT`) parses `.h` files and compiles them into a `.generated.h` file. We want to ensure that the class's metadata or skeleton is set up correctly. This involves creating the class variables, instances, and function lists.
 
-## Create Class Variables From Blueprint
+### Create Class Variables From Blueprint
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 The compiler iterates over the Blueprint's `NewVariables` array, as well as some other places (construction scripts, etc.) to find all of the `UProperties` needed by the class and then creates `UProperties` on the UClass's scope in the function `CreateClassVariablesFromBlueprint()`.
@@ -385,7 +385,7 @@ void FKismetCompilerContext::CreateClassVariablesFromBlueprint()
 }
 ```
 
-## Add Interface From Blueprint
+### Add Interface From Blueprint
 Next, if the Blueprint implements any interfaces, they need to be added as well. This is done by iterating over the `ImplementedInterfaces` array and adding each interface to the class.
 
 ```cpp
@@ -426,7 +426,7 @@ void FKismetCompilerContext::AddInterfacesFromBlueprint(UClass* Class)
 The `new (Class->Interfaces) FImplementedInterface(Interface, 0, true);` syntax is called placement new, it constructs an object at a specific memory location. In this case, it constructs an `FImplementedInterface` object at the `Class->Interfaces`.
 </div>
 
-## Create Functions List
+### Create Functions List
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 The compiler creates the function list for the class by processing the event graphs, processing the regular function graphs, and calls `PrecompileFunction()` for each context.
@@ -539,7 +539,7 @@ enum EBlueprintType : int
 ```
 </div>
 
-### Create and Process Ubergraph
+#### Create and Process Ubergraph
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 Processing of the event graphs is performed by the `CreateAndProcessUberGraph()` function. This copies all event graphs page into one big graph, after which nodes are given a chance to expand. Then, a function stub is created for each Event node in the graph, and an `FKismetFunctionContext` is created for each event graph.
@@ -713,7 +713,7 @@ if (ConsolidatedEventGraph->Nodes.Num())
 }
 ```
 
-### Process One Function Graph
+#### Process One Function Graph
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 Processing of the regular function graphs is done by the `ProcessOneFunctionGraph()` function, which duplicates each graph to a temporary graph where nodes are given a chance to expand. A `FKismetFunctionContext` is created for each function graph as well.
@@ -861,7 +861,7 @@ if (bInternalFunction)
 }
 ```
 
-### Precompile Function
+#### Precompile Function
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 Pre-compiling of the functions is handled by the `PrecompileFunction()` of each context. This function performs the following actions:
@@ -916,7 +916,7 @@ Although this is another huge function, the above description closely resonates 
 
 Now it concludes the `Construct Class Layout` phase, we have created the class variables, added interfaces, created and pre-processed the function list. It's time to bind and link them.
 
-# Bind and Link Class
+## Bind and Link Class
 <div class="box-info" markdown="1">
 <div class="title"> Epic's Definition </div>
 Now that the compiler is aware of all of the `UProperties` and `UFunctions` for the class, it can bind and link the class, which involves filling out the property chain, the property size, function map, etc. At this point, it essentially has a class header - minus the final flags and metadata - as well as a `Class Default Object (CDO)`.
@@ -934,13 +934,13 @@ for (UClass* ChildClass : ClassesToRelink)
 }
 ```
 
-## UClass::Bind()
+### UClass::Bind()
 The whole purpose of `Bind()` is to recursively find 3 things:
 - Class Constructor
 - Class VTable Helper Constructor
 - Cpp Class Static Functions
 
-## UClass::StaticLink()
+### UClass::StaticLink()
 `StaticLink()` is a wrapper that calls `UStruct::Link()` which creates the field/ property links and gets structure ready for use at runtime, including:
 - Binding properties (such as `FProperty` objects) to the associated class.
 - Relinking existing properties if necessary (`bRelinkExistingProperties`).
@@ -1018,7 +1018,7 @@ if (GetClass()->IsChildOf(UScriptStruct::StaticClass()))
 
 Finally, we just do some cleanup and conclude the `StaticLink()` function.
 
-# Take a Long Rest
+## Take a Long Rest
 Look how much we have covered! Virtually the "Header" of a class is ready, we just need to go through the actual implementation, and parse them into bytecode. This will be covered in the next post. As this post is already exhaustive enough. Take a long rest, and drink some potions!
 
 [document]: https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-compiler-overview?application_version=4.27

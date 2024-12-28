@@ -14,19 +14,19 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 
 {% include ue_engine_post_disclaimer.html %}
 
-# Preface
+## Preface
 Unreal Engine is renowned for its powerful visual scripting system—Blueprint (formerly `Kismet`). There are countless tutorials and guides available on how to use Blueprint, but fewer resources explain how it actually works behind the scenes. When we drag and drop nodes in the visual graph, hit the compile button, and see the “Good to go” message, it’s easy to think everything’s just ready to run. But what's really happening under the hood? How does the Blueprint Virtual Machine (`BPVM`) interpret and execute the graph? This series of posts will dig into these questions. So, buckle up and let’s dive in.
 
 ![Compile, Save and Good to go](bytecode_hitcompile.png){: width="500" }
 
-# Previous Researches
+## Previous Researches
 Epic has published a [document] that offers a brief overview of how the Blueprint compilation process works, but it only scratches the surface and doesn’t dive into the details. Fortunately, the community has contributed some great research as well. For BPVM, there’s the [Blueprint VM], and for Blueprint Compilation, there are [Blueprint I], [Blueprint II], and [Blueprint III].
 
 > Note: The blogs linked above are written in Chinese. For English readers, a translation tool like ChatGPT could be helpful. {: .prompt-tip}
 
 While these posts are high-quality and definitely worth reading, we’ll still walk through the key concepts and terminology in a more comprehensive way to establish a common understanding as we tackle the next challenges.
 
-# Blueprint System
+## Blueprint System
 When people talk about a "well-written Blueprint," they’re typically referring to the visual scripting graph created within the Blueprint Editor. Internally, this graph is managed by a `UEdGraph` object. However, it’s important to note that the graph (such as the Event Graph) is not the Blueprint Editor itself, but rather a part of it. The Blueprint Editor is a combination of multiple `UEdGraph`s, panels, tools, and more.
 
 To put it simply, creating a Blueprint Asset in the Content Browser starts with selecting a parent class and defining a new subclass through the Blueprint system. The Blueprint Editor lets us add functions and logic within `UEdGraph` instances and set up various properties. When we click the compile button in the editor, it triggers the compilation process, processing the content in the `UEdGraph` and encapsulating it into a reusable `UBlueprintGeneratedClass`. This class contains bytecode that the engine executes during runtime, ensuring that the behaviors and logic we’ve defined are integrated into the game.
@@ -37,7 +37,7 @@ _Blueprint System Overview_
 ![Blueprint Structure](bytecode_blueprintstructure.png)
 _Blueprint Structure (Source: [1])_ 
 
-## UBlueprint
+### UBlueprint
 When we create a new Blueprint based on a custom class type (e.g., `ACustomClass`) from the Content Browser, we’re actually creating a Blueprint Asset—more specifically, a `UBlueprint` object. This object exists solely within the editor environment. The resulting asset will have a `.uasset` file extension on disk, which is the serialized form of the `UBlueprint` object.
 
 Let's take a look at the code:
@@ -60,7 +60,7 @@ UBlueprint* FKismetEditorUtilities::CreateBlueprint(UClass* ParentClass, UObject
 
 When we call `FKismetEditorUtilities::CreateBlueprint()`, it immediately creates a `UBlueprint` instance and sets `NewBP->ParentClass` to the specified `ParentClass` (in this case, `ACustomClass`). This is why some documents describe the created Blueprint as a subclass of `ACustomClass`. However, this statement is technically incorrect. What actually happens is that a `UBlueprint` object is created, and it holds a pointer to `ParentClass` (i.e., `ACustomClass`), but it’s not a subclass of it.
 
-## UBlueprintGeneratedClass
+### UBlueprintGeneratedClass
 As mentioned earlier, when executing a Blueprint’s logic, we’re not running the `UBlueprint` object directly (since it only exists in the editor). Instead, we’re executing the compiled bytecode stored in a compiled version of the `UBlueprint` object, which is known as `UBlueprintGeneratedClass`.
 
 >Technically, the Blueprint Editor triggers the generation of the `UBlueprintGeneratedClass`, but that’s merely a placeholder. The actual compilation process is handled by `FKismetCompilerContext`, which compiles the visual scripting nodes into executable code (bytecode) and writes this back into the `UBlueprintGeneratedClass`.
@@ -112,7 +112,7 @@ UBlueprint* FKismetEditorUtilities::CreateBlueprint(UClass* ParentClass, UObject
 }
 ```
 
-## UEdGraph
+### UEdGraph
 An `UEdGraph` represents a graph, which is essentially a collection of nodes and connections. In the context of Blueprint, `UEdGraph` is used to represent the data within the visual scripting graph, such as the Event Graph, Function Graph, and Macro Graph. The `UEdGraph` manages the nodes and connections within the graph and provides the necessary interfaces for the Blueprint Editor to interact with it.
 
 `UEdGraph` has several subclasses, including `UAIGraph`, `UAnimationGraph`, `UAnimationStateMachineGraph`, `UMaterialGraph`, and more. Essentially, when you open an asset and see a space where you can drag and drop nodes, the underlying type is usually an `UEdGraph`.
@@ -122,7 +122,7 @@ It’s important to note that `UEdGraph` is just the representation of the graph
 ![UEdGraph](bytecode_uedgraph.png)
 _UEdGraph (Source: [1])_
 
-## UEdGraphNode
+### UEdGraphNode
 `UEdGraphNode` is a fundamental class that represents a node in an Unreal Engine graph. It is part of the graph's data structure and holds the logic and properties of individual nodes within the graph, whether it’s for Event Graphs, Function Graphs, or other types of graphs.
 
 Each `UEdGraphNode` contains the necessary logic and data to execute or represent an operation in the graph. For example, a node might represent a function call, a variable assignment, or an action like “Print String.”
@@ -137,7 +137,7 @@ Just like `UEdGraph`, `UEdGraphNode` also has a visual representation, which is 
 ![UEdGraphNode](bytecode_uedgraphnode.png)
 _UEdGraphNode (Source: [1])_
 
-## UEdGraphPin
+### UEdGraphPin
 `UEdGraphNode` maintains connections to other nodes through `UEdGraphPin` objects, which enable the flow of execution or data between nodes.
 
 A `UEdGraphPin` serves as a communication point between nodes. It can be either an input pin (where data flows into the node) or an output pin (where data flows out of the node).
@@ -146,7 +146,7 @@ Each pin can be connected to other pins, and the system enforces type compatibil
 
 Just like nodes, pins have a visual representation in the Blueprint Editor. Users can connect them using drag-and-drop interactions, which are managed by the `SGraphPin` class.
 
-## UEdGraphSchema
+### UEdGraphSchema
 `UEdGraphSchema` defines the rules and conventions for a specific type of graph. It essentially acts as a blueprint (literally) for how nodes and pins interact, providing a way to describe valid node connections, node actions, and ensuring the graph behaves as expected.
 
 Each type of graph (Blueprint, Animation, AI, etc.) has its own corresponding `UEdGraphSchema` subclass. For example:
@@ -159,7 +159,7 @@ The `UEdGraphSchema` can also define custom rules for creating and placing nodes
 ![UEdGraphSchema](bytecode_uedgraphschema.png)
 _UEdGraphSchema (Source: [1])_
 
-## FKismetCompilerContext
+### FKismetCompilerContext
 `FKismetCompilerContext` is the core class responsible for compiling a Blueprint graph into executable bytecode that the Blueprint Virtual Machine (VM) can interpret. This class is the main driver of the compilation process, handling tasks like node translation, validation, and generating the intermediate representation.
 
 The `FKismetCompilerContext` first translates the visual scripting graphs (represented as `UEdGraph`, `UEdGraphNode`, and others) into an intermediate format consisting of `FBlueprintCompiledStatement` objects. These statements will eventually be compiled into bytecode that the VM can execute. It manages the flow of the compilation process, ensuring that all nodes in the graph are correctly translated and connected.
@@ -167,12 +167,12 @@ The `FKismetCompilerContext` first translates the visual scripting graphs (repre
 ![FKismetCompilerContext](bytecode_fkismetcompilercontext.png)
 _FKismetCompilerContext (Source: [1])_
 
-## FKismetFunctionContext
+### FKismetFunctionContext
 `FKismetFunctionContext` represents the compilation context for a single function or graph within a Blueprint. It acts as a container for all the data needed to compile a specific function, such as variable definitions, control flow, and individual statements.
 
 The `FKismetFunctionContext` tracks the local state of a function during compilation, including variables, temporaries, and flow control structures. It ensures that all nodes within the function are translated into valid intermediate representations (`FBlueprintCompiledStatement`).
 
-## FBlueprintCompiledStatement
+### FBlueprintCompiledStatement
 `FBlueprintCompiledStatement` is an intermediate representation of a single executable operation within a Blueprint graph. In other words, a function can have multiple `FBlueprintCompiledStatement` objects.
 
 Each `FBlueprintCompiledStatement` represents a specific operation in the graph. These statements are generated during the compilation process and are later converted into VM bytecode. Below is a full list of `FBlueprintCompiledStatement` types from `BlueprintCompiledStatement.h`:
@@ -275,13 +275,13 @@ enum EKismetCompiledStatementType
 };
 ```
 
-## FBPTerminal
+### FBPTerminal
 `FBPTerminal` represents a variable or expression used within a `FBlueprintCompiledStatement`. It serves as a handle for data or objects in the Blueprint graph.
 
 ![FBPTerminal](bytecode_fbpterminal.png){: width="400"}
 _"Hello World" Literal FBPTerminal_
 
-## FNodeHandlingFunctor
+### FNodeHandlingFunctor
 `FNodeHandlingFunctor` is an abstraction used to handle the translation of specific node types during the compilation process. Each `UEdGraphNode` type has an associated `FNodeHandlingFunctor` that understands how to convert that node into an intermediate representation (`FBlueprintCompiledStatement`).
 
 ![FNodeHandlingFunctor](bytecode_fnodehandlingfunctor.png)
@@ -313,7 +313,7 @@ As shown above, `FKCHandle_Select` is associated with `UK2Node_Select`. It imple
 ![FKCHandler_Select](bytecode_selectnode.png){: width="400"}
 _Select Node_
 
-### RegisterNets()
+#### RegisterNets()
 `RegisterNets()` is responsible for registering the input and output pins of the node. It creates the necessary `FBPTerminal` objects to represent these pins. For example, if anything is connected to the options pin or the index pin, they are registered during this step. This function is called in both `PrecompileFunction()` and `CreateLocalsAndRegisterNets()`.
 
 ```cpp
@@ -380,7 +380,7 @@ void FKismetCompilerContext::CreateLocalsAndRegisterNets(FKismetFunctionContext&
 >Note: `EInternalCompilerFlags::PostponeLocalsGenerationUntilPhaseTwo` is passed to `CompileFunction()` in `FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl()`. `BlueprintCompilationManager` is a large topic in itself, so we won't dive into it here.
 {: .prompt-info}
 
-### Compile()
+#### Compile()
 The `Compile()` function is responsible for generating the intermediate representation (`FBlueprintCompiledStatement`) for the node, based on its input and output pins. Let's take a closer look:
 
 ```cpp
@@ -451,12 +451,12 @@ The `Compile()` function for the `SelectNode` essentially follows six steps:
 
 At this point, it’s clear that the `Compile()` function for the `SelectNode` creates a `FBlueprintCompiledStatement`, sets its type to `KCST_SwitchValue`, and then feeds all the necessary data into the `SelectStatement` object.
 
-## FBlueprintCompileReinstancer
+### FBlueprintCompileReinstancer
 `FBlueprintCompileReinstancer` is a utility class in Unreal Engine that helps with reinstancing objects when a Blueprint class is recompiled. Reinstancing is necessary because existing instances of a Blueprint class in the game world need to be updated to reflect the newly compiled version of the class.
 
 When a Blueprint class is recompiled, changes to its structure (such as new variables or altered logic) can cause the existing instances in the game world to become out of sync with the new class definition. The `FBlueprintCompileReinstancer` ensures that these instances are properly updated or replaced, preventing crashes or inconsistencies.
 
-## FKismetCompilerOptions
+### FKismetCompilerOptions
 `FKismetCompilerOptions` is a configuration class that defines various options and settings used during the Blueprint compilation process. It allows customization of how Blueprints are compiled, influencing behaviors like debugging, optimization, and error handling.
 
 `FKismetCompilerOptions` is passed to the `FKismetCompilerContext` to control specific aspects of the compilation process, such as whether debug information is generated or whether strict validation is enforced.
@@ -497,7 +497,7 @@ public:
 };
 ```
 
-## Skeleton Class
+### Skeleton Class
 A `Skeleton Class` is an intermediate representation of a Blueprint class used during the compilation process. It serves as a lightweight placeholder that contains only basic information about the class structure (such as variables and functions) but without full implementation details.
 
 >Think of the `SKEL` class as a more intelligent forward declaration or a header file. It is created before any bytecode is compiled and only provides metadata about the class structure. The key difference is that there’s no linkage process after compilation, unlike a traditional header file. 
@@ -507,14 +507,14 @@ The `Skeleton Class` exists to allow Blueprints to reference each other in a cyc
 
 When one Blueprint calls a function on another Blueprint class that hasn’t been fully compiled yet, the Skeleton Class is used to temporarily represent the target class.
 
-## CDO
+### CDO
 The Class Default Object (CDO) is a special instance of a class that serves as the archetype for all instances of that class. It is automatically created by Unreal Engine for every class, including Blueprint classes.
 
 The purpose of the `CDO` is to store the default property values and settings for the class. When a new instance of the class is created, it is initialized using the values stored in the `CDO`. In essence, the `CDO` represents the canonical state and configuration of the class by default.
 
 When you edit default properties in a Blueprint editor, you’re modifying the `CDO` of the class. Similarly, when you create an instance of a Blueprint, it inherits its properties from the `CDO`. If you edit a property of an instance and then choose to revert it, the modification is reset to the `CDO’s` values.
 
-# Bonfire Lit, What's Next?
+## Bonfire Lit, What's Next?
 Phew, that's a lot of information to digest. We've covered the basic structure of the Blueprint system, including:
 - `UBlueprint`
 - `UBlueprintGeneratedClass`
