@@ -700,15 +700,795 @@ void FKismetCompilerVMBackend::GenerateCodeFromClass(UClass* SourceClass, TIndir
 ```
 
 ### Construct Function
+For each of the function, `ConstructFunction()` is called, by the comment of the function signature in codebase, it says `builds both the header declaration and body implementation of a function` But this might be a bit ambiguous, as this function here is actually generating the bytecode for the function. The whole process can be broken down into several steps:
+- Push the return address to the Flow Stack if necessary
+- Generate code for each statement in the linear execution list
+- Handle the function return value
+- Fix up jump addresses
+- Close out the script
+- Save off the offsets within the ubergraph if the function to compile is an `Ubergraph`
 
+```cpp
+void FKismetCompilerVMBackend::ConstructFunction(FKismetFunctionContext& FunctionContext, bool bIsUbergraph, bool bGenerateStubOnly)
+{
+    UFunction* Function = FunctionContext.Function;
+    UBlueprintGeneratedClass* Class = FunctionContext.NewClass;
 
+    FString FunctionName;
+    Function->GetName(FunctionName);
+
+    TArray<uint8>& ScriptArray = Function->Script;
+
+    // Return statement, to push on FlowStack or to use with _GotoReturn
+    FBlueprintCompiledStatement ReturnStatement;
+    ReturnStatement.Type = KCST_Return;
+
+    FScriptBuilderBase ScriptWriter(ScriptArray, Class, Schema, UbergraphStatementLabelMap, bIsUbergraph, ReturnStatement);
+
+    if (!bGenerateStubOnly)
+    {
+        ReturnStatement.bIsJumpTarget = true;
+        if (FunctionContext.bUseFlowStack)
+        {
+            ScriptWriter.PushReturnAddress(ReturnStatement);
+        }
+    
+        // Emit code in the order specified by the linear execution list (the first node is always the entry point for the function)
+        for (int32 NodeIndex = 0; NodeIndex < FunctionContext.LinearExecutionList.Num(); ++NodeIndex)
+        {
+            UEdGraphNode* StatementNode = FunctionContext.LinearExecutionList[NodeIndex];
+            TArray<FBlueprintCompiledStatement*>* StatementList = FunctionContext.StatementsPerNode.Find(StatementNode);
+
+            if (StatementList != nullptr)
+            {
+                for (int32 StatementIndex = 0; StatementIndex < StatementList->Num(); ++StatementIndex)
+                {
+                    FBlueprintCompiledStatement* Statement = (*StatementList)[StatementIndex];
+
+                    ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, *Statement, StatementNode);
+
+                    // Abort code generation on error (no need to process additional statements).
+                    // ... Other Code
+                }
+            }
+
+            // Reduce to a stub if any errors were raised. This ensures the VM won't attempt to evaluate an incomplete expression.
+            // ... Other Code
+        }
+    }
+
+    // Handle the function return value
+    ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, ReturnStatement, nullptr);    
+
+    // Fix up jump addresses
+    ScriptWriter.PerformFixups();
+
+    // Close out the script
+    ScriptWriter.CloseScript();
+
+    // Save off the offsets within the ubergraph, needed to patch up the stubs later on
+    if (bIsUbergraph)
+    {
+        ScriptWriter.CopyStatementMapToUbergraphMap();
+    }
+
+    // Make sure we didn't overflow the maximum bytecode size
+#if SCRIPT_LIMIT_BYTECODE_TO_64KB
+    // ... Other Code
+#else
+    static_assert(sizeof(CodeSkipSizeType) == 4, "Update this code as size changed.");
+#endif
+}
+```
+
+#### Initialization
+The function first retrieves the `UFunction` and the `UBlueprintGeneratedClass` from the `FunctionContext` as well as gets the function's name and stores it in `FunctionName`. It also hold a reference to the function script property.
+
+```cpp
+UFunction* Function = FunctionContext.Function;
+UBlueprintGeneratedClass* Class = FunctionContext.NewClass;
+
+FString FunctionName;
+Function->GetName(FunctionName);
+
+TArray<uint8>& ScriptArray = Function->Script;
+```
+
+#### Prepare Return Statement
+A return statement is created with type set to `KCST_Return`, and created a `ScriptWriter` for further processing.
+
+```cpp
+FBlueprintCompiledStatement ReturnStatement;
+ReturnStatement.Type = KCST_Return;
+
+FScriptBuilderBase ScriptWriter(ScriptArray, Class, Schema, UbergraphStatementLabelMap, bIsUbergraph, ReturnStatement);
+```
+
+#### Generate Code for Each Statement
+if `bGenerateStubOnly` is true, then this process is simply skipped. Otherwise we will keep processing each function statements
+
+##### Push Return Address
+Marks the `ReturnStatement` as a jump target, meaning other parts of the bytecode can jump to this point. If the function uses a flow stack (a stack-based execution flow), it pushes the return address onto the stack using `ScriptWriter`.
+
+```cpp
+ReturnStatement.bIsJumpTarget = true;
+if (FunctionContext.bUseFlowStack)
+{
+    ScriptWriter.PushReturnAddress(ReturnStatement);
+}
+```
+
+##### GenerateCodeForStatement()
+Iterates through each statement in the function's linear execution list, and for each statement, it generates code for the statement using `ScriptWriter.GenerateCodeForStatement()`. If an error is raised during code generation, the function aborts code generation and reduces the function to a stub. We will expand this function later.
+
+```cpp
+// Emit code in the order specified by the linear execution list (the first node is always the entry point for the function)
+for (int32 NodeIndex = 0; NodeIndex < FunctionContext.LinearExecutionList.Num(); ++NodeIndex)
+{
+    UEdGraphNode* StatementNode = FunctionContext.LinearExecutionList[NodeIndex];
+    TArray<FBlueprintCompiledStatement*>* StatementList = FunctionContext.StatementsPerNode.Find(StatementNode);
+
+    if (StatementList != nullptr)
+    {
+        for (int32 StatementIndex = 0; StatementIndex < StatementList->Num(); ++StatementIndex)
+        {
+            FBlueprintCompiledStatement* Statement = (*StatementList)[StatementIndex];
+
+            ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, *Statement, StatementNode);
+
+            // Abort code generation on error (no need to process additional statements).
+            if (FunctionContext.MessageLog.NumErrors > 0)
+            {
+                break;
+            }
+        }
+    }
+
+    // Reduce to a stub if any errors were raised. This ensures the VM won't attempt to evaluate an incomplete expression.
+    if (FunctionContext.MessageLog.NumErrors > 0)
+    {
+        ScriptArray.Empty();
+        ReturnStatement.bIsJumpTarget = false;
+        break;
+    }
+}
+```
+
+##### Handle the Function Return Value
+Generates code for the function return value using `ScriptWriter.GenerateCodeForStatement()`.
+
+```cpp
+// Handle the function return value
+ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, ReturnStatement, nullptr);
+```
+
+#### Fix Up Jump Addresses
+The primary role of `PerformFixups` is to resolve all placeholder jump addresses within the generated bytecode. During bytecode generation, jump instructions (like branches, loops, or function calls) may reference targets that are not yet known. These placeholders need to be "fixed up" with the correct bytecode offsets once all target addresses are determined. This function is fix up the jump address for the function. For more infomation on the `CommitSkip()` act on each `FBlueprintCompiledStatement`, check section "Fix Up End Goto Index" below.
+
+```cpp
+// Fix up all jump targets
+void PerformFixups()
+{
+    for (TMap<CodeSkipSizeType, FCodeSkipInfo>::TIterator It(JumpTargetFixupMap); It; ++It)
+    {
+        CodeSkipSizeType OffsetToFix = It.Key();
+        FCodeSkipInfo& CodeSkipInfo = It.Value();
+
+        CodeSkipSizeType TargetStatementOffset = StatementLabelMap.FindChecked(CodeSkipInfo.TargetLabel);
+
+        Writer.CommitSkip(OffsetToFix, TargetStatementOffset);
+
+        if (CodeSkipInfo.Type == FCodeSkipInfo::InstrumentedDelegateFixup)
+        {
+            // Register delegate entrypoint offsets
+            ClassBeingBuilt->GetDebugData().RegisterEntryPoint(TargetStatementOffset, CodeSkipInfo.DelegateName);
+        }
+    }
+
+    JumpTargetFixupMap.Empty();
+}
+```
+
+#### Close Out the Script
+Just push in an `EX_EndOfScript` to mark the end of the script.
+
+```cpp
+void CloseScript()
+{
+    Writer << EX_EndOfScript;
+}
+```
+
+#### Save the Label Map Offsets in Ubergraph
+If we are compiling a Ubergraph, we need to copy the statement map to the Ubergraph map, this is because the ubergraph is just a giant graph with a bunch of function stubs, when we return back from a statement, we need to know where to jump back to. So this essentially act as an offset of the each **jumpable** statement in the ubergraph.
+
+```cpp
+void CopyStatementMapToUbergraphMap()
+{
+    UbergraphStatementLabelMap = StatementLabelMap;
+}
+```
+
+>We said "jumpable" because only those statements that are marked as `bIsJumpTarget` will be added to the `StatementLabelMap`, who fits into this criteria? In section "Push Return Address" we know that all return statements are having `bIsJumpTarget` marked true
+{: .prompt-info}
+
+### GenerateCodeForStatement() Deep Dive
+We are only one step away from our final goal, the bytecode. Once we figured out the in and out of `GenerateCodeForStatement()`, we will have a clear understanding of how the bytecode is generated. Prepare for the final showdown!
+
+```cpp
+void GenerateCodeForStatement(FKismetCompilerContext& CompilerContext, FKismetFunctionContext& FunctionContext, FBlueprintCompiledStatement& Statement, UEdGraphNode* SourceNode)
+{
+    TGuardValue<FKismetCompilerContext*> CompilerContextGuard(CurrentCompilerContext, &CompilerContext);
+    TGuardValue<FKismetFunctionContext*> FunctionContextGuard(CurrentFunctionContext, &FunctionContext);
+
+    // Record the start of this statement in the bytecode if it's needed as a target label
+    if (Statement.bIsJumpTarget)
+    {
+        StatementLabelMap.Add(&Statement, Writer.ScriptBuffer.Num());
+    }
+
+    // Generate bytecode for the statement
+    switch (Statement.Type)
+    {
+    case KCST_Nop:
+        Writer << EX_Nothing;
+        break;
+    case KCST_CallFunction:
+        EmitFunctionCall(CompilerContext, FunctionContext, Statement, SourceNode);
+        break;
+    case KCST_CallDelegate:
+        EmitCallDelegate(Statement);
+        break;
+    case KCST_Assignment:
+        EmitAssignmentStatment(Statement);
+        break;
+    case KCST_AssignmentOnPersistentFrame:
+        EmitAssignmentOnPersistentFrameStatment(Statement);
+        break;
+    case KCST_CastObjToInterface:
+        EmitCastObjToInterfaceStatement(Statement);
+        break;
+    case KCST_CrossInterfaceCast:
+        EmitCastBetweenInterfacesStatement(Statement);
+        break;
+    case KCST_CastInterfaceToObj:
+        EmitCastInterfaceToObjStatement(Statement);
+        break;
+    case KCST_DynamicCast:
+        EmitDynamicCastStatement(Statement);
+        break;
+    case KCST_MetaCast:
+        EmitMetaCastStatement(Statement);
+        break;
+    case KCST_ObjectToBool:
+        EmitObjectToBoolStatement(Statement);
+        break;
+    case KCST_AddMulticastDelegate:
+        EmitAddMulticastDelegateStatement(Statement);
+        break;
+    case KCST_RemoveMulticastDelegate:
+        EmitRemoveMulticastDelegateStatement(Statement);
+        break;
+    case KCST_BindDelegate:
+        EmitBindDelegateStatement(Statement);
+        break;
+    case KCST_ClearMulticastDelegate:
+        EmitClearMulticastDelegateStatement(Statement);
+        break;
+    case KCST_CreateArray:
+        EmitCreateArrayStatement(Statement);
+        break;
+    case KCST_ComputedGoto:
+    case KCST_UnconditionalGoto:
+    case KCST_GotoIfNot:
+    case KCST_EndOfThreadIfNot:
+    case KCST_GotoReturn:
+    case KCST_GotoReturnIfNot:
+        EmitGoto(Statement);
+        break;
+    case KCST_PushState:
+        EmitPushExecState(Statement);
+        break;
+    case KCST_EndOfThread:
+        EmitPopExecState(Statement);
+        break;
+    case KCST_Comment:
+        // VM ignores comments
+        break;
+    case KCST_Return:
+        EmitReturn(FunctionContext);
+        break;
+    case KCST_SwitchValue:
+        EmitSwitchValue(Statement);
+        break;
+    case KCST_DebugSite:
+    case KCST_WireTraceSite:
+    case KCST_InstrumentedEvent:
+    case KCST_InstrumentedEventStop:
+    case KCST_InstrumentedWireEntry:
+    case KCST_InstrumentedWireExit:
+    case KCST_InstrumentedStatePush:
+    case KCST_InstrumentedStateReset:
+    case KCST_InstrumentedStateSuspend:
+    case KCST_InstrumentedStatePop:
+    case KCST_InstrumentedStateRestore:
+    case KCST_InstrumentedPureNodeEntry:
+    case KCST_InstrumentedTunnelEndOfThread:
+        EmitInstrumentation(CompilerContext, FunctionContext, Statement, SourceNode);
+        break;
+    case KCST_ArrayGetByRef:
+        EmitArrayGetByRef(Statement);
+        break;
+    case KCST_CreateSet:
+        EmitCreateSetStatement(Statement);
+        break;
+    case KCST_CreateMap:
+        EmitCreateMapStatement(Statement);
+        break;
+    case KCST_DoubleToFloatCast:
+    case KCST_FloatToDoubleCast:
+        EmitCastStatement(Statement);
+        break;
+    default:
+        UE_LOG(LogK2Compiler, Warning, TEXT("VM backend encountered unsupported statement type %d"), (int32)Statement.Type);
+    }
+}
+```
+
+Yes, after all the hassle and head scratching days, it's just that simple: a giant switch case, covered all the possible `FBlueprintCompiledStatement` types, and then call the corresponding function to emit the bytecode. Remember in the official document this step is called "Backend Emits Generated Code"? This is exactly why - all the bytecode is generated from a "EmitXXX" function, each mapped to one or more `FBlueprintCompiledStatement`. Here's a full list of them:
+- EmitFunctionCall
+- EmitCallDelegate
+- EmitAssignmentStatment
+- EmitAssignmentOnPersistentFrameStatment
+- EmitCastObjToInterfaceStatement
+- EmitCastBetweenInterfacesStatement
+- EmitCastInterfaceToObjStatement
+- EmitDynamicCastStatement
+- EmitMetaCastStatement
+- EmitObjectToBoolStatement
+- EmitAddMulticastDelegateStatement
+- EmitRemoveMulticastDelegateStatement
+- EmitBindDelegateStatement
+- EmitClearMulticastDelegateStatement
+- EmitCreateArrayStatement
+- EmitGoto
+- EmitPushExecState
+- EmitPopExecState
+- EmitReturn
+- EmitSwitchValue
+- EmitInstrumentation
+- EmitArrayGetByRef
+- EmitCreateSetStatement
+- EmitCreateMapStatement
+- EmitCastStatement
+
+All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, while `EX_Int64Const` is an integer constant. (Usually an actual value of Int64 will be append after this type).
+
+```cpp
+//
+// Evaluatable expression item types.
+//
+enum EExprToken : uint8
+{
+    // Variable references.
+    EX_LocalVariable        = 0x00,    // A local variable.
+    EX_InstanceVariable        = 0x01,    // An object variable.
+    EX_DefaultVariable        = 0x02, // Default variable for a class context.
+    //                        = 0x03,
+    EX_Return                = 0x04,    // Return from function.
+    //                        = 0x05,
+    EX_Jump                    = 0x06,    // Goto a local address in code.
+    EX_JumpIfNot            = 0x07,    // Goto if not expression.
+    //                        = 0x08,
+    EX_Assert                = 0x09,    // Assertion.
+    //                        = 0x0A,
+    EX_Nothing                = 0x0B,    // No operation.
+    EX_NothingInt32            = 0x0C, // No operation with an int32 argument (useful for debugging script disassembly)
+    //                        = 0x0D,
+    //                        = 0x0E,
+    EX_Let                    = 0x0F,    // Assign an arbitrary size value to a variable.
+    //                        = 0x10,
+    EX_BitFieldConst        = 0x11, // assign to a single bit, defined by an FProperty
+    EX_ClassContext            = 0x12,    // Class default object context.
+    EX_MetaCast             = 0x13, // Metaclass cast.
+    EX_LetBool                = 0x14, // Let boolean variable.
+    EX_EndParmValue            = 0x15,    // end of default value for optional function parameter
+    EX_EndFunctionParms        = 0x16,    // End of function call parameters.
+    EX_Self                    = 0x17,    // Self object.
+    EX_Skip                    = 0x18,    // Skippable expression.
+    EX_Context                = 0x19,    // Call a function through an object context.
+    EX_Context_FailSilent    = 0x1A, // Call a function through an object context (can fail silently if the context is NULL; only generated for functions that don't have output or return values).
+    EX_VirtualFunction        = 0x1B,    // A function call with parameters.
+    EX_FinalFunction        = 0x1C,    // A prebound function call with parameters.
+    EX_IntConst                = 0x1D,    // Int constant.
+    EX_FloatConst            = 0x1E,    // Floating point constant.
+    EX_StringConst            = 0x1F,    // String constant.
+    EX_ObjectConst            = 0x20,    // An object constant.
+    EX_NameConst            = 0x21,    // A name constant.
+    EX_RotationConst        = 0x22,    // A rotation constant.
+    EX_VectorConst            = 0x23,    // A vector constant.
+    EX_ByteConst            = 0x24,    // A byte constant.
+    EX_IntZero                = 0x25,    // Zero.
+    EX_IntOne                = 0x26,    // One.
+    EX_True                    = 0x27,    // Bool True.
+    EX_False                = 0x28,    // Bool False.
+    EX_TextConst            = 0x29, // FText constant
+    EX_NoObject                = 0x2A,    // NoObject.
+    EX_TransformConst        = 0x2B, // A transform constant
+    EX_IntConstByte            = 0x2C,    // Int constant that requires 1 byte.
+    EX_NoInterface            = 0x2D, // A null interface (similar to EX_NoObject, but for interfaces)
+    EX_DynamicCast            = 0x2E,    // Safe dynamic class casting.
+    EX_StructConst            = 0x2F, // An arbitrary UStruct constant
+    EX_EndStructConst        = 0x30, // End of UStruct constant
+    EX_SetArray                = 0x31, // Set the value of arbitrary array
+    EX_EndArray                = 0x32,
+    EX_PropertyConst        = 0x33, // FProperty constant.
+    EX_UnicodeStringConst   = 0x34, // Unicode string constant.
+    EX_Int64Const            = 0x35,    // 64-bit integer constant.
+    EX_UInt64Const            = 0x36,    // 64-bit unsigned integer constant.
+    EX_DoubleConst            = 0x37, // Double constant.
+    EX_Cast                    = 0x38,    // A casting operator which reads the type as the subsequent byte
+    EX_SetSet                = 0x39,
+    EX_EndSet                = 0x3A,
+    EX_SetMap                = 0x3B,
+    EX_EndMap                = 0x3C,
+    EX_SetConst                = 0x3D,
+    EX_EndSetConst            = 0x3E,
+    EX_MapConst                = 0x3F,
+    EX_EndMapConst            = 0x40,
+    EX_Vector3fConst        = 0x41,    // A float vector constant.
+    EX_StructMemberContext    = 0x42, // Context expression to address a property within a struct
+    EX_LetMulticastDelegate    = 0x43, // Assignment to a multi-cast delegate
+    EX_LetDelegate            = 0x44, // Assignment to a delegate
+    EX_LocalVirtualFunction    = 0x45, // Special instructions to quickly call a virtual function that we know is going to run only locally
+    EX_LocalFinalFunction    = 0x46, // Special instructions to quickly call a final function that we know is going to run only locally
+    //                        = 0x47, // CST_ObjectToBool
+    EX_LocalOutVariable        = 0x48, // local out (pass by reference) function parameter
+    //                        = 0x49, // CST_InterfaceToBool
+    EX_DeprecatedOp4A        = 0x4A,
+    EX_InstanceDelegate        = 0x4B,    // const reference to a delegate or normal function object
+    EX_PushExecutionFlow    = 0x4C, // push an address on to the execution flow stack for future execution when a EX_PopExecutionFlow is executed.   Execution continues on normally and doesn't change to the pushed address.
+    EX_PopExecutionFlow        = 0x4D, // continue execution at the last address previously pushed onto the execution flow stack.
+    EX_ComputedJump            = 0x4E,    // Goto a local address in code, specified by an integer value.
+    EX_PopExecutionFlowIfNot = 0x4F, // continue execution at the last address previously pushed onto the execution flow stack, if the condition is not true.
+    EX_Breakpoint            = 0x50, // Breakpoint.  Only observed in the editor, otherwise it behaves like EX_Nothing.
+    EX_InterfaceContext        = 0x51,    // Call a function through a native interface variable
+    EX_ObjToInterfaceCast   = 0x52,    // Converting an object reference to native interface variable
+    EX_EndOfScript            = 0x53, // Last byte in script code
+    EX_CrossInterfaceCast    = 0x54, // Converting an interface variable reference to native interface variable
+    EX_InterfaceToObjCast   = 0x55, // Converting an interface variable reference to an object
+    //                        = 0x56,
+    //                        = 0x57,
+    //                        = 0x58,
+    //                        = 0x59,
+    EX_WireTracepoint        = 0x5A, // Trace point.  Only observed in the editor, otherwise it behaves like EX_Nothing.
+    EX_SkipOffsetConst        = 0x5B, // A CodeSizeSkipOffset constant
+    EX_AddMulticastDelegate = 0x5C, // Adds a delegate to a multicast delegate's targets
+    EX_ClearMulticastDelegate = 0x5D, // Clears all delegates in a multicast target
+    EX_Tracepoint            = 0x5E, // Trace point.  Only observed in the editor, otherwise it behaves like EX_Nothing.
+    EX_LetObj                = 0x5F,    // assign to any object ref pointer
+    EX_LetWeakObjPtr        = 0x60, // assign to a weak object pointer
+    EX_BindDelegate            = 0x61, // bind object and name to delegate
+    EX_RemoveMulticastDelegate = 0x62, // Remove a delegate from a multicast delegate's targets
+    EX_CallMulticastDelegate = 0x63, // Call multicast delegate
+    EX_LetValueOnPersistentFrame = 0x64,
+    EX_ArrayConst            = 0x65,
+    EX_EndArrayConst        = 0x66,
+    EX_SoftObjectConst        = 0x67,
+    EX_CallMath                = 0x68, // static pure function from on local call space
+    EX_SwitchValue            = 0x69,
+    EX_InstrumentationEvent    = 0x6A, // Instrumentation event
+    EX_ArrayGetByRef        = 0x6B,
+    EX_ClassSparseDataVariable = 0x6C, // Sparse data variable
+    EX_FieldPathConst        = 0x6D,
+    //                        = 0x6E,
+    //                        = 0x6F,
+    EX_AutoRtfmTransact     = 0x70, // AutoRTFM: run following code in a transaction
+    EX_AutoRtfmStopTransact = 0x71, // AutoRTFM: if in a transaction, abort or break, otherwise no operation
+    EX_AutoRtfmAbortIfNot   = 0x72, // AutoRTFM: evaluate bool condition, abort transaction on false
+    EX_Max                    = 0xFF,
+};
+```
+
+### EmitSwitchValue() Deep Dive
+It would took probably another 10 posts to cover all the `EmitXXX` functions (So we aren't planning to do that :D), we are just gonna take a look at a simpler one, `EmitSwitchValue()`, since this is also the example we used in the [first post] when going through `FNodeHandlingFunctor` and `FBlueprintCompiledStatement`. As a refresher, here's briefly the `FBlueprintCompiledStatement` we've generated back then, note that we've pushed the value of the `IndexTerm`, `LiteralTerm` - `ValueTerm` Pair for all the options, and the `DefaultTerm`, all to the `RHS` (Right Hand Side) array of the `SelectStatement`.
+
+```cpp
+FBlueprintCompiledStatement* SelectStatement = new FBlueprintCompiledStatement();
+SelectStatement->Type = EKismetCompiledStatementType::KCST_SwitchValue;
+Context.AllGeneratedStatements.Add(SelectStatement);
+ReturnTerm->InlineGeneratedParameter = SelectStatement;
+SelectStatement->RHS.Add(IndexTerm);
+
+// ... Other Code
+for (int32 OptionIdx = 0; OptionIdx < OptionPins.Num(); ++OptionIdx)
+{
+    // ... Other Code
+    SelectStatement->RHS.Add(LiteralTerm);
+
+    // ... Other Code
+    SelectStatement->RHS.Add(ValueTerm);
+}
+
+SelectStatement->RHS.Add(DefaultTerm);
+```
+
+Since the statement type is `KCST_SwitchValue`, the `EmitSwitchValue()` will be called, and here's a walkthrough of how this statement gets compiled into bytecode:
+
+#### Prepare the Statement
+First, we defined `TermsBeforeCases` and `TermsPerCase`, `TermsBeforeCases` is 1, because that's the `IndexTerm`, and `TermsPerCase` is 2, because that's the `LiteralTerm` and `ValueTerm` pair for each case.
+
+Then we will check the number of terms in the `RHS` array, it should at least have 4 terms, because we need at least 1 term for the `IndexTerm`, and 2 terms for at least 1 case, and 1 term for the default case. We also checks the modulo of the number of terms, it should always be an even number, because each case should have a pair of `LiteralTerm` and `ValueTerm`. And the `IndexTerm` and `DefaultTerm` already counted as 2 terms, so the total terms should always be an even number.
+
+```cpp
+void EmitSwitchValue(FBlueprintCompiledStatement& Statement)
+{
+    const int32 TermsBeforeCases = 1;
+    const int32 TermsPerCase = 2;
+
+    if ((Statement.RHS.Num() < 4) || (1 == (Statement.RHS.Num() % 2)))
+    {
+        // Error
+        ensure(false);
+    }
+
+    // ... Other Code
+}
+```
+
+#### Emit the Switch EExprToken
+First token gets pushed to the stream is an `EX_SwitchValue`, this is the switch statement expression.
+
+```cpp
+Writer << EX_SwitchValue;
+```
+
+#### Calculate the Number of Cases
+The calculation is pretty simple, out of all the `RHS` elements, we subtract the `IndexTerm` and `DefaultTerm`, then divide by `TermsPerCase` (2 in this case, as `LiteralTerm` and `ValueTerm`), the result is the number of cases.
+
+```cpp
+// number of cases (without default)
+uint16 NumCases = IntCastChecked<uint16, int32>((Statement.RHS.Num() - 2) / TermsPerCase);
+Writer << NumCases;
+```
+
+#### Emit End Goto Index
+This is a interesting step, this line actually pushes a placeholder to the ScriptBuffer's end, the idea for that is we need to store the actual size of the bytecode of the statement at the beginning, but at this moment it's impossible to know the actual value, so we just store -1 at the end, and later when the whole bytecode for the statement is generated, we can then patch up this value.
+
+```cpp
+CodeSkipSizeType PatchUpNeededAtOffset = Writer.EmitPlaceholderSkip();
+
+//--------------------------------------------------------------------------------------------
+CodeSkipSizeType EmitPlaceholderSkip()
+{
+    CodeSkipSizeType Result = ScriptBuffer.Num();
+
+    CodeSkipSizeType Placeholder = -1;
+    (*this) << Placeholder;
+
+    return Result;
+}
+```
+<div class="box-info" markdown="1">
+<div class="title"> Important </div>
+Note: This `CodeSkipSizeType Placeholder = -1;` has a value of 32bit (`CodeSkipSizeType` is an alias of uint32) however, the `ScriptBuffer` is a `TArray<uint8>`, so we are actually pushing 4 elements of `0xFF` to the stream, not just a single `-1` value.
+
+E.g:
+- Original `ScriptBuffer`: `[0x00, 0x01, 0x02, 0x03]`
+- `CodeSkipSizeType currentOffset = EmitPlaceholderSkip();`
+  - `CodeSkipSizeType Result = ScriptBuffer.Num(); // Result = 4`
+  - `CodeSkipSizeType Placeholder = -1; // Placeholder = 0xFFFFFFFF`
+  - `(*this) << Placeholder; // Appends 0xFF, 0xFF, 0xFF, 0xFF to ScriptBuffer`
+  - `return Result; // Returns 4`
+- New `ScriptBuffer`: `[0x00, 0x01, 0x02, 0x03, 0xFF, 0xFF, 0xFF, 0xFF]`
+</div>
+
+Next, we are going to process the actual values from the `RHS` array, but there're two important concepts to cover: `EmitTerm()` and `EmitTermExpr()`, 
+
+##### Emit Term
+it took a `FBPTerminal`, however, it is possible that this `FBPTerminal` is a `InlineGeneratedParameter`, meaning we need to further expand it, hence another `GenerateCodeForStatement()` is called, this is a recursive process, and it will keep expanding until all the `InlineGeneratedParameter` are resolved.
+
+If this is not an `InlineGeneratedParameter`, then we will check if it's a `StructContextType`, if it is, we will emit a `EX_StructMemberContext` token, and then call `EmitTerm()` again with the `Context` of the `FBPTerminal`. This is also a recursive process, eventually, all the path should lead to a `EmitTermExpr()` function, which is the lowest level of the bytecode generation.
+
+```cpp
+void EmitTerm(FBPTerminal* Term, const FProperty* CoerceProperty = NULL, FBPTerminal* RValueTerm = NULL)
+{
+    if (Term->InlineGeneratedParameter)
+    {
+        ensure(!Term->InlineGeneratedParameter->bIsJumpTarget);
+        auto TermSourceAsNode = Cast<UEdGraphNode>(Term->Source);
+        auto TermSourceAsPin = Term->SourcePin;
+        UEdGraphNode* SourceNode = TermSourceAsNode ? TermSourceAsNode
+            : (TermSourceAsPin ? TermSourceAsPin->GetOwningNodeUnchecked() : nullptr);
+        if (ensure(CurrentCompilerContext && CurrentFunctionContext))
+        {
+            GenerateCodeForStatement(*CurrentCompilerContext, *CurrentFunctionContext, *Term->InlineGeneratedParameter, SourceNode);
+        }
+    }
+    else if (Term->Context == NULL)
+    {
+        EmitTermExpr(Term, CoerceProperty);
+    }
+    else
+    {
+        if (Term->Context->IsStructContextType())
+        {
+            check(Term->AssociatedVarProperty);
+
+            Writer << EX_StructMemberContext;
+            Writer << Term->AssociatedVarProperty;
+
+            // Now run the context expression
+            EmitTerm(Term->Context, NULL);
+        }
+        else
+        {
+            // If this is the top of the chain this context, then save it off the r-value and pass it down the chain so we can safely handle runtime null contexts
+            if( RValueTerm == NULL )
+            {
+                RValueTerm = Term;
+            }
+
+            FContextEmitter CallContextWriter(*this);
+            FProperty* RValueProperty = RValueTerm->AssociatedVarProperty;
+            CallContextWriter.TryStartContext(Term->Context, /*@TODO: bUnsafeToSkip*/ true, /*bIsInterfaceContext*/ false, RValueProperty);
+
+            EmitTermExpr(Term, CoerceProperty);
+        }
+    }
+}
+```
+
+##### Emit Term Expr
+But there are so many types of different value types, how do we generate the corresponding bytecode for them? Well if you are sensing another giant switch case... Yes.
+
+Eventually, a corresponding `EExprToken` will be pushed to the stream based on the term type, followed by the term value, if any. Here's a snippet of the `EmitTermExpr()` function:
+
+```cpp
+void EmitTermExpr(FBPTerminal* Term, const FProperty* CoerceProperty = NULL, bool bAllowStaticArray = false, bool bCallerRequiresBit = false)
+{
+    if (Term->bIsLiteral)
+    {
+        // ... Other Code for validation
+        if (FLiteralTypeHelper::IsString(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsText(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsFloat(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsDouble(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsInt(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsInt64(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsUInt64(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsByte(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsBoolean(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsName(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsStruct(&Term->Type, CoerceProperty))
+        {...}
+        else if (const FArrayProperty* ArrayPropr = CastField<FArrayProperty>(CoerceProperty))
+        {...}
+        else if (const FSetProperty* SetPropr = CastField<FSetProperty>(CoerceProperty))
+        {...}
+        else if (const FMapProperty* MapPropr = CastField<FMapProperty>(CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsDelegate(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsSoftObject(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsFieldPath(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsObject(&Term->Type, CoerceProperty) || FLiteralTypeHelper::IsClass(&Term->Type, CoerceProperty))
+        {...}
+        else if (FLiteralTypeHelper::IsInterface(&Term->Type, CoerceProperty))
+        {...}
+        else if (!CoerceProperty && Term->Type.PinCategory.IsNone() && (Term->Type.PinSubCategory == UEdGraphSchema_K2::PN_Self))
+        {...}
+        // else if (CoerceProperty->IsA(FMulticastDelegateProperty::StaticClass()))
+        // Cannot assign a literal to a multicast delegate; it should be added instead of assigned
+        else
+        {...}
+    }
+    else
+    {
+        if (Term->IsDefaultVarTerm())
+        {
+            Writer << EX_DefaultVariable;
+        }
+        else if (Term->IsLocalVarTerm())
+        {
+            Writer << (Term->AssociatedVarProperty->HasAnyPropertyFlags(CPF_OutParm) ? EX_LocalOutVariable : EX_LocalVariable);
+        }
+        else if (Term->IsSparseClassDataVarTerm())
+        {
+            Writer << EX_ClassSparseDataVariable;
+        }
+        else
+        {
+            Writer << EX_InstanceVariable;
+        }
+        Writer << Term->AssociatedVarProperty;
+    }
+}
+```
+
+#### Emit Index Term
+Next part is to get the `IndexTerm` at the `Statement.RHS[0]` and emit it to the stream. This is done by calling `EmitTerm()` function, which is a helper function to emit the bytecode for a `FBPTerminal`.
+
+```cpp
+// index term
+auto IndexTerm = Statement.RHS[0];
+check(IndexTerm);
+EmitTerm(IndexTerm);
+FProperty* VirtualIndexProperty = IndexTerm->AssociatedVarProperty;
+check(VirtualIndexProperty);
+```
+
+#### Emit Each Case
+For each case, we will push their `LiteralTerm` and `ValueTerm` to the stream:
+
+```cpp
+for (uint16 TermIndex = TermsBeforeCases; TermIndex < (NumCases * TermsPerCase); ++TermIndex)
+{
+    EmitTerm(Statement.RHS[TermIndex], VirtualIndexProperty); // it's a literal value
+    ++TermIndex;
+    CodeSkipSizeType PatchOffsetToNextCase = Writer.EmitPlaceholderSkip();
+    EmitTerm(Statement.RHS[TermIndex], VirtualValueProperty);  // it could be literal for 'self'
+    Writer.CommitSkip(PatchOffsetToNextCase, Writer.ScriptBuffer.Num());
+}
+```
+
+#### Emit Default Term
+Afterwards, we will push the `DefaultTerm` to the stream, this is the last term in the `RHS` array, and it's always the default case.
+
+```cpp
+auto DefaultTerm = Statement.RHS[TermsBeforeCases + NumCases*TermsPerCase];
+check(DefaultTerm);
+FProperty* VirtualValueProperty = DefaultTerm->AssociatedVarProperty;
+check(VirtualValueProperty);
+
+EmitTerm(DefaultTerm);
+```
+
+#### Fix Up End Goto Index
+Finally, we will fix up the end go to addresses, since at this moment we already know the size of our function body, we can now replace the placeholder we pushed in the beginning with the actual bytecode offset.
+
+```cpp
+Writer.CommitSkip(PatchUpNeededAtOffset, Writer.ScriptBuffer.Num());
+
+// --------------------------------------------------------------------------------------------
+void CommitSkip(CodeSkipSizeType WriteOffset, CodeSkipSizeType NewValue)
+{
+    //@TODO: Any endian issues?
+#if SCRIPT_LIMIT_BYTECODE_TO_64KB
+    static_assert(sizeof(CodeSkipSizeType) == 2, "Update this code as size changed.");
+    ScriptBuffer[WriteOffset] = NewValue & 0xFF;
+    ScriptBuffer[WriteOffset+1] = (NewValue >> 8) & 0xFF;
+#else
+    static_assert(sizeof(CodeSkipSizeType) == 4, "Update this code as size changed.");
+    ScriptBuffer[WriteOffset] = NewValue & 0xFF;
+    ScriptBuffer[WriteOffset+1] = (NewValue >> 8) & 0xFF;
+    ScriptBuffer[WriteOffset+2] = (NewValue >> 16) & 0xFF;
+    ScriptBuffer[WriteOffset+3] = (NewValue >> 24) & 0xFF;
+#endif
+}
+```
+
+Since the `NewValue` is a `uint32`, but the `ScriptBuffer` is a `TArray<uint8>`, we need to split the `NewValue` into 4 bytes and write them to the `ScriptBuffer` accordingly. (Hence WriteOffset + 1, +2, +3)
+
+## Grab a Beer!
+And that's it! We've successfully compiled a `KCST_SwitchValue` statement into bytecode! What an incredible journey! Grab a beer and celebrate! 🍻
 
 ## Dive Even Deeper
-At this point, we should already have a clear concept of how the blueprint works: When we write logic in the blueprint graph, we are essentially orchestrate connections or flow or logics, these information were wrapped by their abstract representations - `UEdGraphNode`, in order to reconstruct this flow for execution, we need to disassemble the whole `UBlueprint` into some byte sized commands. Aside from properties, for each function and the `Ubergraph` we expand their corresponding lists of `UEdGraphNode`, then for each `UEdGraphNode` we feed in `FBPTerminal` via `UEdGraphNodePin` by calling `RegisterNets()`, they then gets compiled into `FBlueprintCompiledStatement` by their own `FNodeHandlingFunctor`. Finally, `FBlueprintCompiledStatement` gets parsed into bytecode by `FKismetCompilerVMBackend`.
+At this point, we should already have a clear idea of how the blueprint works: When we write logic in the blueprint graph, we are essentially orchestrate connections or flow or logics, these information were wrapped by their abstract representations - `UEdGraphNode`, in order to reconstruct this flow for execution, upon hitting `Compile` button, we need to disassemble the whole `UBlueprint` into some byte sized commands. Aside from properties, for each function and the `Ubergraph` we expand their corresponding lists of `UEdGraphNode`, then for each `UEdGraphNode` we feed in `FBPTerminal` via `UEdGraphNodePin` by calling `RegisterNets()`, they then gets compiled into `FBlueprintCompiledStatement` by their own `FNodeHandlingFunctor`. Finally, `FBlueprintCompiledStatement` gets parsed into bytecode by `FKismetCompilerVMBackend`. Final validation and serialization would happen, and our blueprint is ready to be executed by the VM.
 
-It makes sense but it's still a bit abstract, a real world example would be nice for comprehension. In the next post, we will walk through a simple blueprint and find out line by line how its bytecode works.
-
-
+It makes sense but it might still feel a bit abstract, a real world example would be nice. In the next and last post in this series, we will walk through a simple blueprint example and inspect the bytecodes line by line and see how the magic flows.
 
 [first post]: https://jaydengames.com/posts/bpvm-bytecode-I/
 [DAG Wiki]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
