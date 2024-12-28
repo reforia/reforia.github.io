@@ -1,9 +1,15 @@
 <mxfile host="65bd71144e">
     <diagram id="jK-o0WApMAdQ0l7wVcRw" name="Page-1">
-        <mxGraphModel dx="765" dy="629" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1598" dy="662" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
+                <mxCell id="71" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="68" target="62">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="68" value="Reinstance" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+                    <mxGeometry x="1090" y="710" width="190" height="120" as="geometry"/>
+                </mxCell>
                 <mxCell id="8" value="" style="edgeStyle=none;html=1;endArrow=open;endFill=0;dashed=1;" parent="1" source="2" target="7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
@@ -95,14 +101,14 @@
                 <mxCell id="43" value="Process Event Graphs" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1110" y="310" width="150" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="67" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="45" target="62">
+                <mxCell id="67" value="" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="45" target="68">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="45" value="Compile Functions" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" parent="1" vertex="1">
-                    <mxGeometry x="1090" y="540" width="190" height="180" as="geometry"/>
+                    <mxGeometry x="1090" y="540" width="190" height="140" as="geometry"/>
                 </mxCell>
                 <mxCell id="47" value="Finish Compiling Class" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1110" y="670" width="150" height="30" as="geometry"/>
+                    <mxGeometry x="1110" y="630" width="150" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="53" value="" style="edgeStyle=none;html=1;endArrow=open;endFill=0;" parent="1" source="49" target="52" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -128,20 +134,19 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="58" value="Backend Generate Bytecode" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1110" y="620" width="150" height="30" as="geometry"/>
+                    <mxGeometry x="1110" y="580" width="150" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="63" value="" style="edgeStyle=none;html=1;endArrow=open;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="60" target="58" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="1185" y="620"/>
-                        </Array>
-                    </mxGeometry>
+                <mxCell id="70" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="60" target="69">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="60" value="Copy CDO Properties" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1110" y="570" width="150" height="30" as="geometry"/>
+                    <mxGeometry x="1110" y="740" width="150" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="62" value="Reinst Existing Instances" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1110" y="750" width="150" height="30" as="geometry"/>
+                    <mxGeometry x="1380" y="755" width="150" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="69" value="Reinstance Class" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="1110" y="790" width="150" height="30" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

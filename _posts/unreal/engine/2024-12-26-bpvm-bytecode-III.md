@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Tear Apart a Class. From Blueprint to Bytecode - III"
+title: "Tear a Class Apart. From Blueprint to Bytecode - III"
 description:
   "Series of stages were presented to the adventurers from the void, each leads to the next. A few of them were more shiny than the others - Class Compilation"
 date: 2024-12-26 14:50 +0800
@@ -15,12 +15,12 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 {% include ue_engine_post_disclaimer.html %}
 
 ## Story Continues
-In the last post, we walked through the whole skeleton of compilation process, from hitting the `Compile` button all the way to the `Reinstancing` for all instances. We briefly went through the actual stages of a blueprint compilation, so now let's explore from there.
+In the last post, we explored the entire Blueprint compilation process, from hitting the `Compile` button to `Reinstancing` all instances. We briefly covered the actual stages of Blueprint compilation, so now let’s dive deeper into the details.
 
 ## Class Compilation Kick off
-At Stage XII: COMPILE CLASS LAYOUT, the compiler kicks of the process by calling `CompileClassLayout()`. Before we reached the first step described by Epic in the official [document] (Clean and Sanitize Class), there're actually a few pre-compile steps missing:
+At `Stage XII: COMPILE CLASS LAYOUT`, the compilation process begins with a call to `CompileClassLayout()`. However, before we get to the first step described by Epic in the official [document] (which is Clean and Sanitize Class), there are a few pre-compilation steps that need to be addressed:
 
-First, a `UEdGraphSchema` is created for the compilation process, which was explained in the [first post].
+First, a `UEdGraphSchema` is created as part of the compilation process. This schema, which we covered in the [first post], defines the rules and conventions that govern how nodes and pins interact in a Blueprint graph.
 
 ```cpp
 void FKismetCompilerContext::CompileClassLayout(EInternalCompilerFlags InternalFlags)
@@ -40,7 +40,7 @@ void FKismetCompilerContext::CompileClassLayout(EInternalCompilerFlags InternalF
 }
 ```
 
-Then, it checks if the parent class is valid, and try to facilitate a usable `UBlueprintGeneratedClass` to use, a new instance is created if there's none exist. The `Blueprint->GeneratedClass` pointer is then updated to the new class. 
+Next, the compiler checks if the parent class is valid. If necessary, it creates a usable `UBlueprintGeneratedClass`. If no such class exists, a new instance is created. The `Blueprint->GeneratedClass` pointer is then updated to reference the newly created class.
 
 ```cpp
 // Make sure the parent class exists and can be used
@@ -103,7 +103,7 @@ if (GetAllowNativeComponentClassOverrides())
 }
 ```
 
-Finally, we cache the old CDO and linker, and clean up the blueprint's timeline array if any timeline is invalid.
+Finally, we cache the old `CDO` and linker, and clean up the blueprint's timeline array if any timeline is invalid.
 
 ```cpp
 OldCDO = NULL;
@@ -269,9 +269,9 @@ if (bLayoutChanging)
 ```
 
 ## Set Class Metadata, then Validate
-Moving on, we flip the flags for the `NewClass` to match the parent class, and set the `CLASS_Interface` flag if the blueprint is an interface blueprint. We also set the `CLASS_Const` flag if `bGenerateConstClass` is true.
+Next, the flags for the `NewClass` are adjusted to match those of the parent class. Specifically, the `CLASS_Interface` flag is set if the Blueprint is an interface Blueprint, and the `CLASS_Const` flag is set if `bGenerateConstClass` is true.
 
-Then, we validate the class type and register any delegate proxy functions and their captured actor variables.
+Afterward, the class type is validated, and any delegate proxy functions, along with their associated captured actor variables, are registered.
 
 ```cpp
 NewClass->ClassGeneratedBy = Blueprint;
@@ -305,7 +305,7 @@ KismetCompilerModule.ValidateBPAndClassType(Blueprint, MessageLog);
 ```
 
 ## Construct Class Layout
-At this moment, all we want to do is just to figure out what this new blueprint edited class actually looks like, it's quite similar to how `UHT` parses the .h file and compile them into a `.generated.h` file, we also want to make sure metadata or skeleton of this class gets set properly. This mainly involves creating class variables, instances, and function lists.
+At this stage, the primary goal is to determine what the new Blueprint-edited class actually looks like. This process is similar to how the Unreal Header Tool (`UHT`) parses `.h` files and compiles them into a `.generated.h` file. We want to ensure that the class's metadata or skeleton is set up correctly. This involves creating the class variables, instances, and function lists.
 
 ### Create Class Variables From Blueprint
 <div class="box-info" markdown="1">
@@ -313,7 +313,7 @@ At this moment, all we want to do is just to figure out what this new blueprint 
 The compiler iterates over the Blueprint's `NewVariables` array, as well as some other places (construction scripts, etc.) to find all of the `UProperties` needed by the class and then creates `UProperties` on the UClass's scope in the function `CreateClassVariablesFromBlueprint()`.
 </div>
 
-The `RegisterClassDelegateProxiesFromBlueprint()` searches the function graphs and Event Graph pages for any delegate proxies, which are then registered with the compiler context. If a "captured" variable is needed, then a new property will be added to the current class. In this context, a captured variable is any target actor that the delegate will be called on.
+The `RegisterClassDelegateProxiesFromBlueprint()` function scans both the function graphs and the Event Graph for any delegate proxies. These proxies are then registered with the compiler context. If a "captured" variable is required, a new property is added to the current class. In this context, a captured variable refers to any target actor that the delegate will be called on.
 
 `CreateClassVariableFromBlueprint()` creates a class variable for each entry in the Blueprint `NewVars` array.
 
@@ -325,7 +325,7 @@ The `RegisterClassDelegateProxiesFromBlueprint()` searches the function graphs a
     CreateClassVariablesFromBlueprint();
 ```
 
-But there's a bit more to it, we also need to add the timeline instances and simple construction script components to the class. This is done by iterating over the timelines and simple construction script nodes and creating a class property for each one.
+There’s a bit more involved here. We also need to add the timeline instances and simple construction script components to the class. This is accomplished by iterating over the timelines and simple construction script nodes, creating a class property for each one.
 
 ```cpp
 void FKismetCompilerContext::CreateClassVariablesFromBlueprint()
@@ -384,7 +384,7 @@ void FKismetCompilerContext::CreateClassVariablesFromBlueprint()
 ```
 
 ### Add Interface From Blueprint
-Next, if our blueprint implements any interfaces, we sure need to add them as well. This is done by iterating over the `ImplementedInterfaces` array and adding each interface to the class.
+Next, if the Blueprint implements any interfaces, they need to be added as well. This is done by iterating over the `ImplementedInterfaces` array and adding each interface to the class.
 
 ```cpp
 // Add any interfaces that the blueprint implements to the class
@@ -538,7 +538,7 @@ enum EBlueprintType : int
 Processing of the event graphs is performed by the `CreateAndProcessUberGraph()` function. This copies all event graphs page into one big graph, after which nodes are given a chance to expand. Then, a function stub is created for each Event node in the graph, and an `FKismetFunctionContext` is created for each event graph.
 </div>
 
-The concept of this step is simple: Designers may have created a bunch of event graph pages for readability, but this is completely meaningless for the compiler, so it's a natural thought to merge them into one big graph and just process them at the same place - `Ubergraph`. We said "merge", but in reality, a new graph is created and all the nodes from their own graphs are copied to this new graph.
+The concept behind this step is simple: Designers might have created multiple event graph pages for better readability, but for the compiler, this is essentially meaningless. So, the natural approach is to merge them into one large graph, known as the `Ubergraph`. While we say "merge," in reality, a new graph is created, and all the nodes from the individual graphs are copied into this new graph.
 
 ```cpp
 // Merges pages and creates function stubs, etc... from the ubergraph entry points
@@ -631,10 +631,10 @@ if(!Blueprint->HasAnyFlags(RF_NeedLoad|RF_NeedPostLoad))
 Blueprint->EventGraphs.Empty();
 ```
 
-A dummy entry point is added to the `Ubergraph`, setup the function signature, and allocate default pins. This is the actual entry point for execution.
+A dummy entry point is added to the `Ubergraph`, setting up the function signature and allocating default pins. This serves as the actual entry point for execution.
 
-After that, we call `ExpansionStep()` to expand all the nodes in the `Ubergraph`,
-This involves crawling through the graph from root and ditch out isolated nodes that are not connected to anything executable. Then for the rest of them, we "expand" them out (like get rid of the wrappers, do special operations for special nodes like `UK2Node_Knot`), for each `UEdGraphNode`, we also take care of their `UEdGraphPin`, a few optimizations of adding or removing pins are done here. In short, each nodes get's a chance to further expand themselves from a designer friendly node to a more compiler friendly node.
+Next, we call `ExpansionStep()` to expand all the nodes in the `Ubergraph`. This involves traversing the graph from the root, removing any isolated nodes that aren't connected to anything executable. For the remaining nodes, we "expand" them—this includes removing unnecessary wrappers and performing special operations for specific nodes like `UK2Node_Knot`. Additionally, we handle the `UEdGraphPin` objects for each `UEdGraphNode`, optimizing the addition or removal of pins where necessary. In short, this step gives each node a chance to evolve from a designer-friendly state into a more compiler-friendly one.
+
 
 ```cpp
 if (ConsolidatedEventGraph->Nodes.Num())
@@ -686,9 +686,9 @@ VerifyValidOverrideEvent(ConsolidatedEventGraph);
 }
 ```
 
-If everything went smooth up to this point, we create function stub for all the functions by calling `CreateFunctionStubForEvent()`
+If everything proceeds smoothly up to this point, the next step is to create function stubs for all the functions by calling `CreateFunctionStubForEvent()`.
 
-A function stub can be seen as a placeholder entry point before the actual function is compiled. It basically creates a `UK2Node_FunctionEntry` as wrapper. Links and resolves the input output pins metadata, setup flags, creating `FKismetFunctionContext` for each of them, and then add them to the `FunctionList`. This allows the other functions to call this function stub, even though the function is not yet compiled, later on, when the actual function is compiled, the function stub will be replaced by the actual function.
+A function stub acts as a placeholder entry point before the actual function is compiled. It essentially creates a `UK2Node_FunctionEntry` to wrap the function. This process involves linking and resolving input/output pins metadata, setting up flags, and creating a `FKismetFunctionContext` for each function. Once the function stub is created, it is added to the `FunctionList`. This allows other functions to call the stub even though the function hasn't been compiled yet. Later, when the actual function is compiled, the function stub will be replaced by the fully compiled function.
 
 ```cpp
 // If the node didn't generate any errors then generate function stubs for event entry nodes etc.
@@ -709,9 +709,13 @@ if (ConsolidatedEventGraph->Nodes.Num())
 Processing of the regular function graphs is done by the `ProcessOneFunctionGraph()` function, which duplicates each graph to a temporary graph where nodes are given a chance to expand. A `FKismetFunctionContext` is created for each function graph as well.
 </div>
 
-Up to this point, we have already processed the `Ubergraph`, so we will move forward and process the rest function graphs one by one. First we just ignore data only blueprints as there's no function graph to process. 
+At this point, we have already processed the `Ubergraph`, and now we move on to process the individual function graphs.
 
-Then we clone the source graph to a temporary graph for editing, effectively make the original function graph intact. Just like what we did with the `Ubergraph`.
+The first thing we do is ignore data-only Blueprints (those that don't have any executable function graphs) since there's no function logic to process in those cases.
+
+For Blueprints that do contain function graphs, we proceed by cloning the source function graph into a temporary graph. This ensures that the original function graph remains intact and unmodified during the compilation process. Essentially, this cloning step makes the original graph a source of reference while we work with the temporary version, just like we did with the `Ubergraph`.
+
+By working on a cloned graph, we avoid accidentally modifying the graph during the compilation phase and maintain a safe and isolated environment for editing and processing the nodes in the graph.
 
 ```cpp
 /**
@@ -734,7 +738,7 @@ void FKismetCompilerContext::ProcessOneFunctionGraph(UEdGraph* SourceGraph, bool
 }
 ```
 
-Similarly, a function may called other child `UEdGraph` like macros for reusable logics, etc. So we need to expand them here as well. The next step moves the contents of all of the children graphs of ParentGraph (recursively) into the MergeTarget graph. This does not clone, it's destructive to the ParentGraph, but since we are already putting the original function graph into a target graph, it's safe to do so.
+Similarly, a function may called other child `UEdGraph` like macros for reusable logics, etc. So we need to expand them here as well. The next step moves the contents of all of the children graphs of `ParentGraph` (recursively) into the `MergeTarget` graph. This does not clone, it's destructive to the `ParentGraph`, but since we are already putting the original function graph into a target graph, it's safe to do so.
 
 ```cpp
 const int32 SavedErrorCount = MessageLog.NumErrors;
@@ -894,7 +898,7 @@ for (int32 i = 0; i < FunctionList.Num(); ++i)
 ```
 
 From comments in the codebase, we know that this is the first phase of compiling a function graph (Previously we just find them and add them to a list), which includes:
-- Prunes the 'graph' to only included the connected portion that contains the function entry point
+- Prunes the graph to only included the connected portion that contains the function entry point
 - Schedules execution of each node based on data dependencies
 - Creates a `UFunction` object containing parameters and local variables (but no script code yet)
 
@@ -928,13 +932,13 @@ The whole purpose of `Bind()` is to recursively find 3 things:
 
 ### UClass::StaticLink()
 `StaticLink()` is a wrapper that calls `UStruct::Link()` which creates the field/ property links and gets structure ready for use at runtime, including:
-- Binding properties (such as FProperty objects) to the associated class.
-- Relinking existing properties if necessary (bRelinkExistingProperties).
+- Binding properties (such as `FProperty` objects) to the associated class.
+- Relinking existing properties if necessary (`bRelinkExistingProperties`).
 - Handling editor-only data and properties that might require special attention during the linking phase.
 - Managing object references, such as cleaning up properties that point to UObject or other objects that need to be properly initialized.
 - Recursively linking superclasses' properties and structures.
 
-If the archive Ar is loading, the function will preload the properties of the superclass (InheritanceSuper) and any child properties. This ensures that all necessary data is available for linking before actual size calculations or alignment checks.
+If the archive `Ar` is loading, the function will preload the properties of the superclass (InheritanceSuper) and any child properties. This ensures that all necessary data is available for linking before actual size calculations or alignment checks.
 
 ```cpp
 if (Ar.IsLoading())
@@ -948,8 +952,8 @@ if (Ar.IsLoading())
 }
 ```
 
-Then we iterates over the properties of the struct (ChildProperties).
-For each FProperty, we calls its `Link()`, which handles the serialization and binding of the property.
+Then we iterates over the properties of the struct (`ChildProperties`).
+For each `FProperty`, we calls its `Link()`, which handles the serialization and binding of the property.
 
 The function also tracks the `PropertiesSize` and `MinAlignment` to ensure the struct’s total size and memory alignment are correctly calculated.
 
