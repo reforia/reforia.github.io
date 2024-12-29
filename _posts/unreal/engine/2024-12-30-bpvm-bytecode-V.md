@@ -113,7 +113,7 @@ First of all, we should be able to quickly notice some obvious patterns:
 - EX_EndOfScript:
   - This represents the end of the bytecode of the current function.
 
-```asm
+```bash
 LogK2Compiler:
 [function ExecuteUbergraph_BPA_ByteCode]:
 Label_0x0:
@@ -177,7 +177,7 @@ Let's take a look at the logic flow, upon starting the function, it will jump to
 - 0x15:
   - End of script, this is the end of the function.
 
-```asm
+```bash
 LogK2Compiler:
 [function ReceiveBeginPlay]:
 Label_0x0:
@@ -232,7 +232,7 @@ Start with `ExecuteUbergraph_BPA_ByteCode`, from the name and previous knowledge
 - 0x3A:
   - End of script, this is the end of the function.
 
-```asm
+```bash
 LogK2Compiler:
 [function ExecuteUbergraph_BPA_ByteCode]:
 Label_0x0:
@@ -269,7 +269,7 @@ $1: `StringToPrint` — An instance variable of type `FString` that holds the st
 $0: `CallFunc_CustomPrintString_NewString` — A local variable of type `FString` that stores the result of `StringToPrint` (a bit like how assembly calls a function, a external value is captured and copied to the local scope*).
 $16: `EX_EndFunctionParms` — Indicates the end of function parameters.
 
-```asm
+```bash
 Label_0xB:
      $45: Local Virtual Script Function named CustomPrintString
        $1: Instance variable of type FString named StringToPrint.
@@ -339,7 +339,7 @@ The execution of `CustomPrintString` is pretty simple, it just calls the `PrintS
 ![Add Function](bytecode_customfunc.png)
 _Adding a custom function to the blueprint_
 
-```asm
+```bash
 LogK2Compiler:
 [function CustomPrintString]:
 Label_0x0:
