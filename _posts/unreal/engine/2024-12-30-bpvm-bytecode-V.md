@@ -35,36 +35,36 @@ CompileDisplaysBinaryBackend=True
 ```
 {: file="DefaultEngine.ini" }
 
-![Enable Log](bytecode_enablelog.png){: width="400"}
+![Enable Log](bytecode_enablelog.png)
 _Enabling bytecode log in DefaultEngine.ini_
 
 ## Create a Blueprint Asset
 Great, the rest is pretty simple, we just right click in the content browser, and create a new blueprint, let's select `Actor` as the parent class, and name it `BPA_ByteCode`. (Or whatever name you like)
 
-![Create Blueprint](bytecode_create.png){: width="400"}
+![Create Blueprint](bytecode_create.png)
 _Creating a new blueprint asset_
 
 In this example, we are going to create a blueprint actor that will have a `StringToPrint` `FString` type of variable, and a custom function `CustomPrintString` that will print the string to the output log and screen. Then call them upon `BeginPlay` event.
 
-![Add Variable](bytecode_newvariable.png){: width="400"}
+![Add Variable](bytecode_newvariable.png)
 _Adding a new variable to the blueprint_
 
 ## Add a custom function
 Create a new function, name it `CustomPrintString`, and set the return type to `FString`. This function will take in a `FString` type of input parameter, assign it to a local variable and print it, then pass the value in the local variable to the output parameter.
 
-![Add Function](bytecode_customfunc.png){: width="400"}
+![Add Function](bytecode_customfunc.png)
 _Adding a custom function to the blueprint_
 
 ## Call the function in event graph
 In the event graph, drag out from the `BeginPlay` event, and call the `CustomPrintString` function. Then pass in the `StringToPrint` variable as the input parameter.
 
-![Call Function](bytecode_callfunc.png){: width="400"}
+![Call Function](bytecode_callfunc.png)
 _Calling the custom function in event graph_
 
 ## Compile
 Now we can hit the compile and wait the magic to happen.
 
-![Compile](bytecode_hitcompile.png){: width="400"}
+![Compile](bytecode_hitcompile.png)
 _Compiling the blueprint_
 
 Note once the compile is finished, moving the nodes around doesn't make the blueprint dirty (Need to recompile), as the connection of nodes are not being changed, only the visual representations are. Everything that actually would make the blueprint to recompile would explicitly set the Blueprint state to `BS_Dirty`
@@ -92,13 +92,13 @@ enum EBlueprintStatus : int
 };
 ```
 
-![Blueprint Dirty](bytecode_movenodearound.png){: width="400"}
+![Blueprint Dirty](bytecode_movenodearound.png)
 _Moving nodes around doesn't make the blueprint dirty_
 
 ## Inspect Output
 Depends on your IDE and platform, the bytecode might look a little bit different visually from mine (differnet color, extra lines, etc), but the content should be the same (The image below is on JetBrains Rider on Mac OS)
 
-![Bytecode](bytecode_output2.png){: width="400"}
+![Bytecode](bytecode_output2.png)
 
 We should be able to find a wall of text that looks like this in our IDE's console, and that's our bytecode generated! Let's analyze it.
 
@@ -198,6 +198,7 @@ Label_0x13:
 Label_0x15:
      $53: EX_EndOfScript
 ```
+{: file="ReceiveBeginPlay" }
 
 Great, looks pretty simple, now let's take a closer look at `0x3`, where we pushed a stack for executing `Ubergraph`, a literal `int32 49` is passed in, this gets converted to `0x31` as hex, which is the offset of the bytecode in `ExecuteUbergraph_BPA_ByteCode`. This is how the bytecode jumps to the actual implementation of the `BeginPlay` event.
 
@@ -335,7 +336,7 @@ The execution of `CustomPrintString` is pretty simple, it just calls the `PrintS
 - 0x8A:
   - End of script, this is the end of the function.
 
-![Add Function](bytecode_customfunc.png){: width="400"}
+![Add Function](bytecode_customfunc.png)
 _Adding a custom function to the blueprint_
 
 ```yaml
@@ -390,6 +391,7 @@ Label_0x88:
 Label_0x8A:
      $53: EX_EndOfScript
 ```
+{: file="CustomPrintString" }
 
 Boom, we have successfully analyzed the bytecode generated from a simple blueprint. The whole process is pretty simple, but it gives us a lot of insights on how the blueprint is being compiled and executed.
 
