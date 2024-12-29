@@ -37,7 +37,7 @@ Let’s break it down in reverse order to understand the purpose behind it all:
 
 Now we can better understand why the process unfolds in this particular way. And lastly, because our modifications may alter the class layout, so we need to "Re-instance" it to reflect the change, we also need to ensure that existing instances in the world are aware of it. So they are also being "Reinstanced".
 
->Note: The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
+>The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
 {: .prompt-info}
 
 ## Compile Button - The Trigger

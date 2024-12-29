@@ -1,3 +1,4 @@
+LogK2Compiler:
 [function ExecuteUbergraph_BPA_ByteCode]:
 Label_0x0:
      $4E: Computed Jump, offset specified by expression:
@@ -6,26 +7,26 @@ Label_0xA:
      $5E: .. debug site ..
 Label_0xB:
      $45: Local Virtual Script Function named CustomPrintString
-       $1F: literal ansi string "Hello World!"
+       $1: Instance variable of type FString named StringToPrint.
        $0: Local variable of type FString named CallFunc_CustomPrintString_NewString.
        $16: EX_EndFunctionParms
-Label_0x30:
+Label_0x2B:
      $5A: .. wire debug site ..
+Label_0x2C:
+     $6: Jump to offset 0x38
 Label_0x31:
-     $6: Jump to offset 0x3D
-Label_0x36:
      $5E: .. debug site ..
-Label_0x37:
+Label_0x32:
      $5A: .. wire debug site ..
-Label_0x38:
+Label_0x33:
      $6: Jump to offset 0xA
-Label_0x3D:
+Label_0x38:
      $4: Return expression
        $B: EX_Nothing
-Label_0x3F:
+Label_0x3A:
      $53: EX_EndOfScript
-LogK2Compiler: 
 
+LogK2Compiler:
 [function ReceiveBeginPlay]:
 Label_0x0:
      $5E: .. debug site ..
@@ -35,7 +36,7 @@ Label_0x2:
      $5E: .. debug site ..
 Label_0x3:
      $46: Local Final Script Function (stack node BPA_ByteCode_C::ExecuteUbergraph_BPA_ByteCode)
-       $1D: literal int32 54
+       $1D: literal int32 49
        $16: EX_EndFunctionParms
 Label_0x12:
      $5A: .. wire debug site ..
@@ -44,8 +45,8 @@ Label_0x13:
        $B: EX_Nothing
 Label_0x15:
      $53: EX_EndOfScript
-LogK2Compiler: 
-
+     
+LogK2Compiler:
 [function CustomPrintString]:
 Label_0x0:
      $5E: .. debug site ..

@@ -106,7 +106,7 @@ For more information on `DAG`, you can check out the [DAG Wiki].
 ### Distinguish Skeleton Only Compile and Full Compile
 Let's start with the simpler one, if this is not a full compile, then we just go through each function and call `FinishCompilingFunction()` on them. This is to set flags on the functions even for a skeleton class.
 
->Note: `bIsFullCompile` might be a bit misleading here, basically, if this is false, then we are compiling a skeleton class
+>`bIsFullCompile` might be a bit misleading here, basically, if this is false, then we are compiling a skeleton class
 {: .prompt-info}
 
 ```cpp
@@ -240,7 +240,7 @@ bool FKismetFunctionContext::DoesStatementRequiresFlowStack(const FBlueprintComp
 }
 ```
 
->Note: The Goto we are talking about here is not a node that the designer can write in Blueprint, this concept is more close to assembly code where the code is jumping to another address.
+>The Goto we are talking about here is not a node that the designer can write in Blueprint, this concept is more close to assembly code where the code is jumping to another address.
 {: .prompt-info}
 
 ### MergeAdjacentStates
@@ -670,7 +670,7 @@ As introduced in the [first post] and in prior section "Generate Bytecode from `
 Backend_VM.GenerateCodeFromClass(NewClass, FunctionList, bGenerateStubsOnly);
 ```
 
->Note: the `FKismetCppBackend` has been moved to it's own module and for debugging purpose only, we will just focus on the `FKismetCompilerVMBackend` here.
+>`FKismetCppBackend` has been moved to it's own module and for debugging purpose only, we will just focus on the `FKismetCompilerVMBackend` here.
 {: .prompt-info}
 
 The implementation is not that complicated, it's just loop through each function and call `ConstructFunction()` on them. Then remove duplicates from `CalledFunctions` in the `UBlueprintGeneratedClass`.
@@ -1062,7 +1062,7 @@ Yes, after all the hassle and head scratching days, it's just that simple: a gia
 - EmitCreateMapStatement
 - EmitCastStatement
 
-All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, it does not mean the code will trigger a return here, but some other code will jump to this place, while `EX_Int64Const` is an integer constant. (Usually an actual value of Int64 will be append after this type).
+All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, (it does not mean the code will trigger a return here, but just the values to return will be stored) And `EX_IntConst` is an integer constant, `EX_FloatConst` is a floating point constant, etc. We will talk about them later.
 
 ```cpp
 //
@@ -1271,7 +1271,7 @@ CodeSkipSizeType EmitPlaceholderSkip()
 ```
 <div class="box-info" markdown="1">
 <div class="title"> Important </div>
-Note: This `CodeSkipSizeType Placeholder = -1;` has a value of 32bit (`CodeSkipSizeType` is an alias of uint32) however, the `ScriptBuffer` is a `TArray<uint8>`, so we are actually pushing 4 elements of `0xFF` to the stream, not just a single `-1` value.
+This `CodeSkipSizeType Placeholder = -1;` has a value of 32bit (`CodeSkipSizeType` is an alias of uint32) however, the `ScriptBuffer` is a `TArray<uint8>`, so we are actually pushing 4 elements of `0xFF` to the stream, not just a single `-1` value.
 
 E.g:
 - Original `ScriptBuffer`: `[0x00, 0x01, 0x02, 0x03]`

@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "From Blueprint to Bytecode V - Bytecode"
+title: "From Blueprint to Bytecode V - Bytecode and Game"
 description:
-  "Great enemies fallen, the adventurers moved forward. Deep down the castle, a humongous machine is working on countless tiny pieces. We are so close to the heart of the secret - Bytecode"
+  "Great enemies fallen, the adventurers move forward. Deep down the castle, a humongous machine is working on countless tiny pieces, pointers jumping back and forth, carrying EExprToken around. We are so close to the heart of the secret - Bytecode"
 date: 2024-12-29 11:27 +0800
 categories: [Unreal, Engine]
 published: false
@@ -18,21 +18,379 @@ media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
 We have been exploring the compiling process of a blueprint in Unreal Engine, from hitting the `Compile` button all the way to the numerous `EExprToken` being emitted to a serialized form, but we havent yet actually see them in a real world case. So in this post, we will create a simple blueprint, add a bit of logics to it, and then analyze the bytecode generated from it. We will also discuss a bit on where this learning can be applied in real world game development. Without further ado, let's get started.
 
 ## Prerequisite
+From this [section in previous post], we know that bytecode generated are actually also being deserialized to a human readable form, as long as `bDisplayBytecode` is set to `true`. This value is reading from `CompileDisplaysBinaryBackend`. So we will need to set this flag in the `DefaultEngine.ini` file.
 
+```cpp
+bool bDisplayBytecode = false;
+
+if (!Blueprint->bIsRegeneratingOnLoad)
+{
+    GConfig->GetBool(TEXT("Kismet"), TEXT("CompileDisplaysBinaryBackend"), /*out*/ bDisplayBytecode, GEngineIni);
+}
+```
+
+```ini
+[Kismet]
+CompileDisplaysBinaryBackend=True
+```
+{: file="DefaultEngine.ini" }
+
+![Enable Log](bytecode_enablelog.png){: width="400"}
+_Enabling bytecode log in DefaultEngine.ini_
 
 ## Create a Blueprint Asset
+Great, the rest is pretty simple, we just right click in the content browser, and create a new blueprint, let's select `Actor` as the parent class, and name it `BPA_ByteCode`. (Or whatever name you like)
+
+![Create Blueprint](bytecode_create.png){: width="400"}
+_Creating a new blueprint asset_
+
+In this example, we are going to create a blueprint actor that will have a `StringToPrint` `FString` type of variable, and a custom function `CustomPrintString` that will print the string to the output log. Then call them upon `BeginPlay` event.
+
+## Add a new variable
+Create a new variable, name it `StringToPrint`, and set the type to `FString`. This variable will be used to store the string that we want to print to the output log. I gave it a default value of `Hello World!`, but this step is not necessary.
+
+![Add Variable](bytecode_newvariable.png){: width="400"}
+_Adding a new variable to the blueprint_
 
 ## Add a custom function
+Create a new function, name it `CustomPrintString`, and set the return type to `void`. This function will take in a `FString` type of input parameter, assign it to a local variable and print it.
+
+![Add Function](bytecode_customfunc.png){: width="400"}
+_Adding a custom function to the blueprint_
 
 ## Call the function in event graph
+In the event graph, drag out from the `BeginPlay` event, and call the `CustomPrintString` function. Then pass in the `StringToPrint` variable as the input parameter.
 
-## Compile and Save
+![Call Function](bytecode_callfunc.png){: width="400"}
+_Calling the custom function in event graph_
+
+## Compile
+Now we can hit the compile and wait the magic to happen.
+
+![Compile](bytecode_hitcompile.png){: width="400"}
+_Compiling the blueprint_
+
+Note that at this moment, moving the nodes around doesn't make the blueprint dirty, as the connection of nodes are not being changed, only the visual representations are.
+
+![Blueprint Dirty](bytecode_movenodearound.png){: width="400"}
+_Moving nodes around doesn't make the blueprint dirty_
+
+## Inspect Output
+Depends on your IDE and platform, the bytecode might look a little bit different visually (differnet intendent, extra lines, etc), but the content should be the same (The image below is on JetBrains Rider on Mac OS) In VS, the text should be grey instead of red by default.
+
+![Bytecode](bytecode_output2.png){: width="400"}
+
+We should be able to find a wall of text that looks like this in out IDE's console, and that's our bytecode generated! Let's analyze it.
 
 ## Bytecode Analysis
+First of all, we should be able to quickly notice some obvious patterns:
+- LogK2Compiler: [function XXX]
+  - This reprensents a chunk of function, where `XXX` is the function name.
+- Label_0xXX:
+  - This represents a label, where `XX` is the offset of the bytecode from the beginning of the function.
+- $X:
+  - This represents an `EExprToken`. It could be a data or an instruction.
+- EX_EndOfScript:
+  - This represents the end of the bytecode of the current function.
 
-## Ubergraph
+```yaml
+LogK2Compiler:
+[function ExecuteUbergraph_BPA_ByteCode]:
+Label_0x0:
+     $4E: Computed Jump, offset specified by expression:
+         $0: Local variable of type int32 named EntryPoint. Parameter flags: (Parameter).
+{...}
+Label_0x38:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x3A:
+     $53: EX_EndOfScript
+
+LogK2Compiler:
+[function ReceiveBeginPlay]:
+{...}
+Label_0x13:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x15:
+     $53: EX_EndOfScript
+     
+LogK2Compiler:
+[function CustomPrintString]:
+{...}
+Label_0x88:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x8A:
+     $53: EX_EndOfScript
+```
+{: file="Bytecode Output" }
+
+It's also very important that the execution of the whole bytecode is not starting from the very beginning, in this case, "ExecuteUbergraph_BPA_ByteCode", but rather jump back and forth, so we will need to find out where the entry point is.
+
+## ReceiveBeginPlay
+When the actor is being executed, the `BeginPlay` will be triggered, an experienced Unreal Developer would realize that this `BeginPlay` is not the native `BeginPlay` function we are calling in c++ side, but rather a `BlueprintImplementableEvent` that has a custom name "BeginPlay". So this is where our blueprint will be executed.
+
+```cpp
+/** Event when play begins for this actor. */
+UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName = "BeginPlay"))
+ENGINE_API void ReceiveBeginPlay();
+```
+
+Let's take a look at the logic flow, upon starting the function, it will jump to `Label_0x0`, then to `Label_0x1`, then back to `Label_0x2`, so on and so forth.
+
+- 0x0:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x1:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x2:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x3:
+  - Local Final Script Function (stack node BPA_ByteCode_C::ExecuteUbergraph_BPA_ByteCode)
+    - literal int32 49
+    - EX_EndFunctionParms
+  - This pushes a new stack, it will enter `BPA_BytecCode_C::ExecuteUbergraph_BPA_ByteCode` function, a parameter is passed in, with value `49`. By converting this value to hex, we get `0x31`
+- 0x12:
+  - At this time, the function stack pops back, meaning the execution has finished, the flow continues. Another wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x13:
+  - Return expression, no value is returned, this is a function that doesn't return anything.
+- 0x15:
+  - End of script, this is the end of the function.
+
+```yaml
+LogK2Compiler:
+[function ReceiveBeginPlay]:
+Label_0x0:
+     $5E: .. debug site ..
+Label_0x1:
+     $5A: .. wire debug site ..
+Label_0x2:
+     $5E: .. debug site ..
+Label_0x3:
+     $46: Local Final Script Function (stack node BPA_ByteCode_C::ExecuteUbergraph_BPA_ByteCode)
+       $1D: literal int32 49
+       $16: EX_EndFunctionParms
+Label_0x12:
+     $5A: .. wire debug site ..
+Label_0x13:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x15:
+     $53: EX_EndOfScript
+```
+
+Great, looks pretty simple, now let's take a closer look at `0x3`, where we pushed a stack of `Ubergraph`
+
+## ExecuteUbergraph_BPA_ByteCode
+Start with `ExecuteUbergraph_BPA_ByteCode`, from the name and previous knowledge, we know that this represents the whole event graph merged together. And it expect a parameter `EntryPoint` to be passed in, so that it can jump to different parts of the bytecode.
+
+- 0x0:
+  - Computed Jump, offset specified by expression:
+    - Evaluated the input parameter, and jump to 0x31.
+- 0x31:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x32:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x33:
+  - Jump to offset 0xA.
+- 0xA:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0xB:
+  - Local Virtual Script Function named `CustomPrintString`
+    - Instance variable of type `FString` named `StringToPrint`.
+    - Local variable of type `FString` named `CallFunc_CustomPrintString_NewString`.
+    - `EX_EndFunctionParms`
+  - This is where the `CustomPrintString` function is called, with the `StringToPrint` variable as the parameter.
+  - Note that this is not a stack node, not stack management is needed.
+- 0x2B:
+  - Same old, at this point, the inner function has finished exectution. This is another wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x2C:
+  - Another jump to 0x38.
+- 0x38:
+  - Return expression, no value is returned, this is a function that doesn't return anything.
+- 0x3A:
+  - End of script, this is the end of the function.
+
+```yaml
+LogK2Compiler:
+[function ExecuteUbergraph_BPA_ByteCode]:
+Label_0x0:
+     $4E: Computed Jump, offset specified by expression:
+         $0: Local variable of type int32 named EntryPoint. Parameter flags: (Parameter).
+Label_0xA:
+     $5E: .. debug site ..
+Label_0xB:
+     $45: Local Virtual Script Function named CustomPrintString
+       $1: Instance variable of type FString named StringToPrint.
+       $0: Local variable of type FString named CallFunc_CustomPrintString_NewString.
+       $16: EX_EndFunctionParms
+Label_0x2B:
+     $5A: .. wire debug site ..
+Label_0x2C:
+     $6: Jump to offset 0x38
+Label_0x31:
+     $5E: .. debug site ..
+Label_0x32:
+     $5A: .. wire debug site ..
+Label_0x33:
+     $6: Jump to offset 0xA
+Label_0x38:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x3A:
+     $53: EX_EndOfScript
+```
+{: file="ExecuteUbergraph_BPA_ByteCode" }
+
+At `ExecuteUbergraph_BPA_ByteCode: Label_0xB` This instruction calls a local virtual script function named `CustomPrintString`, and try to pass in the `StringToPrint` instance variable as the parameter. The `EX_EndFunctionParms` indicates the end of the function parameters.
+
+$1: `StringToPrint` — An instance variable of type `FString` that holds the string to be printed.
+$0: `CallFunc_CustomPrintString_NewString` — A local variable of type `FString` that stores the result of `StringToPrint` (a bit like how assembly calls a function, a external value is captured and copied to the local scope*).
+$16: `EX_EndFunctionParms` — Indicates the end of function parameters.
+
+```yaml
+Label_0xB:
+     $45: Local Virtual Script Function named CustomPrintString
+       $1: Instance variable of type FString named StringToPrint.
+       $0: Local variable of type FString named CallFunc_CustomPrintString_NewString.
+       $16: EX_EndFunctionParms
+```
+{: file="Call CustomPrintString" }
+
+>*Technically, the assembly code would push the value of the parameter to the stack, and then call the function. The function would then pop the value from the stack and use it. In this case, the value is copied to a local variable, which is a more high-level abstraction. Also note that if we are compiling assembly with compiler optimization, the value might be passed directly to the function without any copying. But of course this is not the case in Blueprint bytecode.
+{: .prompt-info }
 
 ## CustomPrintString
+The execution of `CustomPrintString` is pretty simple, it just calls the `PrintString` function from `KismetSystemLibrary`, and then returns the value.
 
-## Conclusion
+- 0x0:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x1:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x2:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x3:
+  - Let (Variable = Expression)
+    - Variable:
+      - Local variable of type `FString` named `LocPrintString`.
+    - Expression:
+      - Local variable of type `FString` named `InString`. Parameter flags: (Parameter).
+  - This is where the input parameter is copied to a local variable. `LocPrintString`
+- 0x1E:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x1F:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x20:
+  - Call Math (stack node `KismetSystemLibrary::PrintString`)
+    - `EX_Self`
+    - Local variable of type `FString` named `LocPrintString`.
+    - `EX_True`
+    - `EX_True`
+    - literal struct `LinearColor` (serialized size: 16)
+      - literal float 0.000000
+      - literal float 0.660000
+      - literal float 1.000000
+      - literal float 1.000000
+      - `EX_EndStructConst`
+    - literal float 2.000000
+    - literal name `None`
+    - `EX_EndFunctionParms`
+  - This is where the `PrintString` function is called, following the signature of `PrintString` function, all the parameters are passed in.
+- 0x6A:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x6B:
+  - debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x6C:
+  - Let (Variable = Expression)
+    - Variable:
+      - Local out variable of type `FString` named `NewString`. Parameter flags: (Parameter,Out).
+    - Expression:
+      - Local variable of type `FString` named `LocPrintString`.
+  - This is where the output parameter is copied to a local variable. `NewString`
+- 0x87:
+  - wire debug site, no effect on execution, this is used for breakpoint mapping.
+- 0x88:
+  - Return expression
+    - `EX_Nothing`
+- 0x8A:
+  - End of script, this is the end of the function.
 
+![Add Function](bytecode_customfunc.png){: width="400"}
+_Adding a custom function to the blueprint_
+
+```yaml
+LogK2Compiler:
+[function CustomPrintString]:
+Label_0x0:
+     $5E: .. debug site ..
+Label_0x1:
+     $5A: .. wire debug site ..
+Label_0x2:
+     $5E: .. debug site ..
+Label_0x3:
+     $F: Let (Variable = Expression)
+       Variable:
+         $0: Local variable of type FString named LocPrintString.
+       Expression:
+         $0: Local variable of type FString named InString. Parameter flags: (Parameter).
+Label_0x1E:
+     $5A: .. wire debug site ..
+Label_0x1F:
+     $5E: .. debug site ..
+Label_0x20:
+     $68: Call Math (stack node KismetSystemLibrary::PrintString)
+       $17: EX_Self
+       $0: Local variable of type FString named LocPrintString.
+       $27: EX_True
+       $27: EX_True
+       $2F: literal struct LinearColor (serialized size: 16)
+         $1E: literal float 0.000000
+         $1E: literal float 0.660000
+         $1E: literal float 1.000000
+         $1E: literal float 1.000000
+         $30: EX_EndStructConst
+       $1E: literal float 2.000000
+       $21: literal name None
+       $16: EX_EndFunctionParms
+Label_0x6A:
+     $5A: .. wire debug site ..
+Label_0x6B:
+     $5E: .. debug site ..
+Label_0x6C:
+     $F: Let (Variable = Expression)
+       Variable:
+         $48: Local out variable of type FString named NewString. Parameter flags: (Parameter,Out).
+       Expression:
+         $0: Local variable of type FString named LocPrintString.
+Label_0x87:
+     $5A: .. wire debug site ..
+Label_0x88:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x8A:
+     $53: EX_EndOfScript
+```
+
+## Key Takeaways and Where to go from here
+There're few obvious takeaways:
+- For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act a wrapper and the bytecode will eventually jump to the corresponding function stub label in `Ubergraph`
+- This gives us a pretty good idea on why the blueprint is slow comparing with c++ code, the BPVM is doing a lot of copying and stack management, adding overhead and jumping nodes to make the process happen, which are all unnecessary in c++.
+- `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the compiler optimization in c++. Most optimizations to bytecode are done on the `EExprToken` level, while an full-fledged compiler can do it on the assembly level.
+- Calling a function from C++ that defined in blueprint will be costly, but calling a function from blueprint that defined in C++ will be much faster, as it almost only involves a `EX_CallFunction` instruction back to the C++ side, and C++ will handle the rest with an incomparable speed.
+  - That also clearly explains why the best practice is to put the heavy lifting in C++ side, and only use blueprint for high-level logic and game design.
+
+>The term "Slow" here is just a relative term, it's a measurement of how many more instructions (and eventually, CPU cycles) are needed in Blueprint to achieve the same thing in c++, but with multi-threading and async task, the real performance difference might not be that significant. (I don't have a benchmark to back this statement though)
+{: .prompt-info } 
+
+As we reached the end of this Epic journey (Literally XD), we might kept wondering, why do we even need to know this? Does the whole series just proves an already proven fact that c++ is faster than blueprint? Well not really, besides it's fun to know, here's a lot of spaces to explore from there:
+- We can create a specific type of blueprint, and make a whole new editor for it, just like how the `Animation Blueprint` or `Behaviore Tree` works, and then we can create a whole new type of game logic that can be easily created by designers.
+  - For an RPG framework, we can create a custom `Dialogue` and `Quest` editor, so that designers can easily create new dialogues and quests without touching the code. We can customize the flow to have our own FSM, then override the compile proces to make sure they can be compiled and executed properly.
+- We can create a custom class that inherit from `FKismetCompilerContext` and then override the `Compile` function, so that we can do some custom optimization, add new instructions to the bytecode or even do backward compatibility cleanups for outdated player data.
+- It help us to have a better understanding of the compile process, especially the order, so when we try to jam our code to the engine, we won't be lost quickly in the swarm of source.
+- It helped us understand a bit more on how such a compiler would be implemented, so if we are going to write our own script for our own engine, this is a fantastic reference.
+- The idea of abstrate away the nasty details of implementation but let a compiler to write the full code full us is a very powerful concept, because `UHT` are also doing the same thing, ever wondered why the c++ header would always include a `xx.generated.h` and the `Intermediate` folder would always have a bunch of `xx.gen.cpp`? That's the magic of `UHT`.
+  - We will talk about `UHT` in the future, this unlocks us the ability to create `CustomThunk` for a function, effectively unleashing the full power of the engine to us.
+
+That's it for this series, I hope you enjoyed it as much as I do. If there's any questions, mistakes or stuff to discuss, feel free to comment down below to help future readers :D. Until next time, happy coding and have a great day!
+
+[section in previous post]: https://jaydengames.com/posts/bpvm-bytecode-IV/#generate-debug-bytecode

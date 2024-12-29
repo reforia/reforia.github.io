@@ -327,10 +327,7 @@ The `RegisterClassDelegateProxiesFromBlueprint()` function scans both the functi
     CreateClassVariablesFromBlueprint();
 ```
 
-![NewVariables in Blueprint Header](bytecode_blueprintheader.png)
-_`NewVariables` in Blueprint header_
-
-`CreateClassVariablesFromBlueprint()` then calls `CreateVariable()` on each element in the `NewVariables` array. From the image above we know that the new variables we created in the Blueprint Editor is not really a `UProperty` type, but a `FBPVariableDescription` struct. It only contains necessary information to form a `UProperty` object, this `CreateVariable()` then calls `FKismetCompilerUtilities::CreatePropertyOnScope()` to create a `UProperty` object on the class scope. Not that the first parameter is `NewClass`, which is the `UBlueprintGeneratedClass` we are working on.
+`CreateClassVariablesFromBlueprint()` then calls `CreateVariable()` on each element in the `NewVariables` array of `UBlueprint`. From the codebase we know that the new variables we created in the Blueprint Editor is not really a `UProperty` type, but a `FBPVariableDescription` struct. It only contains necessary information to form a `UProperty` object, this `CreateVariable()` then calls `FKismetCompilerUtilities::CreatePropertyOnScope()` to create a `UProperty` object on the class scope. Not that the first parameter is `NewClass`, which is the `UBlueprintGeneratedClass` we are working on.
 
 ```cpp
 /** Creates a class variable */
