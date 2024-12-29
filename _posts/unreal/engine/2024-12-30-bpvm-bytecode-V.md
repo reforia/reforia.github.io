@@ -393,6 +393,137 @@ Label_0x8A:
 ```
 {: file="CustomPrintString" }
 
+## One more thing
+There's one last thing that's still a bit off: Seems like the `EX_Return` instruction in the end always have an `EX_Nothing` as the return value, yet we clearly created an output for our custom function! I personally have no idea why this design choice is made, but from the code this behavior is explainable.
+
+### Return expression of a function
+Let's take a look at where does this `EX_Return` coming from, basically it's write to the stream via `EmitReturn()` function, which will be called if a `FBlueprintCompiledStatement`'s type is `KCST_Return`, and this is assigned during the `ConstructFunction()` process
+
+```cpp
+void FKismetCompilerVMBackend::ConstructFunction(FKismetFunctionContext& FunctionContext, bool bIsUbergraph, bool bGenerateStubOnly)
+{
+    // ... Other code
+
+    // Return statement, to push on FlowStack or to use with _GotoReturn
+    FBlueprintCompiledStatement ReturnStatement;
+    ReturnStatement.Type = KCST_Return;
+
+    // ... Process function body
+
+    // Handle the function return value
+    ScriptWriter.GenerateCodeForStatement(CompilerContext, FunctionContext, ReturnStatement, nullptr);    
+}
+```
+
+As can be seen here, this "Return" seems to just used to jump to an address, and it not the actual return that we defined in the function, becuase it doesn't feel like a `UEdGraphNode`. Let's take a look at the actual `Return` node in the graph then, we know that it must be a `UK2Node` derived class, so we can just search in code base that is an `UK2Node` class with name "Return Node"
+
+### The Return Node
+Quickly, we found a candidate, `UK2Node_FunctionResult`, in it's `GetNodeTitle()` function, it's name get's overriden to "Return Node". This must be it
+
+```cpp
+FText UK2Node_FunctionResult::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+    if (ENodeTitleType::MenuTitle == TitleType)
+    {
+        return NSLOCTEXT("K2Node", "ReturnNodeMenuTitle", "Add Return Node...");
+    }
+    return NSLOCTEXT("K2Node", "ReturnNode", "Return Node");
+}
+```
+
+### Return Node Bytecode
+We know that this node must have a corresponding `FNodeHandlingFunctor` to handle the bytecode generation, so we can take a look at its `CreateNodeHandler()` function
+
+```cpp
+FNodeHandlingFunctor* UK2Node_FunctionResult::CreateNodeHandler(FKismetCompilerContext& CompilerContext) const
+{
+    return new FKCHandler_FunctionResult(CompilerContext);
+}
+```
+
+There we go, `FKCHandler_FunctionResult`, now let's take a look at its `Compile()` function. We can clearly see that for a normal function, `GenerateAssignment()` are called, then this last `FBlueprintCompiledStatement` type is `KCST_GotoReturn`
+
+```cpp
+virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
+{
+    static const FBoolConfigValueHelper ExecutionAfterReturn(TEXT("Kismet"), TEXT("bExecutionAfterReturn"), GEngineIni);
+
+    if (ExecutionAfterReturn)
+    {
+        // for backward compatibility only
+        FKCHandler_VariableSet::Compile(Context, Node);
+    }
+    else
+    {
+        GenerateAssigments(Context, Node);
+
+        if (Context.IsDebuggingOrInstrumentationRequired() && Node)
+        {
+            FBlueprintCompiledStatement& TraceStatement = Context.AppendStatementForNode(Node);
+            TraceStatement.Type = Context.GetWireTraceType();
+            TraceStatement.Comment = Node->NodeComment.IsEmpty() ? Node->GetName() : Node->NodeComment;
+        }
+
+        // always go to return
+        FBlueprintCompiledStatement& GotoStatement = Context.AppendStatementForNode(Node);
+        GotoStatement.Type = KCST_GotoReturn;
+    }
+}
+```
+
+### GenerateAssigments()
+This function essentially calls `FKCHandler_VariableSet::InnerAssignment()` for each output pin, which then calls `FKismetCompilerUtilities::CreateObjectAssignmentStatement()`, where it creates a statment of type `KCST_Assignment`
+
+```cpp
+FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(Node);
+Statement.Type = KCST_Assignment;
+Statement.LHS = DstTerm;
+Statement.RHS.Add(RHSTerm);
+```
+
+### EmitAssignmentStatement()
+This function will emit corresponding bytecode based on the type of the property, the magic happens in `EmitDestinationExpression()`
+
+```cpp
+void EmitAssignmentStatment(FBlueprintCompiledStatement& Statement)
+{
+    FBPTerminal* DestinationExpression = Statement.LHS;
+    FBPTerminal* SourceExpression = Statement.RHS[0];
+
+    EmitDestinationExpression(DestinationExpression);
+
+    EmitTerm(SourceExpression, DestinationExpression->AssociatedVarProperty);
+}
+```
+
+### EmitDestinationExpression()
+This function converts the assignement operation to an actual `EX_Let` instruction, it could be `EX_LetBool`, `EX_LetObject`, or just `EX_Let` if none of the special cases are met, and then it will call `EmitTermExpr()` Which we already know how it works in previous post.
+
+### Fact Check
+In our case, for the `CustomPrintString()` function, we should see a `EX_Let` operation, that write a variable to an output parameter named `NewString`, following with a `EX_GotoReturn` operation, then an `EX_Return` operation, which is the actual return of the function. And an `EX_EndOfScript` to end the function. What does the code say?
+
+```bash
+...
+Label_0x6C:
+     $F: Let (Variable = Expression)
+       Variable:
+         $48: Local out variable of type FString named NewString. Parameter flags: (Parameter,Out).
+       Expression:
+         $0: Local variable of type FString named LocPrintString.
+Label_0x87:
+     $5A: .. wire debug site ..
+Label_0x88:
+     $4: Return expression
+       $B: EX_Nothing
+Label_0x8A:
+     $53: EX_EndOfScript
+```
+
+The `EX_GotoReturn` is missing! Something must have gone wrong!
+
+### The Final Missing Piece
+Don't worry, this is actually correct, remember in the last post we mentioned a special step called "[MergeAdjacentStates]"? The second case indicates, if the `EX_GotoReturn` is the last statement generated by the last node of the function, it's removed, since the `EX_Return` would just handle that anyway. And that's why we don't see the `EX_GotoReturn` in the bytecode. (We can put a breakpoint at the `CurStatementList->RemoveAt(CurStatementList->Num() - 1);` to prove this)
+
 Boom, we have successfully analyzed the bytecode generated from a simple blueprint. The whole process is pretty simple, but it gives us a lot of insights on how the blueprint is being compiled and executed.
 
 ## Key Takeaways
@@ -400,7 +531,7 @@ There're few obvious takeaways:
 - For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act as a wrapper and the bytecode will eventually jump to the corresponding function stub label offset location in `Ubergraph`
 - This gives us a pretty good idea on why the blueprint is slow comparing with C++ code, the BPVM is doing a lot of copying and stack management, adding overhead and various jumpings to make the logic flow, which a lot of them are unnecessary in C++.
   - In the example we demonstrated, all the literal values are being copied over, we could specify the blueprint to pass values as reference, as well as using `UPARAM(ref)` in C++ function signature to avoid unnecessary copying.
-- `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the optimization done by C++ compiler. Most optimizations in bytecode are done on the `EExprToken` level, while an full-fledged C++ compiler can do it at the assembly level.
+- `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the optimization done by C++ compiler. Most optimizations in bytecode are done on the `EExprToken` and `FBlueprintCompiledStatement` level, while an full-fledged C++ compiler can do it at the assembly level.
 - Calling a function from C++ that defined in blueprint will be costly, but calling a function from blueprint that defined in C++ will be much faster, as it almost only involves a `EX_CallFunction` instruction back to the C++ side, and C++ will handle the rest with an incomparable speed.
   - That also clearly explains why the best practice is to put the heavy lifting in C++ side, and only use blueprint for high-level logic and game design.
 
@@ -420,3 +551,4 @@ As we reached the end of this Epic journey (Literally XD), we might kept wonderi
 That's it for this series, I hope you enjoyed it as much as I do. If there's any questions, mistakes or stuff to discuss, feel free to comment down below to help future readers :D. Until next time, happy coding and have a great day!
 
 [section in previous post]: https://jaydengames.com/posts/bpvm-bytecode-IV/#generate-debug-bytecode
+[MergeAdjacentStates]: https://jaydengames.com/posts/bpvm-bytecode-IV/#mergeadjacentstates

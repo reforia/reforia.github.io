@@ -1062,7 +1062,10 @@ Yes, after all the hassle and head scratching days, it's just that simple: a gia
 - EmitCreateMapStatement
 - EmitCastStatement
 
-All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement, (the code will trigger a return here with return value) And `EX_IntConst` is an integer constant, `EX_FloatConst` is a floating point constant, etc. We will talk about them later.
+All we need to know is: these function just act like assembly code, on a linear list of statements, we write in each operations in the lowest level, each operations and value type are actually an evaluable expression type `EExprToken`, For example, a `EX_Return` is a return statement of a function, (the code will trigger a return here) And `EX_IntConst` is an integer constant, `EX_FloatConst` is a floating point constant, etc. We will talk about them later.
+
+>`EX_Return` is **NOT** the "Return Node" that we wrote at the end of a function, we will talk about it's nuance in the next post.
+{: .prompt-info}
 
 ```cpp
 //
