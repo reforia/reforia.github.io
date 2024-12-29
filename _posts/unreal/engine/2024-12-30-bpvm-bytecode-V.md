@@ -395,7 +395,7 @@ Label_0x8A:
 
 Boom, we have successfully analyzed the bytecode generated from a simple blueprint. The whole process is pretty simple, but it gives us a lot of insights on how the blueprint is being compiled and executed.
 
-## Key Takeaways and Where to go from here
+## Key Takeaways
 There're few obvious takeaways:
 - For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act a wrapper and the bytecode will eventually jump to the corresponding function stub label offset location in `Ubergraph`
 - This gives us a pretty good idea on why the blueprint is slow comparing with C++ code, the BPVM is doing a lot of copying and stack management, adding overhead and various jumpings to make the logic flow, which a lot of them are unnecessary in C++.
@@ -407,14 +407,15 @@ There're few obvious takeaways:
 >The term "Slow" here is just a relative term, it's a measurement of how many more instructions (and eventually, CPU cycles) are needed in Blueprint to achieve the same thing in C++, but with multi-threading and async task, the real performance difference might not be that significant. (I don't have a benchmark to back this statement though)
 {: .prompt-info } 
 
-As we reached the end of this Epic journey (Literally XD), we might kept wondering, why do we even need to know this? Does the whole series just proves an already proven fact that C++ is faster than blueprint? Well not really, besides it's fun to know, here's a lot of spaces to explore from there:
-- We can create a specific type of blueprint, and make a whole new editor for it, just like how the `Animation Blueprint` or `Behaviore Tree` works, and then we can create a whole new type of game logic that can be easily created by designers.
-  - For an RPG framework, we can create a custom `Dialogue` and `Quest` editor, so that designers can easily create new dialogues and quests without touching the code. We can customize the flow to have our own FSM, then override the compile proces to make sure they can be compiled and executed properly.
+## Where to go from here
+As we reached the end of this Epic journey (Literally XD), we might kept wondering, why do we even need to know this? Does the whole series just proves an already proven fact that C++ is faster than blueprint? Well not really, besides it's fun to know, there're a lot of spaces to explore from there:
+- We can create a specific type of blueprint, and make a whole new editor for it, just like how the `Animation Blueprint` or `Behaviore Tree` works, and then we can create new systems for gameplays that can be easily used by designers.
+  - A common case would be RPG framework, where we can write a custom `Dialogue` and `Quest` editor, so that designers can easily create new dialogues and quests without touching the code. We can customize the flow to have our own FSM, then override the compile proces to make sure they can be executed properly.
 - We can create a custom class that inherit from `FKismetCompilerContext` and then override the `Compile` function, so that we can do some custom optimization, add new instructions to the bytecode or even do backward compatibility cleanups for outdated player data.
-- It help us to have a better understanding of the compile process, especially the order, so when we try to jam our code to the engine, we won't be lost quickly in the swarm of source.
-- It helped us understand a bit more on how such a compiler would be implemented, so if we are going to write our own script for our own engine, this is a fantastic reference.
-- The idea of abstrate away the nasty details of implementation but let a compiler to write the full code full us is a very powerful concept, because `UHT` are also doing the same thing, ever wondered why the C++ header would always include a `xx.generated.h` and the `Intermediate` folder would always have a bunch of `xx.gen.cpp`? That's the magic of `UHT`.
-  - We will talk about `UHT` in the future, this unlocks us the ability to create `CustomThunk` for a function, effectively unleashing the full power of the engine to us.
+- It help us to have a better understanding of the compile process, especially the order, so when we try to jam our code to the engine, we won't be lost too quickly in the swarm of source. (We are likely still gonna be lost at some point :D)
+- It helped us understand a bit more on how such a custom scripting language would be implemented, so if we are going to write our own script for our own engine, this is a top-notch reference.
+- The idea of abstrate away the nasty details of implementation but let a compiler to write the full code full us is a very powerful concept, because `UHT` are also doing the same thing, ever wondered why the C++ header would always include a `xx.generated.h` and the `Intermediate` folder would always have a bunch of `xx.gen.cpp`? That's the magic of `UHT` doing the heavy lifting and write code for us.
+  - We will talk about `UHT` in the future, understand `UHT` behavior will unlocks us the ability to create `CustomThunk` for a function, which tells the `UHT` to take a rest and we will manually write the compiled code. This effectively unleashing the full power of the engine to us.
 
 That's it for this series, I hope you enjoyed it as much as I do. If there's any questions, mistakes or stuff to discuss, feel free to comment down below to help future readers :D. Until next time, happy coding and have a great day!
 
