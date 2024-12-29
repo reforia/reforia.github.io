@@ -337,7 +337,7 @@ The execution of `CustomPrintString` is pretty simple, it just calls the `PrintS
   - End of script, this is the end of the function.
 
 ![Add Function](bytecode_customfunc.png)
-_Adding a custom function to the blueprint_
+_Bytecode agrees with implementation_
 
 ```bash
 LogK2Compiler:
