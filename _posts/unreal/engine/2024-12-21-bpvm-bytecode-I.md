@@ -278,7 +278,7 @@ enum EKismetCompiledStatementType
 ### FBPTerminal
 `FBPTerminal` represents a variable or expression used within a `FBlueprintCompiledStatement`. It serves as a handle for data or objects in the Blueprint graph.
 
-![FBPTerminal](bytecode_fbpterminal.png){: width="400"}
+![FBPTerminal](bytecode_fbpterminal.png){: width="500"}
 _"Hello World" Literal FBPTerminal_
 
 ### FNodeHandlingFunctor
@@ -310,7 +310,7 @@ public:
 
 As shown above, `FKCHandle_Select` is associated with `UK2Node_Select`. It implements two key functions: `RegisterNets()` and `Compile()`.
 
-![FKCHandler_Select](bytecode_selectnode.png){: width="400"}
+![FKCHandler_Select](bytecode_selectnode.png){: width="500"}
 _Select Node_
 
 #### RegisterNets()

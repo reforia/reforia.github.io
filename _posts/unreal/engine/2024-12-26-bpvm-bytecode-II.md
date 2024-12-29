@@ -20,7 +20,7 @@ In the previous post, we explored the Blueprint System in depth, covering its va
 ## Compilation Process - From Document
 According to the official [document], the blueprint compilation process can be broken down into the following steps:
 
-![Blueprint Compilation Process](bytecode_compilationflow.png){: width="400"}
+![Blueprint Compilation Process](bytecode_compilationflow.png){: width="500"}
 
 ### Digesting the Process
 While this may seem like the entire compilation process triggered when you hit the "`Compile`" button, the content in the image is just a small part of it.
@@ -43,7 +43,7 @@ Now we can better understand why the process unfolds in this particular way. And
 ## Compile Button - The Trigger
 The "`Compile`" button itself is part of the `FBlueprintEditorToolbar::AddCompileToolbar()` function, which is called during the initialization of a `BlueprintEditorMode`. This mode is specifically an instance of `FBlueprintEditorApplicationMode`, which is used by the BlueprintEditor.
 
-![Editor Modes](bytecode_othereditormodes.png){: width="400"}
+![Editor Modes](bytecode_othereditormodes.png){: width="500"}
 _Various Editor Modes_
 
 From the codebase, we can also see several custom EditorModes that override or extend the default behavior, including the available tools. The `AddCompileToolbar()` function is essentially a pre-defined template that can be reused across different EditorModes.
@@ -85,7 +85,7 @@ void FBlueprintEditorToolbar::AddCompileToolbar(UToolMenu* InMenu)
 
 Pretty neat, it adds 2 entries, `CompileButton` and `CompileOptions`, `CompileOption` contains whether we should always save, only on compile success or never.
 
-![Compile Toolbar](bytecode_compileoption.png){: width="400"}
+![Compile Toolbar](bytecode_compileoption.png){: width="500"}
 
 ## From Compile to FlushCompilationQueueImpl 
 When the `CompileButton` is created, it triggers the `InitToolBarButton` function and passes in `Commands.Compile` as a parameter. This `Commands.Compile` is part of `FFullBlueprintEditorCommands`.

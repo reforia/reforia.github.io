@@ -35,18 +35,18 @@ CompileDisplaysBinaryBackend=True
 ```
 {: file="DefaultEngine.ini" }
 
-![Enable Log](bytecode_enablelog.png)
+![Enable Log](bytecode_enablelog.png){: width="500" }
 _Enabling bytecode log in DefaultEngine.ini_
 
 ## Create a Blueprint Asset
 Great, the rest is pretty simple, we just right click in the content browser, and create a new blueprint, let's select `Actor` as the parent class, and name it `BPA_ByteCode`. (Or whatever name you like)
 
-![Create Blueprint](bytecode_create.png)
+![Create Blueprint](bytecode_create.png){: width="500" }
 _Creating a new blueprint asset_
 
 In this example, we are going to create a blueprint actor that will have a `StringToPrint` `FString` type of variable, and a custom function `CustomPrintString` that will print the string to the output log and screen. Then call them upon `BeginPlay` event.
 
-![Add Variable](bytecode_newvariable.png)
+![Add Variable](bytecode_newvariable.png){: width="500" }
 _Adding a new variable to the blueprint_
 
 ## Add a custom function
@@ -58,13 +58,13 @@ _Adding a custom function to the blueprint_
 ## Call the function in event graph
 In the event graph, drag out from the `BeginPlay` event, and call the `CustomPrintString` function. Then pass in the `StringToPrint` variable as the input parameter.
 
-![Call Function](bytecode_callfunc.png)
+![Call Function](bytecode_callfunc.png){: width="500" }
 _Calling the custom function in event graph_
 
 ## Compile
 Now we can hit the compile and wait the magic to happen.
 
-![Compile](bytecode_hitcompile.png)
+![Compile](bytecode_hitcompile.png){: width="500" }
 _Compiling the blueprint_
 
 Note once the compile is finished, moving the nodes around doesn't make the blueprint dirty (Need to recompile), as the connection of nodes are not being changed, only the visual representations are. Everything that actually would make the blueprint to recompile would explicitly set the Blueprint state to `BS_Dirty`
