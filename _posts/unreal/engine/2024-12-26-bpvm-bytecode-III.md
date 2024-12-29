@@ -145,8 +145,6 @@ Classes are compiled in place, which means the same `UBlueprintGeneratedClass` i
 
 From the code, the first half is quite simple: We try to extract important info like parent class from the `ClassToClean`, and we want to safely get rid of the old CDO.
 
-One important step here is `SetNewClass( ClassToClean );` at this moment, the `FKismetCompilerContext` is aware of the `UBlueprintGeneratedClass` that is going to be compiled. So that for the rest of the compilation, the data are correctly wrote to the `UBlueprintGeneratedClass`, rather than the `UBlueprint` object.
-
 >It's a common practice to just rename an existing object that takes `TransientPackage` as outer for a safe deletion, the object will be taken care of during next GC cycle.
 {: .prompt-tip }
 
@@ -193,6 +191,8 @@ void FKismetCompilerContext::CleanAndSanitizeClass(UBlueprintGeneratedClass* Cla
     // ... Other Code
 }
 ```
+
+One important step here is `SetNewClass( ClassToClean );` At this moment, the `FKismetCompilerContext` is aware of the `UBlueprintGeneratedClass` that is going to be compiled. So that for the rest of the compilation, the data are correctly wrote to the `UBlueprintGeneratedClass`, rather than to the `UBlueprint` object.
 
 Next, we want to get rid of all subobjects of a class, because they will be regenerated anyway, the code comment is fantastic, it explains the reason behind each step in detail.
 
@@ -317,7 +317,7 @@ The compiler iterates over the Blueprint's `NewVariables` array, as well as some
 
 The `RegisterClassDelegateProxiesFromBlueprint()` function scans both the function graphs and the Event Graph for any delegate proxies. These proxies are then registered with the compiler context. If a "captured" variable is required, a new property is added to the current class. In this context, a captured variable refers to any target actor that the delegate will be called on.
 
-`CreateClassVariableFromBlueprint()` creates a class variable for each entry in the Blueprint `NewVars` array.
+`CreateClassVariableFromBlueprint()` creates a class variable for each entry in the Blueprint `NewVariables` array.
 
 ```cpp
     // If applicable, register any delegate proxy functions and their captured actor variables
@@ -325,6 +325,25 @@ The `RegisterClassDelegateProxiesFromBlueprint()` function scans both the functi
     
     // Run thru the class defined variables first, get them registered
     CreateClassVariablesFromBlueprint();
+```
+
+![NewVariables in Blueprint Header](bytecode_blueprintheader.png)
+_`NewVariables` in Blueprint header_
+
+`CreateClassVariablesFromBlueprint()` then calls `CreateVariable()` on each element in the `NewVariables` array. From the image above we know that the new variables we created in the Blueprint Editor is not really a `UProperty` type, but a `FBPVariableDescription` struct. It only contains necessary information to form a `UProperty` object, this `CreateVariable()` then calls `FKismetCompilerUtilities::CreatePropertyOnScope()` to create a `UProperty` object on the class scope. Not that the first parameter is `NewClass`, which is the `UBlueprintGeneratedClass` we are working on.
+
+```cpp
+/** Creates a class variable */
+FProperty* FKismetCompilerContext::CreateVariable(const FName VarName, const FEdGraphPinType& VarType)
+{
+    // ... Other Code
+    FProperty* NewProperty = FKismetCompilerUtilities::CreatePropertyOnScope(NewClass, VarName, VarType, NewClass, CPF_None, Schema, MessageLog);
+    // ... Other Code
+    return NewProperty;
+}
+
+/** Creates a property named PropertyName of type PropertyType in the Scope or returns NULL if the type is unknown, but does *not* link that property in */
+FProperty* FKismetCompilerUtilities::CreatePropertyOnScope(UStruct* Scope, const FName& PropertyName, const FEdGraphPinType& Type, UClass* SelfClass, EPropertyFlags PropertyFlags, const UEdGraphSchema_K2* Schema, FCompilerResultsLog& MessageLog, UEdGraphPin* SourcePin);
 ```
 
 There’s a bit more involved here. We also need to add the timeline instances and simple construction script components to the class. This is accomplished by iterating over the timelines and simple construction script nodes, creating a class property for each one.
@@ -923,14 +942,11 @@ Now that the compiler is aware of all of the `UProperties` and `UFunctions` for 
 </div>
 
 ```cpp
-// We immediately relink children so that iterative compilation logic has an easier time:
-TArray<UClass*> ClassesToRelink;
-GetDerivedClasses(BP->GeneratedClass, ClassesToRelink, false);
-for (UClass* ChildClass : ClassesToRelink)
-{
-    ChildClass->Bind();
-    ChildClass->StaticLink();
-    ensure(ChildClass->ClassDefaultObject == nullptr);
+{ BP_SCOPED_COMPILER_EVENT_STAT(EKismetCompilerStats_BindAndLinkClass);
+
+    // Relink the class
+    NewClass->Bind();
+    NewClass->StaticLink(true);
 }
 ```
 
