@@ -44,16 +44,13 @@ Great, the rest is pretty simple, we just right click in the content browser, an
 ![Create Blueprint](bytecode_create.png){: width="400"}
 _Creating a new blueprint asset_
 
-In this example, we are going to create a blueprint actor that will have a `StringToPrint` `FString` type of variable, and a custom function `CustomPrintString` that will print the string to the output log. Then call them upon `BeginPlay` event.
-
-## Add a new variable
-Create a new variable, name it `StringToPrint`, and set the type to `FString`. This variable will be used to store the string that we want to print to the output log. I gave it a default value of `Hello World!`, but this step is not necessary.
+In this example, we are going to create a blueprint actor that will have a `StringToPrint` `FString` type of variable, and a custom function `CustomPrintString` that will print the string to the output log and screen. Then call them upon `BeginPlay` event.
 
 ![Add Variable](bytecode_newvariable.png){: width="400"}
 _Adding a new variable to the blueprint_
 
 ## Add a custom function
-Create a new function, name it `CustomPrintString`, and set the return type to `void`. This function will take in a `FString` type of input parameter, assign it to a local variable and print it.
+Create a new function, name it `CustomPrintString`, and set the return type to `FString`. This function will take in a `FString` type of input parameter, assign it to a local variable and print it, then pass the value in the local variable to the output parameter.
 
 ![Add Function](bytecode_customfunc.png){: width="400"}
 _Adding a custom function to the blueprint_
@@ -70,17 +67,40 @@ Now we can hit the compile and wait the magic to happen.
 ![Compile](bytecode_hitcompile.png){: width="400"}
 _Compiling the blueprint_
 
-Note that at this moment, moving the nodes around doesn't make the blueprint dirty, as the connection of nodes are not being changed, only the visual representations are.
+Note once the compile is finished, moving the nodes around doesn't make the blueprint dirty (Need to recompile), as the connection of nodes are not being changed, only the visual representations are. Everything that actually would make the blueprint to recompile would explicitly set the Blueprint state to `BS_Dirty`
+
+```cpp
+/**
+ * Enumerates states a blueprint can be in.
+ */
+UENUM()
+enum EBlueprintStatus : int
+{
+    /** Blueprint is in an unknown state. */
+    BS_Unknown,
+    /** Blueprint has been modified but not recompiled. */
+    BS_Dirty,
+    /** Blueprint tried but failed to be compiled. */
+    BS_Error,
+    /** Blueprint has been compiled since it was last modified. */
+    BS_UpToDate,
+    /** Blueprint is in the process of being created for the first time. */
+    BS_BeingCreated,
+    /** Blueprint has been compiled since it was last modified. There are warnings. */
+    BS_UpToDateWithWarnings,
+    BS_MAX,
+};
+```
 
 ![Blueprint Dirty](bytecode_movenodearound.png){: width="400"}
 _Moving nodes around doesn't make the blueprint dirty_
 
 ## Inspect Output
-Depends on your IDE and platform, the bytecode might look a little bit different visually (differnet intendent, extra lines, etc), but the content should be the same (The image below is on JetBrains Rider on Mac OS) In VS, the text should be grey instead of red by default.
+Depends on your IDE and platform, the bytecode might look a little bit different visually from mine (differnet color, extra lines, etc), but the content should be the same (The image below is on JetBrains Rider on Mac OS)
 
 ![Bytecode](bytecode_output2.png){: width="400"}
 
-We should be able to find a wall of text that looks like this in out IDE's console, and that's our bytecode generated! Let's analyze it.
+We should be able to find a wall of text that looks like this in our IDE's console, and that's our bytecode generated! Let's analyze it.
 
 ## Bytecode Analysis
 First of all, we should be able to quickly notice some obvious patterns:
@@ -126,10 +146,10 @@ Label_0x8A:
 ```
 {: file="Bytecode Output" }
 
-It's also very important that the execution of the whole bytecode is not starting from the very beginning, in this case, "ExecuteUbergraph_BPA_ByteCode", but rather jump back and forth, so we will need to find out where the entry point is.
+It's also very important that the execution of the whole bytecode is not starting from the very beginning, in this case, `ExecuteUbergraph_BPA_ByteCode`, but rather jump back and forth, so we will need to find out where the entry point is.
 
 ## ReceiveBeginPlay
-When the actor is being executed, the `BeginPlay` will be triggered, an experienced Unreal Developer would realize that this `BeginPlay` is not the native `BeginPlay` function we are calling in c++ side, but rather a `BlueprintImplementableEvent` that has a custom name "BeginPlay". So this is where our blueprint will be executed.
+When the actor is being executed, the `BeginPlay` will be triggered, an experienced Unreal Developer would realize that this `BeginPlay` is not the native `BeginPlay` function we are calling in C++ side, but rather a `BlueprintImplementableEvent` that has a custom name "BeginPlay". So this is the starting point of our bytecode execution.
 
 ```cpp
 /** Event when play begins for this actor. */
@@ -137,7 +157,7 @@ UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName = "BeginPlay"))
 ENGINE_API void ReceiveBeginPlay();
 ```
 
-Let's take a look at the logic flow, upon starting the function, it will jump to `Label_0x0`, then to `Label_0x1`, then back to `Label_0x2`, so on and so forth.
+Let's take a look at the logic flow, upon starting the function, it will jump to `Label_0x0`, then to `Label_0x1`, then back to `Label_0x2`, so on and so forth. As we can see that this whole function is merely just a wrapper to the actual implementation in `Ubergraph`, this yields a very important information for `BlueprintImplementableEvent` and `BlueprintNativeEvent`, the implementation we had in event graph is just their implementation, a seperate function graph is created during compilation and wired the logic into the `Ubergraph` during execution.
 
 - 0x0:
   - debug site, no effect on execution, this is used for breakpoint mapping.
@@ -179,14 +199,14 @@ Label_0x15:
      $53: EX_EndOfScript
 ```
 
-Great, looks pretty simple, now let's take a closer look at `0x3`, where we pushed a stack of `Ubergraph`
+Great, looks pretty simple, now let's take a closer look at `0x3`, where we pushed a stack for executing `Ubergraph`, a literal `int32 49` is passed in, this gets converted to `0x31` as hex, which is the offset of the bytecode in `ExecuteUbergraph_BPA_ByteCode`. This is how the bytecode jumps to the actual implementation of the `BeginPlay` event.
 
 ## ExecuteUbergraph_BPA_ByteCode
-Start with `ExecuteUbergraph_BPA_ByteCode`, from the name and previous knowledge, we know that this represents the whole event graph merged together. And it expect a parameter `EntryPoint` to be passed in, so that it can jump to different parts of the bytecode.
+Start with `ExecuteUbergraph_BPA_ByteCode`, from the name and previous knowledge, we know that this represents the whole event graph merged together. And it expects a parameter `EntryPoint` to be passed in, so that it can jump to different parts of the bytecode. The following order is a simulation of the bytecode execution flow.
 
 - 0x0:
   - Computed Jump, offset specified by expression:
-    - Evaluated the input parameter, and jump to 0x31.
+    - Evaluated the input parameter, and jump to `0x31`.
 - 0x31:
   - debug site, no effect on execution, this is used for breakpoint mapping.
 - 0x32:
@@ -371,24 +391,27 @@ Label_0x8A:
      $53: EX_EndOfScript
 ```
 
+Boom, we have successfully analyzed the bytecode generated from a simple blueprint. The whole process is pretty simple, but it gives us a lot of insights on how the blueprint is being compiled and executed.
+
 ## Key Takeaways and Where to go from here
 There're few obvious takeaways:
-- For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act a wrapper and the bytecode will eventually jump to the corresponding function stub label in `Ubergraph`
-- This gives us a pretty good idea on why the blueprint is slow comparing with c++ code, the BPVM is doing a lot of copying and stack management, adding overhead and jumping nodes to make the process happen, which are all unnecessary in c++.
-- `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the compiler optimization in c++. Most optimizations to bytecode are done on the `EExprToken` level, while an full-fledged compiler can do it on the assembly level.
+- For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act a wrapper and the bytecode will eventually jump to the corresponding function stub label offset location in `Ubergraph`
+- This gives us a pretty good idea on why the blueprint is slow comparing with C++ code, the BPVM is doing a lot of copying and stack management, adding overhead and various jumpings to make the logic flow, which a lot of them are unnecessary in C++.
+  - In the example we demonstrated, all the literal values are being copied over, we could specify the blueprint to pass values as reference, as well as using `UPARAM(ref)` in C++ function signature to avoid unnecessary copying.
+- `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the optimization done by C++ compiler. Most optimizations in bytecode are done on the `EExprToken` level, while an full-fledged C++ compiler can do it at the assembly level.
 - Calling a function from C++ that defined in blueprint will be costly, but calling a function from blueprint that defined in C++ will be much faster, as it almost only involves a `EX_CallFunction` instruction back to the C++ side, and C++ will handle the rest with an incomparable speed.
   - That also clearly explains why the best practice is to put the heavy lifting in C++ side, and only use blueprint for high-level logic and game design.
 
->The term "Slow" here is just a relative term, it's a measurement of how many more instructions (and eventually, CPU cycles) are needed in Blueprint to achieve the same thing in c++, but with multi-threading and async task, the real performance difference might not be that significant. (I don't have a benchmark to back this statement though)
+>The term "Slow" here is just a relative term, it's a measurement of how many more instructions (and eventually, CPU cycles) are needed in Blueprint to achieve the same thing in C++, but with multi-threading and async task, the real performance difference might not be that significant. (I don't have a benchmark to back this statement though)
 {: .prompt-info } 
 
-As we reached the end of this Epic journey (Literally XD), we might kept wondering, why do we even need to know this? Does the whole series just proves an already proven fact that c++ is faster than blueprint? Well not really, besides it's fun to know, here's a lot of spaces to explore from there:
+As we reached the end of this Epic journey (Literally XD), we might kept wondering, why do we even need to know this? Does the whole series just proves an already proven fact that C++ is faster than blueprint? Well not really, besides it's fun to know, here's a lot of spaces to explore from there:
 - We can create a specific type of blueprint, and make a whole new editor for it, just like how the `Animation Blueprint` or `Behaviore Tree` works, and then we can create a whole new type of game logic that can be easily created by designers.
   - For an RPG framework, we can create a custom `Dialogue` and `Quest` editor, so that designers can easily create new dialogues and quests without touching the code. We can customize the flow to have our own FSM, then override the compile proces to make sure they can be compiled and executed properly.
 - We can create a custom class that inherit from `FKismetCompilerContext` and then override the `Compile` function, so that we can do some custom optimization, add new instructions to the bytecode or even do backward compatibility cleanups for outdated player data.
 - It help us to have a better understanding of the compile process, especially the order, so when we try to jam our code to the engine, we won't be lost quickly in the swarm of source.
 - It helped us understand a bit more on how such a compiler would be implemented, so if we are going to write our own script for our own engine, this is a fantastic reference.
-- The idea of abstrate away the nasty details of implementation but let a compiler to write the full code full us is a very powerful concept, because `UHT` are also doing the same thing, ever wondered why the c++ header would always include a `xx.generated.h` and the `Intermediate` folder would always have a bunch of `xx.gen.cpp`? That's the magic of `UHT`.
+- The idea of abstrate away the nasty details of implementation but let a compiler to write the full code full us is a very powerful concept, because `UHT` are also doing the same thing, ever wondered why the C++ header would always include a `xx.generated.h` and the `Intermediate` folder would always have a bunch of `xx.gen.cpp`? That's the magic of `UHT`.
   - We will talk about `UHT` in the future, this unlocks us the ability to create `CustomThunk` for a function, effectively unleashing the full power of the engine to us.
 
 That's it for this series, I hope you enjoyed it as much as I do. If there's any questions, mistakes or stuff to discuss, feel free to comment down below to help future readers :D. Until next time, happy coding and have a great day!
