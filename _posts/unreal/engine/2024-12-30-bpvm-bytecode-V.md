@@ -397,7 +397,7 @@ Boom, we have successfully analyzed the bytecode generated from a simple bluepri
 
 ## Key Takeaways
 There're few obvious takeaways:
-- For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act a wrapper and the bytecode will eventually jump to the corresponding function stub label offset location in `Ubergraph`
+- For any functions or custom events defined in Event Graph, there's always a seperate function graph being generated, this act as a wrapper and the bytecode will eventually jump to the corresponding function stub label offset location in `Ubergraph`
 - This gives us a pretty good idea on why the blueprint is slow comparing with C++ code, the BPVM is doing a lot of copying and stack management, adding overhead and various jumpings to make the logic flow, which a lot of them are unnecessary in C++.
   - In the example we demonstrated, all the literal values are being copied over, we could specify the blueprint to pass values as reference, as well as using `UPARAM(ref)` in C++ function signature to avoid unnecessary copying.
 - `FKismetCompilerContext` will do a bit of optimization during the compilation, however this is far less powerful comparing with the optimization done by C++ compiler. Most optimizations in bytecode are done on the `EExprToken` level, while an full-fledged C++ compiler can do it at the assembly level.
