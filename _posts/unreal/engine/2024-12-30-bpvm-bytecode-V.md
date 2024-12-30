@@ -173,7 +173,7 @@ Let's take a look at the logic flow, upon starting the function, it will jump to
 - 0x12:
   - At this time, the function stack pops back, meaning the execution has finished, the flow continues. Another wire debug site, no effect on execution, this is used for breakpoint mapping.
 - 0x13:
-  - Return expression, no value is returned, this is a function that doesn't return anything.
+  - Return expression, no value is returned, (This has nothing to do with the function's "Return Node", more on this later)
 - 0x15:
   - End of script, this is the end of the function.
 
@@ -222,13 +222,12 @@ Start with `ExecuteUbergraph_BPA_ByteCode`, from the name and previous knowledge
     - Local variable of type `FString` named `CallFunc_CustomPrintString_NewString`.
     - `EX_EndFunctionParms`
   - This is where the `CustomPrintString` function is called, with the `StringToPrint` variable as the parameter.
-  - Note that this is not a stack node, not stack management is needed.
 - 0x2B:
   - Same old, at this point, the inner function has finished exectution. This is another wire debug site, no effect on execution, this is used for breakpoint mapping.
 - 0x2C:
   - Another jump to 0x38.
 - 0x38:
-  - Return expression, no value is returned, this is a function that doesn't return anything.
+  - Return expression, no value is returned.
 - 0x3A:
   - End of script, this is the end of the function.
 
@@ -266,7 +265,9 @@ Label_0x3A:
 At `ExecuteUbergraph_BPA_ByteCode: Label_0xB` This instruction calls a local virtual script function named `CustomPrintString`, and try to pass in the `StringToPrint` instance variable as the parameter. The `EX_EndFunctionParms` indicates the end of the function parameters.
 
 $1: `StringToPrint` — An instance variable of type `FString` that holds the string to be printed.
-$0: `CallFunc_CustomPrintString_NewString` — A local variable of type `FString` that stores the result of `StringToPrint` (a bit like how assembly calls a function, a external value is captured and copied to the local scope*).
+
+$0: `CallFunc_CustomPrintString_NewString` — A local variable of type `FString` that stores the result of `StringToPrint` (slightly like how assembly calls a function, a external value is captured and copied to the local scope*).
+
 $16: `EX_EndFunctionParms` — Indicates the end of function parameters.
 
 ```bash
@@ -500,7 +501,7 @@ void EmitAssignmentStatment(FBlueprintCompiledStatement& Statement)
 This function converts the assignement operation to an actual `EX_Let` instruction, it could be `EX_LetBool`, `EX_LetObject`, or just `EX_Let` if none of the special cases are met, and then it will call `EmitTermExpr()` Which we already know how it works in previous post.
 
 ### EmitReturn()
-As mentioned before, `EmitReturn()` gets called when dealing with `KCST_Return` statement. Technically, it could allow having a return value, but from the codebase, I didn't actually find any function that has this parameter. Maybe it's for nodes other than blueprint nodes. So if no return parameter is passed in, a no operation expression `EX_Nothing` is used.
+As mentioned before, `EmitReturn()` gets called when dealing with `KCST_Return` statement. Technically, it could allow having a return value, but from the codebase, I didn't actually find any function that has this parameter. Maybe it's for nodes other than blueprint nodes. So if no return parameter is passed in, a no operation expression `EX_Nothing` is used. Anyway, since when we enter a function, we always push in a new stack, hence after the function is finished, we need this "Return" to pop the stack and continue the flow.
 
 ### Fact Check
 If our assumption is correct, then at the end of `CustomPrintString()`'s bytecode, we should see a `EX_Let` operation, which write a `FString` variable value to an output parameter named `NewString`, following with a `EX_GotoReturn` operation, then an `EX_Return` operation with `EX_Nothing` as return parameter, which is the actual return statement of the function. And an `EX_EndOfScript` to end the function. So what does the code say?
