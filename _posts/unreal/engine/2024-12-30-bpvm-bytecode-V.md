@@ -149,7 +149,7 @@ Label_0x8A:
 It's also very important that the execution of the whole bytecode is not starting from the very beginning, in this case, `ExecuteUbergraph_BPA_ByteCode`, but rather jump back and forth, so we will need to find out where the entry point is.
 
 ## From BeginPlay to ReceiveBeginPlay
-After the actor is spawned and ready, `BeginPlay` will be triggered, an experienced Unreal Developer would realize that this `BeginPlay` is not the native `BeginPlay` function we are calling in C++ side, but rather a `BlueprintImplementableEvent` that has a custom name "BeginPlay". So this is the starting point of our bytecode execution.
+After the actor is spawned and ready, `BeginPlay` will be triggered, an experienced Unreal Developer would realize that this `BeginPlay` is not the native `BeginPlay` function we are calling in C++ side, but rather a `BlueprintImplementableEvent` that has a custom name "BeginPlay". So this is the starting point of our bytecode execution. (We will talk about this process in detail in future posts)
 
 ```cpp
 void AActor::BeginPlay()
