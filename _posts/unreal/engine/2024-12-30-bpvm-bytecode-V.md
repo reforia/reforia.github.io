@@ -517,7 +517,6 @@ As mentioned before, `EmitReturn()` gets called when dealing with `KCST_Return` 
 If our assumption is correct, then at the end of `CustomPrintString()`'s bytecode, we should see a `EX_Let` operation, which write a `FString` variable value to an output parameter named `NewString`, following with a `EX_GotoReturn` operation, then an `EX_Return` operation with `EX_Nothing` as return parameter, which is the actual return statement of the function. And an `EX_EndOfScript` to end the function. So what does the code say?
 
 ```bash
-...
 Label_0x6C:
      $F: Let (Variable = Expression)
        Variable:
