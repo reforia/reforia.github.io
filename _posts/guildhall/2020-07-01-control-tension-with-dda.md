@@ -20,10 +20,6 @@ Divinity: Original Sin 2 Definitive Edition
 Engine: The Divinity Engine 2
 Working Hours: 210+ Hours
 
-## Post
-![Post](control_tension_1.png)
-_Thesis Post_
-
 ## Defense Presentation
 {% include embed/youtube.html id="QeMuJa9ldic" %}
 
