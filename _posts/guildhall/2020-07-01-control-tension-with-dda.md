@@ -30,7 +30,5 @@ _Thesis Post_
 ## Gameplay Walkthrough
 {% include embed/youtube.html id="oXQLYz60jhk" %}
 
-[Download Mod]: "https://steamcommunity.com/sharedfiles/filedetails/?id=1934550018"
-[Source Code]: "https://github.com/reforia/MasterThesis"
-[Download Defense Slide]: # "https://drive.google.com/file/d/1
-[Download Post-Mortem]: # "https://drive.google.com/file/d/1
+[Download Mod]: https://steamcommunity.com/sharedfiles/filedetails/?id=1934550018
+[Source Code]: https://github.com/reforia/MasterThesis
