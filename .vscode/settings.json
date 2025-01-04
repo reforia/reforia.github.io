@@ -28,6 +28,7 @@
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
   "cSpell.words": [
+    "Arrrrgh",
     "AUHT",
     "barebone",
     "Blockout",
@@ -38,6 +39,7 @@
     "Commandlet",
     "cooldown",
     "CPUPROFILER",
+    "cutscene",
     "Disasm",
     "Dota",
     "endcomment",
