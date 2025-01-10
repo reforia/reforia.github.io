@@ -149,7 +149,7 @@ There are various plugins available for JetBrains Rider and VS Code that can be 
 ```
 
 ## Pricing
-Now we can enjoy the `DeepSeek`'s power with extremely cheap quota, this post itself is largely written by auto-completion feature as well. It took about 380,000 tokens, and costs 0.25 CNY (0.034 USD). Which is about 0.65 CNY (or 0.089 USD)/Million Tokens, in comparison, as the time of writing, OpenAI 4O API charges 2.5 USD/Million Tokens.
+Now we can enjoy the `DeepSeek`'s power with extremely cheap quota, this post itself is largely written by auto-completion feature as well. It took about 380,000 tokens, and costs 0.25 CNY (0.034 USD). Which is about 0.65 CNY (or 0.089 USD)/Million Tokens, in comparison, as the time of writing, OpenAI 4O API charges 2.5 USD/Million Tokens. (28x cheaper)
 
 
 [High-flyer]: https://www.high-flyer.cn/
