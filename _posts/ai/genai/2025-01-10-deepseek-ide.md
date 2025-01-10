@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Embedding DeepSeek-v3 into JetBrains Rider
+title: Embedding DeepSeek-v3 into JetBrains Rider and VS Code
 description: 
   A quick walkthrough on embedding deepseek-v3 into JetBrain Rider and VS Code
 date: 2025-01-10 12:00 +0800
