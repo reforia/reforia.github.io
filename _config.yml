@@ -34,9 +34,6 @@ github:
 # Enable animation on the background
 background_animation: true
 
-# Favicon
-logo: /assets/img/favicons/favicon-96x96.png
-
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
