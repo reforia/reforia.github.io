@@ -34,7 +34,8 @@ github:
 # Enable animation on the background
 background_animation: true
 
-logo: assets/favicons/favicon-96x96.png
+# Favicon
+logo: /assets/img/favicons/favicon-96x96.png
 
 social:
   # Change to your full name.
@@ -103,7 +104,7 @@ theme_mode: dark # [light | dark]
 cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar: assets/img/favicons/favicon-96x96.png
+avatar: /assets/img/favicons/favicon-96x96.png
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
