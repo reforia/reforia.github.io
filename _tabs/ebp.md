@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 icon: fas fa-info-circle
-order: 4
+order: 5
 title: ebp
 ---
 
@@ -15,9 +15,5 @@ I started creating games in 2014 and have participated in multiple AAA and Indie
 My passion is to bring vivid games to life with the power of technology and a detail-focused mindset. My interests span across design, tech, and art.
 
 [Resume]
-
-### Playground (Online-IDE)
-{% include pythoneditor.html %}
-
 
 [Resume]: /assets/pdf/resume/Jayden_Zhang_Resume.pdf
