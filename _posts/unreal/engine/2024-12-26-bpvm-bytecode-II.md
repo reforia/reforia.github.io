@@ -25,19 +25,19 @@ According to the official [document], the blueprint compilation process can be b
 ### Digesting the Process
 While this may seem like the entire compilation process triggered when you hit the "`Compile`" button, the content in the image is just a small part of it.
 
-Let’s break it down in reverse order to understand the purpose behind it all:
+To better understand the compilation process, let’s break it down in reverse order, starting from the final goal and working our way back to the initial steps:
 - Final Goal: 
-  - The ultimate aim is to generate a class that contains functions, logic, and properties, all of which can be executed at runtime. This class needs to be structured efficiently, with unnecessary graph representations removed (since those are primarily for human readability).
+  - The final goal is to generate a class that contains functions, logic, and properties, all of which can be executed at runtime. This involves converting the human-readable graph representations into an optimized format, namely bytecode, which is more efficient for runtime execution. Then all the existing instances will be reinstanced.
 - Conversion: 
-  - This means that the graphs and functions need to be converted into an optimized format, namely Bytecode.
+  - This conversion involves transforming the graphs and functions into bytecode, a low-level, optimized format that the Unreal Engine Virtual Machine (VM) can execute efficiently at runtime.
 - Data Preparation: 
-  - To achieve this conversion, we need to prepare the data for the compilation process.
+  - This step involves preparing the graph data, variable references, and function definitions for the compilation process.
 - Data Population: 
-  - The process essentially populates data into a `UBlueprintGeneratedClass`. This class serves as a container, where we can store the data. Instead of creating a new class each time, we reuse the existing one, but before doing so, we need to ensure the data is clean and doesn’t interfere with new data (hence, the "Clean and Sanitize Class" step).
+  - This step involves populating the `UBlueprintGeneratedClass` with compiled data, such as bytecode, function definitions, and property values. Instead of creating a new class each time, we reuse the existing `UBlueprintGeneratedClass`. However, before populating new data, we must clean and sanitize the class to ensure no residual data interferes with the new compilation.
 
-Now we can better understand why the process unfolds in this particular way. And lastly, because our modifications may alter the class layout, so we need to "Re-instance" it to reflect the change, we also need to ensure that existing instances in the world are aware of it. So they are also being "Reinstanced".
+Re-instancing is akin to updating a template: when the blueprint changes, all instances derived from it must be updated to reflect the new structure. This ensures that existing objects in the world remain consistent with the updated blueprint.
 
->The steps mentioned above outline the compilation process for a single blueprint. However, the full process is much more complex, involving nearly 15 different steps. In this series, we'll cover each of these steps from start to finish. 
+>While this post covers the high-level overview, the full compilation process involves nearly 15 distinct steps, each with its own intricacies. In this series, we'll delve into each step in detail, providing a comprehensive understanding of how Blueprints are compiled in Unreal Engine. 
 {: .prompt-info}
 
 ## Compile Button - The Trigger
@@ -46,7 +46,7 @@ The "`Compile`" button itself is part of the `FBlueprintEditorToolbar::AddCompil
 ![Editor Modes](bytecode_othereditormodes.png){: width="500"}
 _Various Editor Modes_
 
-From the codebase, we can also see several custom EditorModes that override or extend the default behavior, including the available tools. The `AddCompileToolbar()` function is essentially a pre-defined template that can be reused across different EditorModes.
+From the codebase, we can also see several custom EditorModes that override or extend the default behavior, including the available tools. The `AddCompileToolbar()` function is a utility function within the `FBlueprintEditorToolbar` class, responsible for adding the Compile button to the toolbar during the initialization of a BlueprintEditorMode.
 
 ```cpp
 void FBlueprintEditorToolbar::AddCompileToolbar(UToolMenu* InMenu)
@@ -115,7 +115,7 @@ void FBlueprintEditor::CreateDefaultCommands()
 }
 ```
 
-Essentially it just act as an event handler, in this case, `Compile` gets mapped to `FBlueprintEditor::Compile()`, and internally it calls `FKismetEditorUtilities::CompileBlueprint()` to do the actual compilation.
+Essentially it just act as an event handler, in this case, clicking of `Compile` button gets mapped to `FBlueprintEditor::Compile()`, and internally it calls `FKismetEditorUtilities::CompileBlueprint()` to do the actual compilation.
 
 ```cpp
 void FBlueprintEditor::Compile()
@@ -281,7 +281,7 @@ void FBlueprintCompilationManagerImpl::FlushCompilationQueueImpl(bool bSuppressB
 ```
 
 ### Stage I: GATHER
-This stage is responsible for gathering all the blueprints that need to be compiled, and then add any children
+This stage gathers all Blueprints that need to be compiled, including their dependencies (e.g., child Blueprints), to ensure proper compilation order.
 
 ```cpp
 // STAGE I: Add any related blueprints that were not compiled, then add any children so that they will be relinked:
@@ -339,8 +339,7 @@ The purpose of this stage is to filter out data only and interface blueprints, a
 
 Pending kill objects do not need these updates and `StaticDuplicateObject` cannot duplicate them - so they cannot be updated as normal, anyway.
 
-Ultimately pending kill `UBlueprintGeneratedClass` instances rely on the `GetDerivedClasses/ReparentChild`
-calls in `FBlueprintCompileReinstancer()` to maintain accurate class layouts so that we don't leak or scribble memory.
+Pending kill `UBlueprintGeneratedClass` instances rely on `GetDerivedClasses` and `ReparentChild` calls in `FBlueprintCompileReinstancer()` to maintain accurate class layouts and prevent memory corruption.
 
 >Above comments are directly from the codebase.
 {: .prompt-info}
