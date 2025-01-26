@@ -16,4 +16,8 @@ My passion is to bring vivid games to life with the power of technology and a de
 
 [Resume]
 
+### Playground (Online-IDE)
+{% include pythoneditor.html %}
+
+
 [Resume]: /assets/pdf/resume/Jayden_Zhang_Resume.pdf

@@ -70,6 +70,7 @@
     "playtests",
     "Postcompile",
     "Precheck",
+    "pythoneditor",
     "REINST",
     "reinstance",
     "reinstanced",
