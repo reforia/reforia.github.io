@@ -29,11 +29,11 @@ To better understand the compilation process, let’s break it down in reverse o
 - Final Goal: 
   - The final goal is to generate a class that contains functions, logic, and properties, all of which can be executed at runtime. This involves converting the human-readable graph representations into an optimized format, namely bytecode, which is more efficient for runtime execution. Then all the existing instances will be reinstanced.
 - Conversion: 
-  - This conversion involves transforming the graphs and functions into bytecode, a low-level, optimized format that the Unreal Engine Virtual Machine (VM) can execute efficiently at runtime.
+  - To achieve this, a conversion needs to happen, which involves transforming the graphs and functions into bytecode, a low-level, optimized format that the Unreal Engine Virtual Machine (VM) can execute efficiently at runtime.
 - Data Preparation: 
-  - This step involves preparing the graph data, variable references, and function definitions for the compilation process.
+  - To pave the way for conversion. we need to prepare the graph data, variable references, and function definitions for the compilation process.
 - Data Population: 
-  - This step involves populating the `UBlueprintGeneratedClass` with compiled data, such as bytecode, function definitions, and property values. Instead of creating a new class each time, we reuse the existing `UBlueprintGeneratedClass`. However, before populating new data, we must clean and sanitize the class to ensure no residual data interferes with the new compilation.
+  - We need a place for all the above steps to happen, which involves populating the `UBlueprintGeneratedClass`. Instead of creating a new class each time, we reuse the existing `UBlueprintGeneratedClass` once created. However, before populating new data, we must clean and sanitize the class to ensure no residual data interferes with the new compilation.
 
 Re-instancing is akin to updating a template: when the blueprint changes, all instances derived from it must be updated to reflect the new structure. This ensures that existing objects in the world remain consistent with the updated blueprint.
 
