@@ -77,33 +77,18 @@ There are various plugins available for JetBrains Rider and VS Code that can be 
   },
   "models": [
     {
-      "title": "DeepSeek",
-      "model": "deepseek-chat",
-      "contextLength": 128000,
-      "apiKey": "YOUR API KEY HERE",
-      "provider": "openai",
-      "apiBase": "https://api.deepseek.com/beta"
-    },
-    {
-      "title": "DeepSeek Coder",
-      "model": "deepseek-coder",
-      "contextLength": 128000,
-      "provider": "deepseek",
-      "apiKey": "YOUR API KEY HERE"
-    },
-    {
       "title": "DeepSeek Chat",
       "model": "deepseek-chat",
       "contextLength": 128000,
-      "apiKey": "YOUR API KEY HERE",
-      "provider": "deepseek"
+      "provider": "deepseek",
+      "apiKey": "REDACTED"
     }
   ],
   "tabAutocompleteModel": {
-    "title": "DeepSeek",
-    "model": "deepseek-chat",
-    "apiKey": "YOUR API KEY HERE",
-    "provider": "openai",
+    "title": "DeepSeek Coder",
+    "model": "deepseek-coder",
+    "apiKey": "REDACTED",
+    "provider": "deepseek",
     "apiBase": "https://api.deepseek.com/beta"
   },
   "slashCommands": [
