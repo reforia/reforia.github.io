@@ -17,6 +17,9 @@ While `DeepSeek` performs incredibly good at code and math criteria. it fell sho
 > [DeepSeek] fundamentally is a Chinese enterprise, so the privacy policy, data collection policy and EULA might operate differently than Non-Chinese companies
 {: .prompt-warning}
 
+> Update at 2025-02-10: Deepseek no longer accept new API charges due to high demand and the performance is not as good as before, so the first part of this article is outdated. Audience can seek for other providers like SiliconFlow API (Also a chinese company btw), NVIDIA NIM API, Azure API, etc. Once we got the API endpoint and API Key from provider, the rest of the article still applies.
+{: .prompt-info}
+
 ## Introduction
 [High-flyer], a chinese AI company has released the latest model of [deepseek] - `DeepSeek-V3`  a few days ago that quickly became popular among developers. It provides SOTA performance on coding and math tasks, with extremely cheap pricing. The model is available on [HuggingFace] with it's benchmark, as well as general web access through [deepseek chat]. But for developers, the most convenient way to use it is embedding it into our IDEs, such as JetBrains Rider and VS Code, just like `GitHub Copilot`. In this post we will cover the API accessing and embedding process.
 
