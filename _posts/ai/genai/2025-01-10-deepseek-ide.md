@@ -17,7 +17,7 @@ While `DeepSeek` performs incredibly good at code and math criteria. it fell sho
 > [DeepSeek] fundamentally is a Chinese enterprise, so the privacy policy, data collection policy and EULA might operate differently than Non-Chinese companies
 {: .prompt-warning}
 
-> Update at 2025-02-10: Deepseek no longer accept new API charges due to high demand and the performance is not as good as before, so the first part of this article is outdated. Audience can seek for other providers like SiliconFlow API (Also a chinese company btw), NVIDIA NIM API, Azure API, etc. Once we got the API endpoint and API Key from provider, the rest of the article still applies.
+> Update at 2025-02-10: Deepseek no longer accept new API charges due to high demand and the performance is not as good as before, so the first part of this article is outdated. Audience can seek for other providers like SiliconFlow API (Also a chinese company btw), NVIDIA NIM API, Azure API, etc. The rest of the article still applies, just replace with your API endpoint and API Key from a trustworthy provider.
 {: .prompt-info}
 
 ## Introduction
@@ -81,18 +81,19 @@ There are various plugins available for JetBrains Rider and VS Code that can be 
   "models": [
     {
       "title": "DeepSeek Chat",
-      "model": "deepseek-chat",
+      "model": "deepseek-chat", //change to corresponding model name for other providers
       "contextLength": 128000,
-      "provider": "deepseek",
-      "apiKey": "REDACTED"
+      "apiKey": "REDACTED",
+      "provider": "deepseek", //change to openai for other providers
+      "apiBase": "https://api.deepseek.com" //change to corresponding API base for other providers, e.g https://api.siliconflow.cn
     }
   ],
   "tabAutocompleteModel": {
     "title": "DeepSeek Coder",
-    "model": "deepseek-coder",
+    "model": "deepseek-coder", //change to corresponding model name for other providers
     "apiKey": "REDACTED",
-    "provider": "deepseek",
-    "apiBase": "https://api.deepseek.com/beta"
+    "provider": "deepseek", //change to openai for other providers
+    "apiBase": "https://api.deepseek.com/beta" //change to corresponding API base for other providers, e.g https://api.siliconflow.cn
   },
   "slashCommands": [
     {
