@@ -22,7 +22,7 @@ Unreal Engine is renowned for its powerful visual scripting system—Blueprint (
 ## Previous Researches
 Epic has published a [document] that offers a brief overview of how the Blueprint compilation process works, but it only scratches the surface and doesn’t dive into the details. Fortunately, the community has contributed some great research as well. For BPVM, there’s the [Blueprint VM], and for Blueprint Compilation, there are [Blueprint I], [Blueprint II], and [Blueprint III].
 
-> The blogs linked above are written in Chinese. For English readers, a translation tool like ChatGPT could be helpful. {: .prompt-tip}
+> The blogs linked above are written in Chinese. For English readers, a translation tool like ChatGPT could be helpful. {: .prompt-tip }
 
 While these posts are high-quality and definitely worth reading, we’ll still walk through the key concepts and terminology in a more comprehensive way to establish a common understanding as we tackle the next challenges.
 
