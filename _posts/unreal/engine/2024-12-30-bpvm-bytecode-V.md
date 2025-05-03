@@ -289,7 +289,7 @@ Label_0xB:
 ```
 {: file="Call CustomPrintString" }
 
->*Technically, the assembly code would push the value of the parameter to the stack, and then call the function. The function would then pop the value from the stack and use it. In this case, the value is copied to a local variable, which is a more high-level abstraction. Also note that if we are compiling assembly with compiler optimization, the value might be passed directly to the function without any copying. But of course this is not the case in Blueprint bytecode.
+>*Technically, the assembly code would push the value of the parameter to the stack, and then call the function. The function would then pop the value from the stack and use it. In this case, the value is copied to a local variable, which is a more high-level abstraction. Also note that if we are compiling assembly with compiler optimization, the value might be passed directly to the function without any copying. But of course this is not the case in Blueprint VM.
 {: .prompt-info }
 
 ## CustomPrintString
