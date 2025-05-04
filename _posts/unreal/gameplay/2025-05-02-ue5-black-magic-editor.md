@@ -5,7 +5,7 @@ description:
   This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
-published: false
+published: true
 tags: [Unreal, Gameplay]
 media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-editor/
 ---
