@@ -23,12 +23,6 @@ How does all the audio files work
 ## Network EOS and their configs
 How does all the network files as well as the configs work
 
-## Project Setup
-Seems the engine has an automated project setup method, because the project is named Lyra, but the actual project name is LyraGame and LyraEditor
-
-## Custom Editor Engine class
-UUnrealEdEngine EditorEngine, configured in DefaultEngine.ini
-
 ## Developer Settings
 Controls stuff like cheats, debug settings, etc.
 
@@ -37,38 +31,6 @@ Controls stuff like cheats, debug settings, etc.
     UPROPERTY(config, EditAnywhere, Category = Lyra, meta = (ConsoleVariable = "LyraPC.ShouldAlwaysPlayForceFeedback"))
 	bool bShouldAlwaysPlayForceFeedback = false;
 ```
-
-## Set a toast notification
-```cpp
-void ULyraDeveloperSettings::OnPlayInEditorStarted() const
-{
-	// Show a notification toast to remind the user that there's an experience override set
-	if (ExperienceOverride.IsValid())
-	{
-		FNotificationInfo Info(FText::Format(
-			LOCTEXT("ExperienceOverrideActive", "Developer Settings Override\nExperience {0}"),
-			FText::FromName(ExperienceOverride.PrimaryAssetName)
-		));
-		Info.ExpireDuration = 2.0f;
-		FSlateNotificationManager::Get().AddNotification(Info);
-	}
-}
-```
-
-## Allow class to store data in a config
-```cpp
-/**
- * Platform emulation settings
- */
-UCLASS(config=EditorPerProjectUserSettings, MinimalAPI)
-class ULyraPlatformEmulationSettings : public UDeveloperSettingsBackedByCVars
-{
-	// ...
-}
-```
-
-## GetOptions meta
-GetOptions meta allow a property to be displayed as a dropdown in the editor. Based on a function that returns a list of options.
 
 ## Experience Definition
 Experience Definition acts like a decoupled "metadata" that described, in order to load an experience, what Game Feature Plugins to load, what Game Modes to use, what Maps to load, etc. The exotic logic can be considered as a bunch of Actions that are executed when the experience is loaded. In other word, in Epic's definition, an experience is consist of Game Features, Pawn Data, and Actions.
@@ -153,14 +115,6 @@ public:
 	TArray<FString> GameFeaturesToEnable;
 };
 ```
-
-## Improve compile performance
-```cpp
-#include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPawnData)
-```
-
-## Monitor Editor Performance
-Enable editor performance tool in editor preference
 
 ## Pawn Data
 Epic consider a pawn to be defined by a `PrimaryDataAsset` pretty much the same with Experience, we can see that a pawn is consisted of
@@ -301,6 +255,7 @@ public:
 	float EffectLevel = 1.0f;
 };
 ```
+
 ### Ability Set Attribute Set
 So far this is just a wrapper of Attribute Set, but wrapping it up like GA and GE allows us to further extend it in the future
 ```cpp
@@ -321,6 +276,7 @@ public:
 
 };
 ```
+
 ### Ability Set Granted Handles
 This stores the actual underlying GAS data of GA, GE and Attribute Sets, after these data has been granted to the target Pawn ASC from our wrapped data structs
 ```cpp
@@ -356,75 +312,4 @@ protected:
 	UPROPERTY()
 	TArray<TObjectPtr<UAttributeSet>> GrantedAttributeSets;
 };
-```
-
-## GameEngine, EditorEngine, UnrealEdEngine
-UnrealEdEngine inherit from EditorEngine, that governs the actual interactions inside the Unreal Editor, like how select an actor would behave, how PIE behave, etc. Normally we want to inherit our own editor engine under `UUnrealEdEngine`, because `UEditorEngine` is too high level, most of the functions that related to editor interactions are virtual functions with empty implementation.
-
-They can be configured under `DefaultEngine.ini` - `[/Script/Engine.Engine]`
-```ini
-[/Script/Engine.Engine]
-GameEngine=/Script/LyraGame.LyraGameEngine
-UnrealEdEngine=/Script/LyraEditor.LyraEditorEngine
-EditorEngine=/Script/LyraEditor.LyraEditorEngine
-```
-
-Lyra utilized `LyraEditorEngine` mainly for 3 reasons
-
-### Show Plugin Folder
-Because all the actual game modes resides in `Plugins` folder as `GameFeature`, so Lyra want to show them by default
-
-```cpp
-void ULyraEditorEngine::Tick(float DeltaSeconds, bool bIdleMode)
-{
-	Super::Tick(DeltaSeconds, bIdleMode);
-	
-	FirstTickSetup();
-}
-
-void ULyraEditorEngine::FirstTickSetup()
-{
-	if (bFirstTickSetup)
-	{
-		return;
-	}
-
-	bFirstTickSetup = true;
-
-	// Force show plugin content on load.
-	GetMutableDefault<UContentBrowserSettings>()->SetDisplayPluginFolders(true);
-}
-```
-### Call DeveloperSettings and PlactformEmulationSettings
-As mentioned in the comment, it currently directly coupled `ULyraDeveloperSettings` and `ULyraPlatformEmulationSettings`, a better way would be expose a bindable delegate for a non-editor module to bind
-
-```cpp
-FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyBlueprintErrors, const bool bStartInSpectatorMode, const float PIEStartTime, const bool bSupportsOnlinePIE, int32& InNumOnlinePIEInstances)
-{
-	if (const ALyraWorldSettings* LyraWorldSettings = Cast<ALyraWorldSettings>(EditorWorld->GetWorldSettings()))
-	{
-		if (LyraWorldSettings->ForceStandaloneNetMode)
-		{
-			EPlayNetMode OutPlayNetMode;
-			PlaySessionRequest->EditorPlaySettings->GetPlayNetMode(OutPlayNetMode);
-			if (OutPlayNetMode != PIE_Standalone)
-			{
-				PlaySessionRequest->EditorPlaySettings->SetPlayNetMode(PIE_Standalone);
-
-				FNotificationInfo Info(LOCTEXT("ForcingStandaloneForFrontend", "Forcing NetMode: Standalone for the Frontend"));
-				Info.ExpireDuration = 2.0f;
-				FSlateNotificationManager::Get().AddNotification(Info);
-			}
-		}
-	}
-
-	//@TODO: Should add delegates that a *non-editor* module could bind to for PIE start/stop instead of poking directly
-	GetDefault<ULyraDeveloperSettings>()->OnPlayInEditorStarted();
-	GetDefault<ULyraPlatformEmulationSettings>()->OnPlayInEditorStarted();
-
-	//
-	FGameInstancePIEResult Result = Super::PreCreatePIEServerInstance(bAnyBlueprintErrors, bStartInSpectatorMode, PIEStartTime, bSupportsOnlinePIE, InNumOnlinePIEInstances);
-
-	return Result;
-}
 ```
