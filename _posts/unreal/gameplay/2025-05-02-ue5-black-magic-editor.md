@@ -13,7 +13,8 @@ media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-editor/
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
 ## Separated .uproject and Modules
-Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`
+Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`.
+
 ![From EGS](lyra-egs.png){: width="400"}
 _Lyra from EGS_
 
