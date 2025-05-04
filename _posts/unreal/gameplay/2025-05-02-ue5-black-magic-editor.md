@@ -14,10 +14,10 @@ media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-editor/
 
 ## Separated .uproject and Modules
 Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`
-![From EGS](lyra-egs.png){: width="500"}
+![From EGS](lyra-egs.png){: width="400"}
 _Lyra from EGS_
 
-![From Github](lyra-git.png){: width="500"}
+![From Github](lyra-git.png){: width="400"}
 _Lyra from Github_
 
 While this is not a big deal, if we then look at the `Source` folder, we would see that neither `Lyra` nor `LyraStarterGame` are the modules' name (Which it would be if we just create the project from setup wizard). Instead, they are `LyraGame` and `LyraEditor`. Again, not a big deal, but it also shows us that the `uproject` or the folder name is about the project itself. And in `Source` code, we can have a more granular control over the module name. They don't have to be the same.
@@ -144,7 +144,7 @@ In the end, we can put them into the config file, since this is a `TArray`, we c
 
 In the case of `ULyraPlatformEmulationSettings`, there's a `PretendPlatform` member, which is used to display a list of known platform IDs as a dropdown. This is done by creating a function that returns an array of `FName` and using the `GetOptions` meta on the property.
 
-![Get Options](getoption_meta.png){: width="500"}
+![Get Options](getoption_meta.png){: width="700"}
 _GetOptions Meta_
 
 ```cpp
@@ -189,7 +189,7 @@ static ENGINE_API bool LineTraceSingleByProfile(..., UPARAM(Meta=(GetOptions="En
 ## Set a toast notification
 Sometimes we want to show a toast notification in the editor, this can be done by using the `FSlateNotificationManager` class. This class provides a way to create and display notifications in the editor. In the following example, we can notify the developer that some settings are set in the `ULyraDeveloperSettings` class. This is done by creating a `FNotificationInfo` object and passing it to the `AddNotification` function of the `FSlateNotificationManager` class.
 
-![Toast Notification](toast_notification.png){: width="500"}
+![Toast Notification](toast_notification.png){: width="400"}
 
 ```cpp
 FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyBlueprintErrors, const bool bStartInSpectatorMode, const float PIEStartTime, const bool bSupportsOnlinePIE, int32& InNumOnlinePIEInstances)
@@ -230,7 +230,7 @@ void ULyraDeveloperSettings::OnPlayInEditorStarted() const
 ## Create a new asset class
 Often, the existing class doesn't suffice our needs, and we would like to create more exotic things like having a custom editor for a custom class type. Or, we want to register a new asset type which will directly show under the content browser (As a new asset type, rather than a blueprint class)
 
-![New Asset Type](custom_asset_type.png){: width="500"}
+![New Asset Type](custom_asset_type.png){: width="700"}
 
 We won't touch the details on how to create it, since it's been well documented in this [Community Post] already.
 
@@ -286,7 +286,7 @@ class FLyraEditorModule : public FDefaultGameModuleImpl
 ## Custom Editor Button Extension
 We can create custom editor buttons to do some dev-time validations or automation tasks, this basically just require us to create a `FToolMenuEntry` and add it to the `FToolMenuSection` section, which belongs to `UToolMenu`: `LevelEditor.LevelEditorToolBar.PlayToolBar`.
 
-![Custom Toolbar Buttons](custom_toolbar_buttons.png){: width="500"}
+![Custom Toolbar Buttons](custom_toolbar_buttons.png){: width="700"}
 
 ```cpp
 /**
@@ -546,13 +546,13 @@ public:
 Unreal has a built in Editor Performance Monitor, which can be enabled in the editor preferences. This tool allows us to monitor the performance of the editor and identify any potential bottlenecks. This is especially useful when working with large projects or when we want to optimize the performance of our game.
 
 Enable editor performance tool in editor preference:
-![Enable Editor Performance Monitor](editorperf_monitor_enable.png){: width="500"}
+![Enable Editor Performance Monitor](editorperf_monitor_enable.png){: width="700"}
 
 Then, we can check the performance report at the bottom toolbar:
-![Editor Performance Monitor](editorperf_monitor_1.png){: width="500"}
+![Editor Performance Monitor](editorperf_monitor_1.png){: width="700"}
 
 For each related category, there's a hint to describe what the potential pitfall is:
-![Editor Performance Monitor](editorperf_monitor_2.png){: width="500"}
+![Editor Performance Monitor](editorperf_monitor_2.png){: width="700"}
 
 
 
