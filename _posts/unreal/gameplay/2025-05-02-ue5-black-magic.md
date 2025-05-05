@@ -26,12 +26,6 @@ How does all the network files as well as the configs work
 ## Developer Settings
 Controls stuff like cheats, debug settings, etc.
 
-## To make a variable configurable in ini file, we can have a meta specifier with Config and a meta
-```cpp
-    UPROPERTY(config, EditAnywhere, Category = Lyra, meta = (ConsoleVariable = "LyraPC.ShouldAlwaysPlayForceFeedback"))
-	bool bShouldAlwaysPlayForceFeedback = false;
-```
-
 ## Experience Definition
 Experience Definition acts like a decoupled "metadata" that described, in order to load an experience, what Game Feature Plugins to load, what Game Modes to use, what Maps to load, etc. The exotic logic can be considered as a bunch of Actions that are executed when the experience is loaded. In other word, in Epic's definition, an experience is consist of Game Features, Pawn Data, and Actions.
 
