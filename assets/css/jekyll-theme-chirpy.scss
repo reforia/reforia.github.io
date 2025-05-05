@@ -55,7 +55,31 @@
 #sidebar .sidebar-bottom .btn {
   color: var(--sidebar-btn-color);
 }
+#sidebar .sidebar-bottom
+{
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  gap: 1rem;
 
+  .lang-div {
+    width: 100%;
+
+    #language {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+
+    .lang-name-box {
+      margin: 0.25rem 0;
+    }
+
+    .lang-name.disabled-lang {
+      color: #888;
+      pointer-events: none;
+    }
+  }
+}
 // TOC
 #toc-wrapper::before,
 #toc-wrapper::after {

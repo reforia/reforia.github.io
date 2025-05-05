@@ -37,7 +37,7 @@ background_animation: true
 # Polyglot
 languages: ["en", "zh-CN"]
 default_lang: "en"
-exclude_from_localization: ["javascript", "images", "css", "public", "sitemap", "assets"]
+exclude_from_localization: ["javascript", "images", "css", "public", "sitemap", "assets", "favicon.ico"]
 parallel_localization: false
 
 plugins:
