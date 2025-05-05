@@ -39,7 +39,6 @@ languages: ["en", "zh-CN"]
 default_lang: "en"
 exclude_from_localization: ["javascript", "images", "css", "public", "sitemap", "assets"]
 parallel_localization: false
-url: https://polyglot.untra.io
 
 plugins:
   - jekyll-polyglot
