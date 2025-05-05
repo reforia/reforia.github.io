@@ -358,3 +358,29 @@ EDataValidationResult UEditorValidator_SourceControl::ValidateLoadedAsset_Implem
 #undef LOCTEXT_NAMESPACE
 ```
 
+## -Woverloaded-virtual
+From the above code, we can see a strange line in header, `-Woverloaded-virtual`. While is not a mystery that `-Woverloaded-virtual` is a common compiler warning indicating that there's a signature mismatch between a derived function and a base function, hence effectively "hides" the base function, in this case, `CanValidateAsset_Implementation`.
+
+Reading from the source code we know that this is due to the `CanValidateAsset_Implementation` that took in `UObject* InAsset` as parameter has been deprecated already, the correct signature is now `CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext)`. Implmenetations from previous version would cause a `-Woverloaded-virtual` warning. This essentially just brings the base class function to the current scope to suppress the warning.
+
+```cpp
+UCLASS()
+class UEditorValidator_Blueprints : public UEditorValidator
+{
+	// ...
+
+protected:
+	using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
+	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const override;
+	// ...
+};
+
+// EditorValidatorBase.cpp
+	UE_DEPRECATED("5.4", "CanValidateAsset_Implementation(UObject* InAsset) is deprecated, override CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext) instead")
+	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const 
+	{
+		 return true; 
+	}
+// ...
+```
+
