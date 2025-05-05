@@ -358,10 +358,10 @@ EDataValidationResult UEditorValidator_SourceControl::ValidateLoadedAsset_Implem
 #undef LOCTEXT_NAMESPACE
 ```
 
-## -Woverloaded-virtual
-From the above code, we can see a strange line in header, `-Woverloaded-virtual`. While is not a mystery that `-Woverloaded-virtual` is a common compiler warning indicating that there's a signature mismatch between a derived function and a base function, hence effectively "hides" the base function, in this case, `CanValidateAsset_Implementation`.
+## Suppress -Woverloaded-virtual
+From the above code, we can see a strange line in header, `// -Woverloaded-virtual`. While is not a mystery that `-Woverloaded-virtual` is a warning for some compiler (Clang for example) indicating that there's a signature mismatch between a derived function and a base function, hence the derived version "hides" the base function, in this case, `CanValidateAsset_Implementation`.
 
-Reading from the source code we know that this is due to the `CanValidateAsset_Implementation` that took in `UObject* InAsset` as parameter has been deprecated already, the correct signature is now `CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext)`. Implmenetations from previous version would cause a `-Woverloaded-virtual` warning. This essentially just brings the base class function to the current scope to suppress the warning.
+Reading from the source code we know that this is due to the `CanValidateAsset_Implementation` that took in `UObject* InAsset` as parameter has been deprecated already, the up to date signature is now `CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext)`. Implmenetations of this signature in child without touch the base version would cause a `-Woverloaded-virtual` warning. This essentially just brings the base class function to the current scope to suppress the warning.
 
 ```cpp
 UCLASS()
@@ -371,9 +371,18 @@ class UEditorValidator_Blueprints : public UEditorValidator
 
 protected:
 	using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
-	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const override;
+	virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& InContext) const override;
 	// ...
 };
+
+// The base class is still using the old signature.
+UCLASS(Abstract)
+class UEditorValidator : public UEditorValidatorBase
+{
+	// ...
+protected:
+	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const override;
+}
 
 // EditorValidatorBase.cpp
 	UE_DEPRECATED("5.4", "CanValidateAsset_Implementation(UObject* InAsset) is deprecated, override CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext) instead")
@@ -383,4 +392,9 @@ protected:
 	}
 // ...
 ```
+
+### Why not update the base class?
+The reason for not updating the base class is that it would break all the existing implementations of `CanValidateAsset_Implementation` in child classes. This would require all developers to update their code to match the new signature, which may not be feasible in a large codebase. By keeping the old signature and suppressing the warning, it allows developers to gradually update their code without breaking existing functionality.
+
+This is a good example of how Unreal Engine manages to keep backward compatibility while still allowing for improvements and changes in the codebase.
 
