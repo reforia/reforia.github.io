@@ -7,6 +7,7 @@ date: 2023-11-10 12:00 +0800
 categories: [Machine Learning, GenAI]
 tags: [OpenAI, GPT, YouTrack, API, OpenAPI, Rest, Machine Learning, GenAI, AI]
 media_subpath: /assets/img/post-data/ai/custom-gpt-youtrack/
+lang: en
 ---
 
 ## Introduction

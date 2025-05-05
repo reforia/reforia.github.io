@@ -7,6 +7,7 @@ date: 2019-12-10 06:49 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/train-station/
+lang: en
 ---
 
 {% include obsolete_warning.html %}

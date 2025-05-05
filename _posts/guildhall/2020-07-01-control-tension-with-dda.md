@@ -7,6 +7,7 @@ date: 2020-07-01 12:00 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/control-tension/
+lang: en
 ---
 
 {% include obsolete_warning.html %}

@@ -1,20 +1,20 @@
 ---
 layout: post
-title: "Lyra Breakdown - Editor Module"
+title: "Lyra技术解析 - 编辑器模块"
 description:
-  This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+  这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: true
 tags: [Unreal, Gameplay]
 media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-editor/
-lang: en
+lang: zh-CN
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
-## Separated .uproject and Modules
-Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`.
+## 分离的.uproject与模块命名
+Epic可能采用了某种自动化项目设置方法，或是后期手动重命名了`uproject`文件。对比EGS平台预编译版本和Github上的Lyra项目，两者的项目名称并不一致——一个名为`LyraStarterGame`，另一个则简称为`Lyra`。
 
 ![From EGS](lyra-egs.png){: width="400"}
 _Lyra from EGS_
@@ -22,23 +22,23 @@ _Lyra from EGS_
 ![From Github](lyra-git.png){: width="400"}
 _Lyra from Github_
 
-While this is not a big deal, if we then look at the `Source` folder, we would see that neither `Lyra` nor `LyraStarterGame` are the modules' name (Which it would be if we just create the project from setup wizard). Instead, they are `LyraGame` and `LyraEditor`. Again, not a big deal, but it also shows us that the `uproject` or the folder name is about the project itself. And in `Source` code, we can have a more granular control over the module name. They don't have to be the same.
+虽然这并非关键问题，但观察`Source`目录会发现，无论是`Lyra`还是`LyraStarterGame`都不是实际模块名称（如果通过向导创建项目，模块名通常会与项目名相同）。真正的模块名为`LyraGame`和`LyraEditor`。这揭示了一个重要设计理念：`uproject`文件和文件夹名称代表的是项目本身，而在`Source`代码层面，开发者可以对模块名称进行更精细的控制，二者无需强制保持一致。
 
-## Custom Engine class
-Lyra has 2 custom engine extensions, `LyraGameEngine` and `LyraEditorEngine`. In this post we will just focus on the `LyraEditorEngine`
+## 自定义引擎类
+`Lyra`项目包含两个自定义引擎扩展类：`LyraGameEngine`和`LyraEditorEngine`。本文将重点解析`LyraEditorEngine`的实现。
 
 ### UGameEngine, UEditorEngine, UUnrealEdEngine
-`UUnrealEdEngine` inherits from `UEditorEngine`, that governs the actual specialized interactions inside the Unreal Editor, like how select an actor would behave, jamming more custom code before a PIE session starts, etc. Normally we want to inherit our own editor engine under `UUnrealEdEngine`, because `UEditorEngine` is a higher level abstraction of the fundamental editor engine framework, and `UUnrealEdEngine` already inherits from it. Otherwise we could end up with recreating the wheel for editor.
+`UUnrealEdEngine`继承自`UEditorEngine`，后者专门处理编辑器内的交互逻辑（如选择Actor行为、PIE会话前的自定义代码注入等）。通常我们应该基于`UUnrealEdEngine`进行扩展，因为`UEditorEngine`是更高层次的抽象基类，而`UUnrealEdEngine`已实现了完整的编辑器功能。若直接继承`UEditorEngine`，可能需要重新实现大量已有功能。
 
->The `UEditorEngine` would be useful if we are using the engine in `Commandlet` mode, more details can be found in this [Commandlet Documentation]. It would be very helpful for RBS, DevOps, and other automated tasks.
+> 当以`Commandlet`模式运行引擎时，`UEditorEngine`会更有价值（详见[Commandlet Documentation]）。这对RBS、DevOps等自动化流程非常有用。
 {: .prompt-info }
 
-The purpose behind this extension is simple:
-- In Lyra, the actual gameplay related module (or `plugins`) are all under 'Plugins/GameFeature' folder, utilizing the `GameFeature` system. It would be a QoL improvement to have all these plugins content shown by default in the content browser.
-- TEMP HACK: Another reason is to let `ULyraDeveloperSettings` and `ULyraPlatformEmulationSettings` to be notified from the editor engine when PIE starts. This is a temporary solution, as Epic is working on a better way to expose these settings to non-editor modules.
+Lyra扩展编辑器引擎主要出于两个目的：
+- 游戏特性插件可见性：Lyra将所有核心玩法模块置于`Plugins/GameFeature`目录，利用`GameFeature`系统管理。默认在内容浏览器显示这些插件内容能提升开发体验。
+- 临时解决方案：通过编辑器引擎在PIE启动时通知`ULyraDeveloperSettings`和`ULyraPlatformEmulationSettings`。这是过渡方案，Epic正在开发更完善的设置暴露机制。
 
-### Show Plugin Folder - FirstTickSetup
-Because all the actual game modes resides in `Plugins` folder as `GameFeature`, so Lyra want to show them by default, this is done by a `FirstTickSetup` function that is called in the `Tick` function of `ULyraEditorEngine`. This is a common pattern in Unreal Engine, where we want to do something only once after the first tick. The `Tick` function is called every frame, so we can use it to check if we are on the first tick and do our setup there.
+### 首帧初始化逻辑
+由于所有游戏模式都以`GameFeature`形式存在于`Plugins`目录，Lyra通过`ULyraEditorEngine`的`Tick`函数中的`FirstTickSetup`实现默认显示。这是虚幻引擎的常见模式——利用首帧`Tick`执行一次性初始化。
 
 ```cpp
 void ULyraEditorEngine::Tick(float DeltaSeconds, bool bIdleMode)
@@ -62,8 +62,8 @@ void ULyraEditorEngine::FirstTickSetup()
 }
 ```
 
-### Call DeveloperSettings and PlatformEmulationSettings
-As mentioned in the comment, it currently directly coupled `ULyraDeveloperSettings` and `ULyraPlatformEmulationSettings`, a better way would be expose a bindable delegate for a non-editor module to bind, this would be a bit more complicated because we don't want to have our game module depend on the editor module
+### 开发者设置与平台模拟配置
+如代码注释所述，当前实现直接耦合了`ULyraDeveloperSettings`和`ULyraPlatformEmulationSettings`。更优解是通过可绑定委托让非编辑器模块进行订阅，但由于需要避免游戏模块对编辑器模块的依赖，这种实现会相对复杂。
 
 ```cpp
 FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyBlueprintErrors, const bool bStartInSpectatorMode, const float PIEStartTime, const bool bSupportsOnlinePIE, int32& InNumOnlinePIEInstances)
@@ -96,8 +96,8 @@ FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyB
 }
 ```
 
-### Configure Custom Engine Class
-Once we've defined our own Custom GameEngine and EditorEngine, they can be configured under `DefaultEngine.ini` - `[/Script/Engine.Engine]`
+### 配置自定义引擎类
+定义完自定义的GameEngine和EditorEngine后，需要在`DefaultEngine.ini`文件的`[/Script/Engine.Engine]`节点下进行配置。
 
 ```ini
 [/Script/Engine.Engine]
@@ -106,10 +106,8 @@ UnrealEdEngine=/Script/LyraEditor.LyraEditorEngine
 EditorEngine=/Script/LyraEditor.LyraEditorEngine
 ```
 
-## Custom Configurable Variables
-The `DefaultEngine.ini` file is a configuration file that contains settings for the Unreal Engine. But we can also create our own custom config variables that stays in a project specific config file. This is useful for separating settings that are specific to our game from the default engine settings.
-
-In order to do so, we can just use a `config` specifier in our class declaration, followed by the name of the config file we want to use. For example in Lyra, the `ULyraDeveloperSettings` class is configured to use `EditorPerProjectUserSettings` config.
+## 自定义可配置变量
+`DefaultEngine.ini`是存储引擎设置的配置文件，但我们也可以创建项目专属的配置变量。只需在类声明中使用`config`说明符并指定目标配置文件，例如Lyra中的`ULyraDeveloperSettings`就配置为使用`EditorPerProjectUserSettings`文件。
 
 ```cpp
 UCLASS(config=EditorPerProjectUserSettings, MinimalAPI)
@@ -119,7 +117,7 @@ class ULyraDeveloperSettings : public UDeveloperSettingsBackedByCVars
 }
 ```
 
-That's only the first step, we also need to expose the variables we want to be configurable in the ini file. This is done by using the `config` specifier in our property declaration. For example, in Lyra, the `CommonEditorMaps` variable is declared as follows:
+要使变量可配置，还需在属性声明中添加`config`说明符。以Lyra中的`CommonEditorMaps`数组为例：
 
 ```cpp
 #if WITH_EDITORONLY_DATA
@@ -129,7 +127,7 @@ That's only the first step, we also need to expose the variables we want to be c
 #endif
 ```
 
-In the end, we can put them into the config file, since this is a `TArray`, we can just use the `+` sign to add new entries.
+在配置文件中，可以通过`+`符号添加数组元素。
 
 ```ini
 ; Some commonly used editor maps that will be displayed in the editor task bar
@@ -141,10 +139,10 @@ In the end, we can put them into the config file, since this is a `TArray`, we c
 +CommonEditorMaps=/ShooterTests/Maps/L_ShooterTest_DeviceProperties.L_ShooterTest_DeviceProperties
 ```
 
-## GetOptions meta
-`GetOptions` meta allow a property to be displayed as a dropdown in the editor. Based on a function that returns a list of options.
+## GetOptions 元数据
+`GetOptions`元数据能让属性在编辑器中显示为下拉菜单，其选项由指定函数动态生成。例如`ULyraPlatformEmulationSettings`中的`PretendPlatform`成员，通过返回平台ID列表的函数实现下拉选项。
 
-In the case of `ULyraPlatformEmulationSettings`, there's a `PretendPlatform` member, which is used to display a list of known platform IDs as a dropdown. This is done by creating a function that returns an array of `FName` and using the `GetOptions` meta on the property.
+该特性同样适用于函数参数。如下例所示，通过`UPARAM`宏配合`Meta`说明符，`ProfileName`参数将显示为碰撞预设下拉菜单：
 
 ![Get Options](getoption_meta.png){: width="700"}
 _GetOptions Meta_
@@ -181,15 +179,15 @@ TArray<FName> ULyraPlatformEmulationSettings::GetKnownPlatformIds() const
 }
 ```
 
-This is also quite useful to mark a parameter in a function as a dropdown. Like the following example, the parameter `ProfileName` is marked as a dropdown, and the options are generated by the function `GetCollisionProfileNames`. This is done by using the `UPARAM` macro with the `Meta` specifier. This also means that we can have an inline Macro to decorate a function parameter.
+这种设计允许通过内联宏来修饰函数参数，极大提升了编辑器交互的灵活性。
 
 ```cpp
 UFUNCTION(BlueprintCallable, ...)
 static ENGINE_API bool LineTraceSingleByProfile(..., UPARAM(Meta=(GetOptions="Engine.KismetSystemLibrary.GetCollisionProfileNames")) FName ProfileName, ...);
 ```
 
-## Set a toast notification
-Sometimes we want to show a toast notification in the editor, this can be done by using the `FSlateNotificationManager` class. This class provides a way to create and display notifications in the editor. In the following example, we can notify the developer that some settings are set in the `ULyraDeveloperSettings` class. This is done by creating a `FNotificationInfo` object and passing it to the `AddNotification` function of the `FSlateNotificationManager` class.
+## 编辑器Toast通知设置
+有时我们需要在编辑器中显示Toast通知，这可以通过`FSlateNotificationManager`类实现。以下示例展示了如何在`ULyraDeveloperSettings`类中通知开发者某些设置已配置：通过创建`FNotificationInfo`对象并传递给`FSlateNotificationManager`类的`AddNotification`函数。
 
 ![Toast Notification](toast_notification.png){: width="400"}
 
@@ -229,15 +227,15 @@ void ULyraDeveloperSettings::OnPlayInEditorStarted() const
 }
 ```
 
-## Create a new asset class
-Often, the existing class doesn't suffice our needs, and we would like to create more exotic things like having a custom editor for a custom class type. Or, we want to register a new asset type which will directly show under the content browser (As a new asset type, rather than a blueprint class)
+## 创建新资产类
+当现有类无法满足需求时，我们可能需要创建更特殊的类型，比如为自定义类创建专属编辑器，或者注册直接在内容浏览器中显示的新资产类型（作为新资产类型而非蓝图类）。
 
 ![New Asset Type](custom_asset_type.png){: width="700"}
 
-We won't touch the details on how to create it, since it's been well documented in this [Community Post] already.
+本文不涉及具体创建方法，因为[Community Post]已有详细说明。
 
-## Improve compile performance
-There's a macro `UE_INLINE_GENERATED_CPP_BY_NAME` that can be used to improve compile performance. Introduced from UE5.1 [UE5.1 Official Release Note] Most of the classes in Lyra have this macro at the start of the cpp file after other includes. For example:
+## 提升编译性能
+UE5.1引入了`UE_INLINE_GENERATED_CPP_BY_NAME`宏来提升编译性能（参见[UE5.1 Official Release Note]）。Lyra中大多数类都在cpp文件开头包含其他头文件后使用这个宏，例如：
 
 ```cpp
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -252,8 +250,8 @@ There's a macro `UE_INLINE_GENERATED_CPP_BY_NAME` that can be used to improve co
 //... Actual Class Implementation
 ```
 
-## Custom PIE Behavior
-As mentioned before, we can actually write different behaviors when the game is PIE. Since PIE is a case that only happens in the editor, we can poke the game module function when PIE started.
+## 自定义PIE行为
+如前所述，我们可以为PIE模式编写不同的行为逻辑。由于PIE是仅发生在编辑器中的情况，我们可以在PIE启动时调用游戏模块函数。
 
 ```cpp
 /**
@@ -285,8 +283,8 @@ class FLyraEditorModule : public FDefaultGameModuleImpl
 }
 ```
 
-## Custom Editor Button Extension
-We can create custom editor buttons to do some dev-time validations or automation tasks, this basically just require us to create a `FToolMenuEntry` and add it to the `FToolMenuSection` section, which belongs to `UToolMenu`: `LevelEditor.LevelEditorToolBar.PlayToolBar`.
+## 自定义编辑器按钮扩展
+我们可以创建自定义编辑器按钮来执行开发时验证或自动化任务，这基本上只需要我们创建`FToolMenuEntry`并将其添加到属于`UToolMenu`的`FToolMenuSection`中：`LevelEditor.LevelEditorToolBar.PlayToolBar`。
 
 ![Custom Toolbar Buttons](custom_toolbar_buttons.png){: width="700"}
 
@@ -368,8 +366,8 @@ static void RegisterGameEditorMenus()
 }
 ```
 
-### Check Content Button - ToolBar Button
-The check content button is pretty straight forward, when clicked, it performs the validation tasks, this is done by calling `CheckGameContent_Clicked` function. In this example, it just called the internal `UEditorValidator::ValidateCheckedOutContent` function.
+### 检查内容按钮 - 工具栏按钮
+检查内容按钮的实现很直接，点击时会执行验证任务，通过调用`CheckGameContent_Clicked`函数实现。在本例中，它调用了`UEditorValidator::ValidateCheckedOutContent`函数。
 
 ```cpp
 FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
@@ -388,10 +386,10 @@ static void CheckGameContent_Clicked()
 }
 ```
 
-### Common Maps Dropdown - Combo Button
-This would ba a bit tricky, in this case when we click the button, we don't want to perform anything, but instead, we will show a drop down menu, showcasing all related maps, when the user clicked one available map, `OpenCommonMap_Clicked` will then be called.
+### 常用地图下拉菜单 - 组合按钮
+这个实现会复杂些。点击按钮时不会立即执行操作，而是显示包含所有相关地图的下拉菜单。当用户点击某个地图时，才会调用`OpenCommonMap_Clicked`。
 
-So the logic here is we are creating a `ComboButton` instead of a regular `ToolBarButton`, and we are using `FOnGetContent` to create a dropdown menu. The `FMenuBuilder` class is used to create the menu, and we can add entries to it using the `AddMenuEntry` function. Each entry has a display name, a tooltip, and an action to perform when clicked. When we clicked one options, it responds with `OpenEditorForAsset` function, which will open the selected map in the editor.
+这里的逻辑是创建一个`ComboButton`而非普通`ToolBarButton`，并使用`FOnGetContent`创建下拉菜单。`FMenuBuilder`类用于构建菜单，我们可以用`AddMenuEntry`函数添加条目。每个条目包含显示名称、工具提示和点击时要执行的操作。点击选项时会响应`OpenEditorForAsset`函数，在编辑器中打开选中的地图。
 
 ```cpp
 static TSharedRef<SWidget> GetCommonMapsDropdown()
@@ -431,7 +429,7 @@ static void OpenCommonMap_Clicked(const FString MapPath)
 }
 ```
 
-Notice the `for (const FSoftObjectPath& Path : GetDefault<ULyraDeveloperSettings>()->CommonEditorMaps)` line, this is getting the `CommonEditorMaps` property, which has been mentioned previously, is a confugurable property in the `ULyraDeveloperSettings` class. This is a good example of how we can use the `GetDefault` function to access the default settings of a class from an ini file.
+注意`for (const FSoftObjectPath& Path : GetDefault<ULyraDeveloperSettings>()->CommonEditorMaps)`这行代码，它获取的是之前提到的`CommonEditorMaps`属性，即`ULyraDeveloperSettings`类中的可配置属性。这是使用`GetDefault`函数从`ini`文件访问类默认设置的好例子。
 
 ```ini
 ; Some commonly used editor maps that will be displayed in the editor task bar
@@ -443,8 +441,8 @@ Notice the `for (const FSoftObjectPath& Path : GetDefault<ULyraDeveloperSettings
 +CommonEditorMaps=/ShooterTests/Maps/L_ShooterTest_DeviceProperties.L_ShooterTest_DeviceProperties
 ```
 
-## Singleton for Editor Style
-In the above example, when we created the bottons, we actually also defined their icon appearance.
+## 编辑器样式的单例模式
+在上面的例子中，我们创建按钮时也定义了它们的图标外观。
 
 ```cpp
 	FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
@@ -454,7 +452,7 @@ In the above example, when we created the bottons, we actually also defined thei
 	);
 ```
 
-While we can define the actual button icon directly, we can also wrap them up in a more centralized place, in this case, `GameEditor.CheckContent` is actually being set inside a simple `FGameEditorStyle` singleton. When initialized, it just creates a `StyleInstance` and register it to the `FSlateStyleRegistry`. This is a common pattern in Unreal Engine, where we want to create a centralized place to manage our styles and resources. The actual icon located in `Content/Editor/Slate/Icons/CheckContent.svg`.
+虽然可以直接定义按钮图标，但我们也可以将它们集中管理。在本例中，`GameEditor.CheckContent`实际上是在简单的`FGameEditorStyle`单例中设置的。初始化时，它创建`StyleInstance`并注册到`FSlateStyleRegistry`。这是虚幻引擎中的常见模式，用于集中管理样式和资源。实际图标位于`Content/Editor/Slate/Icons/CheckContent.svg`。
 
 ```cpp
 TSharedPtr< FSlateStyleSet > FGameEditorStyle::StyleInstance = nullptr;
@@ -490,7 +488,7 @@ TSharedRef< FSlateStyleSet > FGameEditorStyle::Create()
 }
 ```
 
-This pattern should be useful for a variety of cases. We just need to find a proper place to `Initialize` it. For Lyra, this is literally the first line in the `StartupModule` function of `FLyraEditorModule`.
+这个模式适用于多种情况。我们只需要找到合适的地方进行`Initialize`初始化。对`Lyra`来说，这实际上就是`FLyraEditorModule`的`StartupModule`函数的第一行。
 
 ```cpp
 	virtual void StartupModule() override
@@ -500,8 +498,8 @@ This pattern should be useful for a variety of cases. We just need to find a pro
 	}
 ```
 
-## Auto Console Commands
-`FAutoConsoleCommandWithWorldArgsAndOutputDevice` is a class that allows us to easily create console commands that can be executed, typical syntax looks like this:
+## 自动控制台命令
+`FAutoConsoleCommandWithWorldArgsAndOutputDevice`类让我们可以轻松创建可执行的控制台命令，典型语法如下：
 
 ```cpp
 FAutoConsoleCommandWithWorldArgsAndOutputDevice GCreateRedirectorPackage(
@@ -515,18 +513,18 @@ FAutoConsoleCommandWithWorldArgsAndOutputDevice GCreateRedirectorPackage(
 	}));
 ```
 
-As can be seen above, the actual implementation is done through a lambda function bind to the `FConsoleCommandWithWorldArgsAndOutputDeviceDelegate`. The `WithWorldArgsAndOutputDevice` part simply describes the delegate signature, which is a function that takes a `TArray<FString>` as the first parameter, a `UWorld*` as the second parameter, and a `FOutputDevice&` as the third parameter. All the parameters that the user actually typed in the console will be passed to the first parameter as a `TArray<FString>`. And we can just extract the parameters from the array normally.
+如上所示，实际实现是通过绑定到`FConsoleCommandWithWorldArgsAndOutputDeviceDelegate`的`lambda`函数完成的。`WithWorldArgsAndOutputDevice`部分描述了委托签名：第一个参数是`TArray<FString>`，第二个是`UWorld*`，第三个是`FOutputDevice&`。用户在控制台输入的所有参数都会作为`TArray<FString>`传递给第一个参数，我们可以像普通数组一样提取参数。
 
-In Lyra, there are 3 commands as an example:
-- `GCheckChaosMeshCollisionCmd`
-  - Used to check the mesh collision of a given asset
-- `GCreateRedirectorPackage`
-  - Used to create a redirector package for a given asset
-- `GDiffCollectionReferenceSupport`
-  - Used to check the collection reference support diff from an old and new collection
+Lyra中有三个示例命令：
+- GCheckChaosMeshCollisionCmd
+  - 用于检查给定资产的网格碰撞
+- GCreateRedirectorPackage
+  - 为给定资产创建重定向器包
+- GDiffCollectionReferenceSupport
+  - 检查新旧集合间的引用差异
 
-## MinimalAPI and LYRAGAME_API
-There aren't too much fancy stuff here, just a side note that we need to have the `PROJECT_API` macro used to export the function, and `MinimalAPI` is used to export the class.
+## MinimalAPI和LYRAGAME_API
+这里没有太多复杂内容，只需注意需要使用`PROJECT_API`宏来导出函数，而`MinimalAPI`用于导出类。
 
 ```cpp
 /**
@@ -544,16 +542,16 @@ public:
 }
 ```
 
-## Monitor Editor Performance
-Unreal has a built in Editor Performance Monitor, which can be enabled in the editor preferences. This tool allows us to monitor the performance of the editor and identify any potential bottlenecks. This is especially useful when working with large projects or when we want to optimize the performance of our game.
+## 监控编辑器性能
+虚幻引擎内置了编辑器性能监控器，可以在编辑器偏好设置中启用。这个工具可以监控编辑器性能并识别潜在瓶颈，特别适用于大型项目或需要优化游戏性能的情况。
 
-Enable editor performance tool in editor preference:
+在编辑器偏好设置中启用性能工具：
 ![Enable Editor Performance Monitor](editorperf_monitor_enable.png){: width="700"}
 
-Then, we can check the performance report at the bottom toolbar:
+然后，我们可以在底部工具栏查看性能报告：
 ![Editor Performance Monitor](editorperf_monitor_1.png){: width="700"}
 
-For each related category, there's a hint to describe what the potential pitfall is:
+每个相关类别都有提示说明潜在问题是什么。
 ![Editor Performance Monitor](editorperf_monitor_2.png){: width="700"}
 
 

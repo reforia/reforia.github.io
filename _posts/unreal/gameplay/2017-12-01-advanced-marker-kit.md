@@ -9,6 +9,7 @@ image:
 categories: [Unreal, Gameplay]
 tags: [Unreal, Gameplay, UI]
 media_subpath: /assets/img/post-data/unreal/gameplay/amk/
+lang: en
 ---
 
 > Updated in 2024: The plugin is no longer maintained

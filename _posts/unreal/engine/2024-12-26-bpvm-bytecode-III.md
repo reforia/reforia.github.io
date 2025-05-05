@@ -7,6 +7,7 @@ categories: [Unreal, Engine]
 published: true
 tags: [Unreal, Engine, Blueprint]
 media_subpath: /assets/img/post-data/unreal/engine/bpvm-bytecode/
+lang: en
 ---
 
 {% include ue_version_disclaimer.html version="5.4.0" %}

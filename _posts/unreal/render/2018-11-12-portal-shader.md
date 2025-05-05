@@ -9,6 +9,7 @@ tags: [Unreal, Render, Portal]
 image:
   path: portal_shader_1.gif
 media_subpath: /assets/img/post-data/unreal/render/portal-shader/
+lang: en
 ---
 
 ## Goal and Scope

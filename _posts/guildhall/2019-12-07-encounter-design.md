@@ -7,6 +7,7 @@ date: 2019-12-07 06:09 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]
 media_subpath: /assets/img/post-data/guildhall/encounter-design/
+lang: en
 ---
 
 {% include obsolete_warning.html %}

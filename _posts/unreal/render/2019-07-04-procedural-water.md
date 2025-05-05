@@ -9,6 +9,7 @@ tags: [Unreal, Render, Procedural, Water]
 media_subpath: /assets/img/post-data/unreal/render/procedural-water/
 image:
   path: procedural_water_1.gif
+lang: en
 ---
 
 ## Research Paper

@@ -1,3 +1,10 @@
 tabs:
   lang_name: English
   languages: Languages
+  home: Home
+  archives: Archives
+  categories: Categories
+  ebp: EBP
+  online-compiler: Online Compiler
+  online-ide: Online IDE
+  tags: Tags

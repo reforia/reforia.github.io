@@ -7,6 +7,7 @@ date: 2025-01-10 12:00 +0800
 categories: [Machine Learning, GenAI]
 tags: [OpenAI, DeepSeek, API, Machine Learning, GenAI, AI]
 media_subpath: /assets/img/post-data/ai/deepseek-ide/
+lang: en
 ---
 
 ## Disclaimer

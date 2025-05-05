@@ -9,6 +9,7 @@ tags: [Archived]
 image:
   path: tomb_of_warrior_4.webp
 media_subpath: /assets/img/post-data/misc/tomb-of-warrior/
+lang: en
 ---
 
 {% include obsolete_warning.html %}

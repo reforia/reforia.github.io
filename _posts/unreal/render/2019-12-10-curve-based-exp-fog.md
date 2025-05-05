@@ -7,6 +7,7 @@ date: 2019-12-10 22:09 +0800
 categories: [Unreal, Render]
 tags: [Unreal, Render, Fog]
 media_subpath: /assets/img/post-data/unreal/render/curve-exp-fog/
+lang: en
 ---
 
 ## Final Result

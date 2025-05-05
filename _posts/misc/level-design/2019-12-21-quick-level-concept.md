@@ -7,6 +7,7 @@ tags: [Archived]
 image:
   path: speed_level_practice_1.webp
 media_subpath: /assets/img/post-data/misc/speed-level-practice/
+lang: en
 ---
 
 {% include obsolete_warning.html %}

@@ -7,6 +7,7 @@ date: 2020-08-20 12:00 +0800
 categories: [Unreal, Network]
 tags: [Unreal, Network]
 media_subpath: /assets/img/post-data/unreal/network/nas/
+lang: en
 ---
 
 > At the time of writing, unreal GAS already existed but in an early stage. This project was inspired by GAS, but didn't use GAS

@@ -40,46 +40,89 @@
   transition: all 0.1s ease-out;
 }
 
-#sidebar .site-title {
-  color: #c3c3c3;
-  text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
-}
-#sidebar .site-subtitle {
-  color: #c3c3c3;
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
-}
-#sidebar .sidebar-bottom .mode-toggle,
-#sidebar a {
-  color: #c3c3c3;
-}
-#sidebar .sidebar-bottom .btn {
-  color: var(--sidebar-btn-color);
-}
-#sidebar .sidebar-bottom
-{
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 1rem;
-  gap: 1rem;
+#sidebar {
+  .site-title {
+    color: #c3c3c3;
+    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  }
 
-  .lang-div {
-    width: 100%;
+  .site-subtitle {
+    color: #c3c3c3;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
+  }
 
-    #language {
-      font-weight: bold;
-      margin-bottom: 0.25rem;
+  .sidebar-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+
+    .mode-toggle,
+    a {
+      color: #c3c3c3;
     }
 
-    .lang-name-box {
-      margin: 0.25rem 0;
+    .btn {
+      color: var(--sidebar-btn-color);
     }
 
-    .lang-name.disabled-lang {
-      color: #888;
-      pointer-events: none;
+    .lang-div {
+      width: 100%;
+
+      #language {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+      }
+
+      .lang-name-box {
+        margin: 0.25rem 0;
+      }
+
+      .lang-name {
+        display: block;
+        width: 70%;
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        background-color: #2e2e2e;
+        color: #f0f0f0;
+        text-align: center;
+        text-decoration: none;
+        margin: 0 auto; // center within container
+        transition: background-color 0.2s ease;
+        font-size: 0.9rem;
+        
+        &:hover {
+          background-color: #3a3a3a;
+        }
+
+        &.disabled-lang {
+          background-color: #444;
+          color: #888;
+          pointer-events: none;
+        }
+
+        &#current-lang {
+          font-weight: bold;
+          background-color: #444c88;
+        }
+      }
+    }
+
+    .social-icons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+      justify-content: center;
+
+      a {
+        font-size: 1.2rem;
+        color: #c3c3c3;
+      }
     }
   }
 }
+
 // TOC
 #toc-wrapper::before,
 #toc-wrapper::after {

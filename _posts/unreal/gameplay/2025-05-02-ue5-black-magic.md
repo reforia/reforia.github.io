@@ -8,6 +8,7 @@ categories: [Unreal, Gameplay]
 published: false
 tags: [Unreal, Gameplay]
 media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic/
+lang: en
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
