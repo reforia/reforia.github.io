@@ -28,14 +28,14 @@ _Lyra from Github_
 `Lyra`项目包含两个自定义引擎扩展类：`LyraGameEngine`和`LyraEditorEngine`。本文将重点解析`LyraEditorEngine`的实现。
 
 ### UGameEngine, UEditorEngine, UUnrealEdEngine
-`UUnrealEdEngine`继承自`UEditorEngine`，后者专门处理编辑器内的交互逻辑（如选择Actor行为、PIE会话前的自定义代码注入等）。通常我们应该基于`UUnrealEdEngine`进行扩展，因为`UEditorEngine`是更高层次的抽象基类，而`UUnrealEdEngine`已实现了完整的编辑器功能。若直接继承`UEditorEngine`，可能需要重新实现大量已有功能。
+`UUnrealEdEngine`继承自`UEditorEngine`，用以专门处理编辑器内的交互逻辑（如选择Actor行为、在PIE前加入自定义代码等）。通常我们应该基于`UUnrealEdEngine`进行扩展，因为`UEditorEngine`是更高层次的抽象基类，而`UUnrealEdEngine`已实现了完整的编辑器功能。若直接继承`UEditorEngine`，可能需要重新实现大量已有功能。
 
 > 当以`Commandlet`模式运行引擎时，`UEditorEngine`会更有价值（详见[Commandlet Documentation]）。这对RBS、DevOps等自动化流程非常有用。
 {: .prompt-info }
 
 Lyra扩展编辑器引擎主要出于两个目的：
 - 游戏特性插件可见性：Lyra将所有核心玩法模块置于`Plugins/GameFeature`目录，利用`GameFeature`系统管理。默认在内容浏览器显示这些插件内容能提升开发体验。
-- 临时解决方案：通过编辑器引擎在PIE启动时通知`ULyraDeveloperSettings`和`ULyraPlatformEmulationSettings`。这是过渡方案，Epic正在开发更完善的设置暴露机制。
+- 临时解决方案：通过编辑器引擎在PIE启动时通知`ULyraDeveloperSettings`和`ULyraPlatformEmulationSettings`。这是过渡方案，Epic*可能*会在未来使用更完善的跨模块委托绑定。
 
 ### 首帧初始化逻辑
 由于所有游戏模式都以`GameFeature`形式存在于`Plugins`目录，Lyra通过`ULyraEditorEngine`的`Tick`函数中的`FirstTickSetup`实现默认显示。这是虚幻引擎的常见模式——利用首帧`Tick`执行一次性初始化。
@@ -97,7 +97,7 @@ FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyB
 ```
 
 ### 配置自定义引擎类
-定义完自定义的GameEngine和EditorEngine后，需要在`DefaultEngine.ini`文件的`[/Script/Engine.Engine]`节点下进行配置。
+定义完自定义的`GameEngine`和`EditorEngine`后，需要在`DefaultEngine.ini`文件的`[/Script/Engine.Engine]`节点下进行配置。
 
 ```ini
 [/Script/Engine.Engine]
