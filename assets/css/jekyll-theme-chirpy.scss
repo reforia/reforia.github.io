@@ -85,7 +85,6 @@
       .lang-name {
         display: block;
         width: 70%;
-        padding: 0.4rem 1rem;
         border-radius: 0.5rem;
         background-color: #2e2e2e;
         color: #f0f0f0;
@@ -101,13 +100,13 @@
 
         &.disabled-lang {
           background-color: #444;
-          color: #888;
+          color: #686868;
           pointer-events: none;
         }
 
         &#current-lang {
           font-weight: bold;
-          background-color: #605f63;
+          background-color: #3e3645;
         }
       }
     }
