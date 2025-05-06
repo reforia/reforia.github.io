@@ -23,7 +23,7 @@ Just by a quick glance at the project structure, we can see that Lyra has 6 diff
 - LyraGame
 - LyraGameEOS
 
-![Lyra Build Target](build_target.png){: width="500"}
+![Lyra Build Target](build_target.png){: width="400"}
 
 We will go through each of them, but we will touch LyraGame last, as this is a larger file that contains a lot of information about the project. The other targets are much smaller and easier to digest.
 

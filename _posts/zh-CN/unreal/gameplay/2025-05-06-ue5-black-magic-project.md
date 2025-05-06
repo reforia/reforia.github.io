@@ -23,7 +23,7 @@ lang: zh-CN
 - `LyraGame`
 - `LyraGameEOS`
 
-![Lyra Build Target](build_target.png){: width="500"}
+![Lyra Build Target](build_target.png){: width="400"}
 
 我们将逐一分析这些目标，但会把`LyraGame`留到最后讨论，因为该文件体量较大且包含大量项目信息。其他目标规模较小，更容易理解。
 
