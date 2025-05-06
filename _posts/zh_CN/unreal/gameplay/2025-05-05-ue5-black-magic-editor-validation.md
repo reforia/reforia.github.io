@@ -72,33 +72,33 @@ void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataV
 如果是头文件，则需要检查它是否属于可能导致基于这些类的资产出现问题的源代码头文件变更。我们可以通过调用`UEditorValidator::GetChangedAssetsForCode`函数来实现，该函数将返回已更改的包名数组。由于这是个非常庞大的函数，我们稍后再做详细解释。
 
 ```cpp
-		// ...
-		for (const FSourceControlStateRef& FileState : CheckedOutFiles)
+	// ...
+	for (const FSourceControlStateRef& FileState : CheckedOutFiles)
+	{
+		FString Filename = FileState->GetFilename();
+		if (FPackageName::IsPackageFilename(Filename))
 		{
-			FString Filename = FileState->GetFilename();
-			if (FPackageName::IsPackageFilename(Filename))
+			// Assets
+			FString PackageName;
+			if (FPackageName::TryConvertFilenameToLongPackageName(Filename, PackageName))
 			{
-				// Assets
-				FString PackageName;
-				if (FPackageName::TryConvertFilenameToLongPackageName(Filename, PackageName))
+				if (FileState->IsDeleted())
 				{
-					if (FileState->IsDeleted())
-					{
-						DeletedPackageNames.Add(PackageName);
-					}
-					else
-					{
-						ChangedPackageNames.Add(PackageName);
-					}
+					DeletedPackageNames.Add(PackageName);
+				}
+				else
+				{
+					ChangedPackageNames.Add(PackageName);
 				}
 			}
-			else if (Filename.EndsWith(TEXT(".h")))
-			{
-				// Source code header changes for classes may cause issues in assets based on those classes
-				UEditorValidator::GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
-			}
 		}
-		// ...
+		else if (Filename.EndsWith(TEXT(".h")))
+		{
+			// Source code header changes for classes may cause issues in assets based on those classes
+			UEditorValidator::GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
+		}
+	}
+	// ...
 ```
 
 ### 验证数据包

@@ -142,8 +142,6 @@ class ULyraDeveloperSettings : public UDeveloperSettingsBackedByCVars
 ## GetOptions 元数据
 `GetOptions`元数据能让属性在编辑器中显示为下拉菜单，其选项由指定函数动态生成。例如`ULyraPlatformEmulationSettings`中的`PretendPlatform`成员，通过返回平台ID列表的函数实现下拉选项。
 
-该特性同样适用于函数参数。如下例所示，通过`UPARAM`宏配合`Meta`说明符，`ProfileName`参数将显示为碰撞预设下拉菜单：
-
 ![Get Options](getoption_meta.png){: width="700"}
 _GetOptions Meta_
 
@@ -179,12 +177,14 @@ TArray<FName> ULyraPlatformEmulationSettings::GetKnownPlatformIds() const
 }
 ```
 
-这种设计允许通过内联宏来修饰函数参数，极大提升了编辑器交互的灵活性。
+该特性同样适用于函数参数。如下例所示，通过`UPARAM`宏配合`Meta`说明符，`ProfileName`参数将显示为碰撞预设下拉菜单：
 
 ```cpp
 UFUNCTION(BlueprintCallable, ...)
 static ENGINE_API bool LineTraceSingleByProfile(..., UPARAM(Meta=(GetOptions="Engine.KismetSystemLibrary.GetCollisionProfileNames")) FName ProfileName, ...);
 ```
+
+这种设计允许通过内联宏来修饰函数参数，极大提升了编辑器交互的灵活性。
 
 ## 编辑器Toast通知设置
 有时我们需要在编辑器中显示Toast通知，这可以通过`FSlateNotificationManager`类实现。以下示例展示了如何在`ULyraDeveloperSettings`类中通知开发者某些设置已配置：通过创建`FNotificationInfo`对象并传递给`FSlateNotificationManager`类的`AddNotification`函数。
