@@ -22,25 +22,25 @@ lang: zh-CN
 ```cpp
 void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataValidationUsecase InValidationUsecase)
 {
-	if (FStudioTelemetry::IsAvailable())
-	{
-		FStudioTelemetry::Get().RecordEvent(TEXT("ValidateContent"));
-	}
+    if (FStudioTelemetry::IsAvailable())
+    {
+        FStudioTelemetry::Get().RecordEvent(TEXT("ValidateContent"));
+    }
 
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-	if (AssetRegistryModule.Get().IsLoadingAssets())
-	{
-		if (bInteractive)
-		{
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("DiscoveringAssets", "Still discovering assets. Try again once it is complete."));
-		}
-		else
-		{
-			UE_LOG(LogLyraEditor, Display, TEXT("Could not run ValidateCheckedOutContent because asset discovery was still being done."));
-		}
-		return;
-	}
-	// ...
+    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+    if (AssetRegistryModule.Get().IsLoadingAssets())
+    {
+        if (bInteractive)
+        {
+            FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("DiscoveringAssets", "Still discovering assets. Try again once it is complete."));
+        }
+        else
+        {
+            UE_LOG(LogLyraEditor, Display, TEXT("Could not run ValidateCheckedOutContent because asset discovery was still being done."));
+        }
+        return;
+    }
+    // ...
 }
 ```
 
@@ -48,22 +48,22 @@ void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataV
 接下来，我们通过调用带有修改谓词（Checked Out/Add/Delete）的`GetCachedStateByPredicate`函数，尝试获取所有已检出的文件。该函数将返回一个包含`FSourceControlStateRef`对象的数组，这些对象代表已检出的文件。随后我们可以遍历这个数组并检查每个文件的状态。
 
 ```cpp
-	// ...
-	TArray<FString> ChangedPackageNames;
-	TArray<FString> DeletedPackageNames;
+    // ...
+    TArray<FString> ChangedPackageNames;
+    TArray<FString> DeletedPackageNames;
 
-	ISourceControlProvider& SourceControlProvider = ISourceControlModule::Get().GetProvider();
-	if (ISourceControlModule::Get().IsEnabled())
-	{
-		// Request the opened files at filter construction time to make sure checked out files have the correct state for the filter
-		TSharedRef<FUpdateStatus, ESPMode::ThreadSafe> UpdateStatusOperation = ISourceControlOperation::Create<FUpdateStatus>();
-		UpdateStatusOperation->SetGetOpenedOnly(true);
+    ISourceControlProvider& SourceControlProvider = ISourceControlModule::Get().GetProvider();
+    if (ISourceControlModule::Get().IsEnabled())
+    {
+        // Request the opened files at filter construction time to make sure checked out files have the correct state for the filter
+        TSharedRef<FUpdateStatus, ESPMode::ThreadSafe> UpdateStatusOperation = ISourceControlOperation::Create<FUpdateStatus>();
+        UpdateStatusOperation->SetGetOpenedOnly(true);
 
-		TArray<FSourceControlStateRef> CheckedOutFiles = SourceControlProvider.GetCachedStateByPredicate(
-			[](const FSourceControlStateRef& State) { return State->IsCheckedOut() || State->IsAdded() || State->IsDeleted(); }
-		);
-		// ...
-	}
+        TArray<FSourceControlStateRef> CheckedOutFiles = SourceControlProvider.GetCachedStateByPredicate(
+            [](const FSourceControlStateRef& State) { return State->IsCheckedOut() || State->IsAdded() || State->IsDeleted(); }
+        );
+        // ...
+    }
 ```
 
 ### 过滤已检出文件
@@ -72,107 +72,245 @@ void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataV
 如果是头文件，则需要检查它是否属于可能导致基于这些类的资产出现问题的源代码头文件变更。我们可以通过调用`UEditorValidator::GetChangedAssetsForCode`函数来实现，该函数将返回已更改的包名数组。由于这是个非常庞大的函数，我们稍后再做详细解释。
 
 ```cpp
-	// ...
-	for (const FSourceControlStateRef& FileState : CheckedOutFiles)
-	{
-		FString Filename = FileState->GetFilename();
-		if (FPackageName::IsPackageFilename(Filename))
-		{
-			// Assets
-			FString PackageName;
-			if (FPackageName::TryConvertFilenameToLongPackageName(Filename, PackageName))
-			{
-				if (FileState->IsDeleted())
-				{
-					DeletedPackageNames.Add(PackageName);
-				}
-				else
-				{
-					ChangedPackageNames.Add(PackageName);
-				}
-			}
-		}
-		else if (Filename.EndsWith(TEXT(".h")))
-		{
-			// Source code header changes for classes may cause issues in assets based on those classes
-			UEditorValidator::GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
-		}
-	}
-	// ...
+    // ...
+    for (const FSourceControlStateRef& FileState : CheckedOutFiles)
+    {
+        FString Filename = FileState->GetFilename();
+        if (FPackageName::IsPackageFilename(Filename))
+        {
+            // Assets
+            FString PackageName;
+            if (FPackageName::TryConvertFilenameToLongPackageName(Filename, PackageName))
+            {
+                if (FileState->IsDeleted())
+                {
+                    DeletedPackageNames.Add(PackageName);
+                }
+                else
+                {
+                    ChangedPackageNames.Add(PackageName);
+                }
+            }
+        }
+        else if (Filename.EndsWith(TEXT(".h")))
+        {
+            // Source code header changes for classes may cause issues in assets based on those classes
+            UEditorValidator::GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
+        }
+    }
+    // ...
 ```
 
 ### 验证数据包
 过滤完已检出的文件后，现在可以验证数据包了。我们将调用`ValidatePackages`函数，传入已更改的包名和已删除的包名。该函数会检查数据包是否有效，并返回布尔值表示是否发现问题。
 
 ```cpp
-	bool bAnyIssuesFound = false;
-	TArray<FString> AllWarningsAndErrors;
-	{
-		if (bInteractive)
-		{
-			bAllowFullValidationInEditor = true;
+    bool bAnyIssuesFound = false;
+    TArray<FString> AllWarningsAndErrors;
+    {
+        if (bInteractive)
+        {
+            bAllowFullValidationInEditor = true;
 
-			// We will be flushing shader compile as we load materials, so dont let other shader warnings be attributed incorrectly to the package that is loading.
-			if (GShaderCompilingManager)
-			{
-				FScopedSlowTask SlowTask(0.f, LOCTEXT("CompilingShadersBeforeCheckingContentTask", "Finishing shader compiles before checking content..."));
-				SlowTask.MakeDialog();
-				GShaderCompilingManager->FinishAllCompilation();
-			}
-		}
-		{
-			FScopedSlowTask SlowTask(0.f, LOCTEXT("CheckingContentTask", "Checking content..."));
-			SlowTask.MakeDialog();
-			if (!ValidatePackages(ChangedPackageNames, DeletedPackageNames, 2000, AllWarningsAndErrors, InValidationUsecase))
-			{
-				bAnyIssuesFound = true;
-			}
-		}
-		if (bInteractive)
-		{
-			bAllowFullValidationInEditor = false;
-		}
-	}
-	// ...
+            // We will be flushing shader compile as we load materials, so dont let other shader warnings be attributed incorrectly to the package that is loading.
+            if (GShaderCompilingManager)
+            {
+                FScopedSlowTask SlowTask(0.f, LOCTEXT("CompilingShadersBeforeCheckingContentTask", "Finishing shader compiles before checking content..."));
+                SlowTask.MakeDialog();
+                GShaderCompilingManager->FinishAllCompilation();
+            }
+        }
+        {
+            FScopedSlowTask SlowTask(0.f, LOCTEXT("CheckingContentTask", "Checking content..."));
+            SlowTask.MakeDialog();
+            if (!ValidatePackages(ChangedPackageNames, DeletedPackageNames, 2000, AllWarningsAndErrors, InValidationUsecase))
+            {
+                bAnyIssuesFound = true;
+            }
+        }
+        if (bInteractive)
+        {
+            bAllowFullValidationInEditor = false;
+        }
+    }
+    // ...
 ```
 
 ### 验证项目设置
 同样地，下一步是验证项目设置。我们将调用`ValidateProjectSettings`函数，该函数会检查项目设置是否有效，并返回布尔值表示是否发现问题。
 
 ```cpp
-	{
-		FLyraValidationMessageGatherer ScopedMessageGatherer;
-		if (!ValidateProjectSettings())
-		{
-			bAnyIssuesFound = true;
-		}
-		AllWarningsAndErrors.Append(ScopedMessageGatherer.GetAllWarningsAndErrors());
-	}
-	// ...
+    {
+        FLyraValidationMessageGatherer ScopedMessageGatherer;
+        if (!ValidateProjectSettings())
+        {
+            bAnyIssuesFound = true;
+        }
+        AllWarningsAndErrors.Append(ScopedMessageGatherer.GetAllWarningsAndErrors());
+    }
+    // ...
 ```
 
 ### 报告结果
 最后，我们将报告验证结果。如果发现任何问题，将向用户显示消息对话框提示检出内容存在问题；如果未发现问题，则显示一切正常的消息。
 
 ```cpp
-	// ...
-	if (bInteractive)
-	{
-		const bool bAtLeastOneMessage = (AllWarningsAndErrors.Num() != 0);
-		if (bAtLeastOneMessage)
-		{
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailed", "!!!!!!! Your checked out content has issues. Don't submit until they are fixed !!!!!!!\r\n\r\nSee the MessageLog and OutputLog for details"));
-		}
-		else if (bAnyIssuesFound)
-		{
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailedWithNoMessages", "No errors or warnings were found, but there was an error return code. Look in the OutputLog and log file for details. You may need engineering help."));
-		}
-		else
-		{
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationPassed", "All checked out content passed. Nice job."));
-		}
-	}
-	// ...
+    // ...
+    if (bInteractive)
+    {
+        const bool bAtLeastOneMessage = (AllWarningsAndErrors.Num() != 0);
+        if (bAtLeastOneMessage)
+        {
+            FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailed", "!!!!!!! Your checked out content has issues. Don't submit until they are fixed !!!!!!!\r\n\r\nSee the MessageLog and OutputLog for details"));
+        }
+        else if (bAnyIssuesFound)
+        {
+            FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailedWithNoMessages", "No errors or warnings were found, but there was an error return code. Look in the OutputLog and log file for details. You may need engineering help."));
+        }
+        else
+        {
+            FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationPassed", "All checked out content passed. Nice job."));
+        }
+    }
+    // ...
+```
+
+## FMessageDialog
+`FMessageDialog` 是一个用于向用户显示消息对话框的类，主要用于在编辑器中展示消息、警告和错误信息。该核心功能通过一系列不同的 `Open` 函数实现，例如调用后可以显示带确认按钮的简易消息对话框。出于测试目的，我们也可使用 `Debugf` 来触发带有自定义标题和内容的对话框。
+
+```cpp
+/** 
+ * FMessageDialog
+ * These functions open a message dialog and display the specified informations
+ * there.
+ **/
+struct FMessageDialog
+{
+    /** Pops up a message dialog box containing the input string.
+     * @param Message Text of message to show
+     * @param Title Optional title to use (defaults to "Message")
+    */
+    static CORE_API void Debugf( const FText& Message );
+    static CORE_API void Debugf( const FText& Message, const FText& Title );
+
+    /** Pops up a message dialog box containing the last system error code in string form. */
+    static CORE_API void ShowLastError();
+
+    /**
+     * Open a modal message box dialog
+     * @param MessageCategory Controls the icon used for the dialog
+     * @param MessageType Controls buttons dialog should have
+     * @param Message Text of message to show
+     * @param Title Optional title to use (defaults to "Message")
+    */
+    static CORE_API EAppReturnType::Type Open( EAppMsgType::Type MessageType, const FText& Message);
+    static CORE_API EAppReturnType::Type Open( EAppMsgType::Type MessageType, const FText& Message, const FText& Title);
+    static CORE_API EAppReturnType::Type Open( EAppMsgCategory MessageCategory, EAppMsgType::Type MessageType, const FText& Message);
+    static CORE_API EAppReturnType::Type Open( EAppMsgCategory MessageCategory, EAppMsgType::Type MessageType, const FText& Message, const FText& Title);
+
+    /**
+     * Open a modal message box dialog
+     * @param MessageCategory Controls the icon used for the dialog
+     * @param MessageType Controls buttons dialog should have
+     * @param DefaultValue If the application is Unattended, the function will log and return DefaultValue
+     * @param Message Text of message to show
+     * @param Title Optional title to use (defaults to "Message")
+    */
+    static CORE_API EAppReturnType::Type Open(EAppMsgType::Type MessageType, EAppReturnType::Type DefaultValue, const FText& Message);
+    static CORE_API EAppReturnType::Type Open(EAppMsgType::Type MessageType, EAppReturnType::Type DefaultValue, const FText& Message, const FText& Title);
+    static CORE_API EAppReturnType::Type Open(EAppMsgCategory MessageCategory, EAppMsgType::Type MessageType, EAppReturnType::Type DefaultValue, const FText& Message);
+    static CORE_API EAppReturnType::Type Open(EAppMsgCategory MessageCategory, EAppMsgType::Type MessageType, EAppReturnType::Type DefaultValue, const FText& Message, const FText& Title);
+};
+```
+
+## 作用域类 FLyraValidationMessageGatherer
+回顾 `ValidateProjectSettings` 部分，可以看到它通过作用域类 `FLyraValidationMessageGatherer` 来收集验证过程中产生的所有警告和错误。该类继承自虚幻引擎输出设备的基类 `FOutputDevice`，并通过重写 `Serialize` 函数来捕获验证流程生成的全部警告和错误信息。
+
+```cpp
+    {
+        FLyraValidationMessageGatherer ScopedMessageGatherer;
+        if (!ValidateProjectSettings())
+        {
+            bAnyIssuesFound = true;
+        }
+        AllWarningsAndErrors.Append(ScopedMessageGatherer.GetAllWarningsAndErrors());
+    }
+    // ...
+```
+
+使用作用域类封装特定信息是提升代码可读性和可维护性的常见做法，同时也便于在封装对象中执行更多操作。此处的"作用域"（`Scoped`）本质上指该对象会在构造和析构时自主管理生命周期，因此应当声明在栈上。`FLyraValidationMessageGatherer` 类的作用正是收集验证过程中产生的所有警告和错误信息，并将这些消息存储在数组中供后续使用。
+
+例如，其 `Serialize` 函数会处理消息的忽略情况和详细级别。不过个人认为命名为 `Serialize` 稍显怪异，因为它并未像 `FArchive` 那样对字符串执行真正的序列化输出操作，而仅仅是处理消息内容。
+
+```cpp
+class FKingdomValidationMessageGatherer : public FOutputDevice
+{
+public:
+    FKingdomValidationMessageGatherer()
+        : FOutputDevice()
+    {
+        GLog->AddOutputDevice(this);
+    }
+
+    virtual ~FKingdomValidationMessageGatherer() override
+    {
+        GLog->RemoveOutputDevice(this);
+    }
+
+    virtual void Serialize(const TCHAR* V, ELogVerbosity::Type Verbosity, const class FName& Category) override
+    {
+        if (Verbosity <= ELogVerbosity::Warning)
+        {
+            FString MessageString(V);
+            bool bIgnored = false;
+            for (const FString& IgnorePattern : IgnorePatterns)
+            {
+                if (MessageString.Contains(IgnorePattern))
+                {
+                    bIgnored = true;
+                    break;
+                }
+            }
+
+            if (!bIgnored)
+            {
+                AllWarningsAndErrors.Add(MessageString);
+                if (Verbosity == ELogVerbosity::Warning)
+                {
+                    AllWarnings.Add(MessageString);
+                }
+            }
+        }
+    }
+
+    const TArray<FString>& GetAllWarningsAndErrors() const
+    {
+        return AllWarningsAndErrors;
+    }
+
+    const TArray<FString>& GetAllWarnings() const
+    {
+        return AllWarnings;
+    }
+
+    static void AddIgnorePatterns(const TArray<FString>& NewPatterns)
+    {
+        IgnorePatterns.Append(NewPatterns);
+    }
+
+    static void RemoveIgnorePatterns(const TArray<FString>& PatternsToRemove)
+    {
+        for (const FString& PatternToRemove : PatternsToRemove)
+        {
+            IgnorePatterns.RemoveSingleSwap(PatternToRemove);
+        }
+    }
+
+private:
+    TArray<FString> AllWarningsAndErrors;
+    TArray<FString> AllWarnings;
+    static TArray<FString> IgnorePatterns;
+};
 ```
 
 ## FScopedSlowTask
@@ -189,43 +327,43 @@ void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataV
  * Use one scope at the top of each function to give accurate feedback to the user of a slow operation's progress.
  *
  * Example Usage:
- *	void DoSlowWork()
- *	{
- *		FScopedSlowTask Progress(2.f, LOCTEXT("DoingSlowWork", "Doing Slow Work..."));
- *		// Optionally make this show a dialog if not already shown
- *		Progress.MakeDialog();
+ *    void DoSlowWork()
+ *    {
+ *        FScopedSlowTask Progress(2.f, LOCTEXT("DoingSlowWork", "Doing Slow Work..."));
+ *        // Optionally make this show a dialog if not already shown
+ *        Progress.MakeDialog();
  *
- *		// Indicate that we are entering a frame representing 1 unit of work
- *		Progress.EnterProgressFrame(1.f);
- *		
- *		// DoFirstThing() can follow a similar pattern of creating a scope divided into frames. These contribute to their parent's progress frame proportionately.
- *		DoFirstThing();
- *		
- *		Progress.EnterProgressFrame(1.f);
- *		DoSecondThing();
- *	}
+ *        // Indicate that we are entering a frame representing 1 unit of work
+ *        Progress.EnterProgressFrame(1.f);
+ *        
+ *        // DoFirstThing() can follow a similar pattern of creating a scope divided into frames. These contribute to their parent's progress frame proportionately.
+ *        DoFirstThing();
+ *        
+ *        Progress.EnterProgressFrame(1.f);
+ *        DoSecondThing();
+ *    }
  *
  */
 struct FScopedSlowTask : FSlowTask
 {
 
-	/**
-	 * Construct this scope from an amount of work to do, and a message to display
-	 * @param		InAmountOfWork			Arbitrary number of work units to perform (can be a percentage or number of steps).
-	 *										0 indicates that no progress frames are to be entered in this scope (automatically enters a frame encompassing the entire scope)
-	 * @param		InDefaultMessage		A message to display to the user to describe the purpose of the scope
-	 * @param		bInEnabled				When false, this scope will have no effect. Allows for proper scoped objects that are conditionally disabled.
-	 */
-	FORCEINLINE FScopedSlowTask(float InAmountOfWork, const FText& InDefaultMessage = FText(), bool bInEnabled = true, FFeedbackContext& InContext = *GWarn)
-		: FSlowTask(InAmountOfWork, InDefaultMessage, bInEnabled, InContext)
-	{
-		Initialize();
-	}
+    /**
+     * Construct this scope from an amount of work to do, and a message to display
+     * @param        InAmountOfWork            Arbitrary number of work units to perform (can be a percentage or number of steps).
+     *                                        0 indicates that no progress frames are to be entered in this scope (automatically enters a frame encompassing the entire scope)
+     * @param        InDefaultMessage        A message to display to the user to describe the purpose of the scope
+     * @param        bInEnabled                When false, this scope will have no effect. Allows for proper scoped objects that are conditionally disabled.
+     */
+    FORCEINLINE FScopedSlowTask(float InAmountOfWork, const FText& InDefaultMessage = FText(), bool bInEnabled = true, FFeedbackContext& InContext = *GWarn)
+        : FSlowTask(InAmountOfWork, InDefaultMessage, bInEnabled, InContext)
+    {
+        Initialize();
+    }
 
-	FORCEINLINE ~FScopedSlowTask()
-	{
-		Destroy();
-	}
+    FORCEINLINE ~FScopedSlowTask()
+    {
+        Destroy();
+    }
 };
 ```
 
@@ -238,58 +376,58 @@ struct FScopedSlowTask : FSlowTask
 // --------------------------------------------------------
 void UEditorValidator::GetChangedAssetsForCode(IAssetRegistry& AssetRegistry, const FString& ChangedHeaderLocalFilename, TArray<FString>& OutChangedPackageNames)
 {
-	static struct FCachedNativeClasses{...} NativeClassCache;
+    static struct FCachedNativeClasses{...} NativeClassCache;
 
-	const TArray<FString>& ModuleNames = FSourceCodeNavigation::GetSourceFileDatabase().GetModuleNames();
-	const FString* Module = ModuleNames.FindByPredicate([ChangedHeaderLocalFilename](const FString& ModuleBuildPath) {
-		const FString ModuleFullPath = FPaths::ConvertRelativePathToFull(FPaths::GetPath(ModuleBuildPath));
-		if (ChangedHeaderLocalFilename.StartsWith(ModuleFullPath))
-		{
-			return true;
-		}
-		return false;
-		});
+    const TArray<FString>& ModuleNames = FSourceCodeNavigation::GetSourceFileDatabase().GetModuleNames();
+    const FString* Module = ModuleNames.FindByPredicate([ChangedHeaderLocalFilename](const FString& ModuleBuildPath) {
+        const FString ModuleFullPath = FPaths::ConvertRelativePathToFull(FPaths::GetPath(ModuleBuildPath));
+        if (ChangedHeaderLocalFilename.StartsWith(ModuleFullPath))
+        {
+            return true;
+        }
+        return false;
+        });
 
-	if (Module)
-	{
-		// ...
-	}
+    if (Module)
+    {
+        // ...
+    }
 }
 
 struct FCachedNativeClasses
 {
-	public:
-		FCachedNativeClasses()
-		{
-			static const FName ModuleNameFName = "ModuleName";
-			static const FName ModuleRelativePathFName = "ModuleRelativePath";
+    public:
+        FCachedNativeClasses()
+        {
+            static const FName ModuleNameFName = "ModuleName";
+            static const FName ModuleRelativePathFName = "ModuleRelativePath";
 
-			for (TObjectIterator<UClass> ClassIt; ClassIt; ++ClassIt)
-			{
-				UClass* TestClass = *ClassIt;
-				if (TestClass->HasAnyClassFlags(CLASS_Native))
-				{
-					FAssetData ClassAssetData(TestClass);
+            for (TObjectIterator<UClass> ClassIt; ClassIt; ++ClassIt)
+            {
+                UClass* TestClass = *ClassIt;
+                if (TestClass->HasAnyClassFlags(CLASS_Native))
+                {
+                    FAssetData ClassAssetData(TestClass);
 
-					FString ModuleName, ModuleRelativePath;
-					ClassAssetData.GetTagValue(ModuleNameFName, ModuleName);
-					ClassAssetData.GetTagValue(ModuleRelativePathFName, ModuleRelativePath);
+                    FString ModuleName, ModuleRelativePath;
+                    ClassAssetData.GetTagValue(ModuleNameFName, ModuleName);
+                    ClassAssetData.GetTagValue(ModuleRelativePathFName, ModuleRelativePath);
 
-					Classes.Add(ModuleName + TEXT("+") + ModuleRelativePath, TestClass);
-				}
-			}
-		}
+                    Classes.Add(ModuleName + TEXT("+") + ModuleRelativePath, TestClass);
+                }
+            }
+        }
 
-		TArray<TWeakObjectPtr<UClass>> GetClassesInHeader(const FString& ModuleName, const FString& ModuleRelativePath)
-		{
-			TArray<TWeakObjectPtr<UClass>> ClassesInHeader;
-			Classes.MultiFind(ModuleName + TEXT("+") + ModuleRelativePath, ClassesInHeader);
+        TArray<TWeakObjectPtr<UClass>> GetClassesInHeader(const FString& ModuleName, const FString& ModuleRelativePath)
+        {
+            TArray<TWeakObjectPtr<UClass>> ClassesInHeader;
+            Classes.MultiFind(ModuleName + TEXT("+") + ModuleRelativePath, ClassesInHeader);
 
-			return ClassesInHeader;
-		}
+            return ClassesInHeader;
+        }
 
-	private:
-		TMultiMap<FString, TWeakObjectPtr<UClass>> Classes;
+    private:
+        TMultiMap<FString, TWeakObjectPtr<UClass>> Classes;
 }
 ```
 
@@ -311,15 +449,15 @@ class UObject;
 UCLASS()
 class UEditorValidator_SourceControl : public UEditorValidator
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UEditorValidator_SourceControl();
+    UEditorValidator_SourceControl();
 
 protected:
-	using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
-	virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InObject, FDataValidationContext& InContext) const override;
-	virtual EDataValidationResult ValidateLoadedAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& Context) override;
+    using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
+    virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InObject, FDataValidationContext& InContext) const override;
+    virtual EDataValidationResult ValidateLoadedAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& Context) override;
 };
 ```
 
@@ -339,21 +477,21 @@ protected:
 #define LOCTEXT_NAMESPACE "EditorValidator"
 
 UEditorValidator_SourceControl::UEditorValidator_SourceControl()
-	: Super()
+    : Super()
 {
-	
+    
 }
 
 bool UEditorValidator_SourceControl::CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& InContext) const
 {
-	return InAsset != nullptr;
+    return InAsset != nullptr;
 }
 
 EDataValidationResult UEditorValidator_SourceControl::ValidateLoadedAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& Context)
 {
-	// ...
+    // ...
 
-	return GetValidationResult();
+    return GetValidationResult();
 }
 
 #undef LOCTEXT_NAMESPACE
@@ -368,29 +506,29 @@ EDataValidationResult UEditorValidator_SourceControl::ValidateLoadedAsset_Implem
 UCLASS()
 class UEditorValidator_Blueprints : public UEditorValidator
 {
-	// ...
+    // ...
 
 protected:
-	using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
-	virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& InContext) const override;
-	// ...
+    using Super::CanValidateAsset_Implementation; // -Woverloaded-virtual
+    virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& InContext) const override;
+    // ...
 };
 
 // The base class is still using the old signature.
 UCLASS(Abstract)
 class UEditorValidator : public UEditorValidatorBase
 {
-	// ...
+    // ...
 protected:
-	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const override;
+    virtual bool CanValidateAsset_Implementation(UObject* InAsset) const override;
 }
 
 // EditorValidatorBase.cpp
-	UE_DEPRECATED("5.4", "CanValidateAsset_Implementation(UObject* InAsset) is deprecated, override CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext) instead")
-	virtual bool CanValidateAsset_Implementation(UObject* InAsset) const 
-	{
-		 return true; 
-	}
+    UE_DEPRECATED("5.4", "CanValidateAsset_Implementation(UObject* InAsset) is deprecated, override CanValidateAsset_Implementation(UObject* InObject, FDataValidationContext& InContext) instead")
+    virtual bool CanValidateAsset_Implementation(UObject* InAsset) const 
+    {
+         return true; 
+    }
 // ...
 ```
 

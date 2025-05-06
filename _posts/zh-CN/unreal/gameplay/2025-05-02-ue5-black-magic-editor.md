@@ -43,22 +43,22 @@ Lyra扩展编辑器引擎主要出于两个目的：
 ```cpp
 void ULyraEditorEngine::Tick(float DeltaSeconds, bool bIdleMode)
 {
-	Super::Tick(DeltaSeconds, bIdleMode);
-	
-	FirstTickSetup();
+    Super::Tick(DeltaSeconds, bIdleMode);
+    
+    FirstTickSetup();
 }
 
 void ULyraEditorEngine::FirstTickSetup()
 {
-	if (bFirstTickSetup)
-	{
-		return;
-	}
+    if (bFirstTickSetup)
+    {
+        return;
+    }
 
-	bFirstTickSetup = true;
+    bFirstTickSetup = true;
 
-	// Force show plugin content on load.
-	GetMutableDefault<UContentBrowserSettings>()->SetDisplayPluginFolders(true);
+    // Force show plugin content on load.
+    GetMutableDefault<UContentBrowserSettings>()->SetDisplayPluginFolders(true);
 }
 ```
 
@@ -68,31 +68,31 @@ void ULyraEditorEngine::FirstTickSetup()
 ```cpp
 FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyBlueprintErrors, const bool bStartInSpectatorMode, const float PIEStartTime, const bool bSupportsOnlinePIE, int32& InNumOnlinePIEInstances)
 {
-	if (const ALyraWorldSettings* LyraWorldSettings = Cast<ALyraWorldSettings>(EditorWorld->GetWorldSettings()))
-	{
-		if (LyraWorldSettings->ForceStandaloneNetMode)
-		{
-			EPlayNetMode OutPlayNetMode;
-			PlaySessionRequest->EditorPlaySettings->GetPlayNetMode(OutPlayNetMode);
-			if (OutPlayNetMode != PIE_Standalone)
-			{
-				PlaySessionRequest->EditorPlaySettings->SetPlayNetMode(PIE_Standalone);
+    if (const ALyraWorldSettings* LyraWorldSettings = Cast<ALyraWorldSettings>(EditorWorld->GetWorldSettings()))
+    {
+        if (LyraWorldSettings->ForceStandaloneNetMode)
+        {
+            EPlayNetMode OutPlayNetMode;
+            PlaySessionRequest->EditorPlaySettings->GetPlayNetMode(OutPlayNetMode);
+            if (OutPlayNetMode != PIE_Standalone)
+            {
+                PlaySessionRequest->EditorPlaySettings->SetPlayNetMode(PIE_Standalone);
 
-				FNotificationInfo Info(LOCTEXT("ForcingStandaloneForFrontend", "Forcing NetMode: Standalone for the Frontend"));
-				Info.ExpireDuration = 2.0f;
-				FSlateNotificationManager::Get().AddNotification(Info);
-			}
-		}
-	}
+                FNotificationInfo Info(LOCTEXT("ForcingStandaloneForFrontend", "Forcing NetMode: Standalone for the Frontend"));
+                Info.ExpireDuration = 2.0f;
+                FSlateNotificationManager::Get().AddNotification(Info);
+            }
+        }
+    }
 
-	//@TODO: Should add delegates that a *non-editor* module could bind to for PIE start/stop instead of poking directly
-	GetDefault<ULyraDeveloperSettings>()->OnPlayInEditorStarted();
-	GetDefault<ULyraPlatformEmulationSettings>()->OnPlayInEditorStarted();
+    //@TODO: Should add delegates that a *non-editor* module could bind to for PIE start/stop instead of poking directly
+    GetDefault<ULyraDeveloperSettings>()->OnPlayInEditorStarted();
+    GetDefault<ULyraPlatformEmulationSettings>()->OnPlayInEditorStarted();
 
-	//
-	FGameInstancePIEResult Result = Super::PreCreatePIEServerInstance(bAnyBlueprintErrors, bStartInSpectatorMode, PIEStartTime, bSupportsOnlinePIE, InNumOnlinePIEInstances);
+    //
+    FGameInstancePIEResult Result = Super::PreCreatePIEServerInstance(bAnyBlueprintErrors, bStartInSpectatorMode, PIEStartTime, bSupportsOnlinePIE, InNumOnlinePIEInstances);
 
-	return Result;
+    return Result;
 }
 ```
 
@@ -113,7 +113,7 @@ EditorEngine=/Script/LyraEditor.LyraEditorEngine
 UCLASS(config=EditorPerProjectUserSettings, MinimalAPI)
 class ULyraDeveloperSettings : public UDeveloperSettingsBackedByCVars
 {
-	//...
+    //...
 }
 ```
 
@@ -121,9 +121,9 @@ class ULyraDeveloperSettings : public UDeveloperSettingsBackedByCVars
 
 ```cpp
 #if WITH_EDITORONLY_DATA
-	/** A list of common maps that will be accessible via the editor toolbar */
-	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category=Maps, meta=(AllowedClasses="/Script/Engine.World"))
-	TArray<FSoftObjectPath> CommonEditorMaps;
+    /** A list of common maps that will be accessible via the editor toolbar */
+    UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category=Maps, meta=(AllowedClasses="/Script/Engine.World"))
+    TArray<FSoftObjectPath> CommonEditorMaps;
 #endif
 ```
 
@@ -152,28 +152,28 @@ _GetOptions Meta_
 UCLASS(config=EditorPerProjectUserSettings, MinimalAPI)
 class ULyraPlatformEmulationSettings : public UDeveloperSettingsBackedByCVars
 {
-	// ...
+    // ...
 private:
-	UPROPERTY(EditAnywhere, config, Category=PlatformEmulation, meta=(GetOptions=GetKnownPlatformIds))
-	FName PretendPlatform;
+    UPROPERTY(EditAnywhere, config, Category=PlatformEmulation, meta=(GetOptions=GetKnownPlatformIds))
+    FName PretendPlatform;
 
-	// ...
-	UFUNCTION()
-	TArray<FName> GetKnownPlatformIds() const;
-	
-	//...
+    // ...
+    UFUNCTION()
+    TArray<FName> GetKnownPlatformIds() const;
+    
+    //...
 }
 
 TArray<FName> ULyraPlatformEmulationSettings::GetKnownPlatformIds() const
 {
-	TArray<FName> Results;
+    TArray<FName> Results;
 
 #if WITH_EDITOR
-	Results.Add(NAME_None);
-	Results.Append(UPlatformSettingsManager::GetKnownAndEnablePlatformIniNames());
+    Results.Add(NAME_None);
+    Results.Append(UPlatformSettingsManager::GetKnownAndEnablePlatformIniNames());
 #endif
 
-	return Results;
+    return Results;
 }
 ```
 
@@ -194,36 +194,36 @@ static ENGINE_API bool LineTraceSingleByProfile(..., UPARAM(Meta=(GetOptions="En
 ```cpp
 FGameInstancePIEResult ULyraEditorEngine::PreCreatePIEInstances(const bool bAnyBlueprintErrors, const bool bStartInSpectatorMode, const float PIEStartTime, const bool bSupportsOnlinePIE, int32& InNumOnlinePIEInstances)
 {
-	if (const ALyraWorldSettings* LyraWorldSettings = Cast<ALyraWorldSettings>(EditorWorld->GetWorldSettings()))
-	{
-		if (LyraWorldSettings->ForceStandaloneNetMode)
-		{
-			EPlayNetMode OutPlayNetMode;
-			PlaySessionRequest->EditorPlaySettings->GetPlayNetMode(OutPlayNetMode);
-			if (OutPlayNetMode != PIE_Standalone)
-			{
-				PlaySessionRequest->EditorPlaySettings->SetPlayNetMode(PIE_Standalone);
+    if (const ALyraWorldSettings* LyraWorldSettings = Cast<ALyraWorldSettings>(EditorWorld->GetWorldSettings()))
+    {
+        if (LyraWorldSettings->ForceStandaloneNetMode)
+        {
+            EPlayNetMode OutPlayNetMode;
+            PlaySessionRequest->EditorPlaySettings->GetPlayNetMode(OutPlayNetMode);
+            if (OutPlayNetMode != PIE_Standalone)
+            {
+                PlaySessionRequest->EditorPlaySettings->SetPlayNetMode(PIE_Standalone);
 
-				FNotificationInfo Info(LOCTEXT("ForcingStandaloneForFrontend", "Forcing NetMode: Standalone for the Frontend"));
-				Info.ExpireDuration = 2.0f;
-				FSlateNotificationManager::Get().AddNotification(Info);
-			}
-		}
-	}
+                FNotificationInfo Info(LOCTEXT("ForcingStandaloneForFrontend", "Forcing NetMode: Standalone for the Frontend"));
+                Info.ExpireDuration = 2.0f;
+                FSlateNotificationManager::Get().AddNotification(Info);
+            }
+        }
+    }
 }
 
 void ULyraDeveloperSettings::OnPlayInEditorStarted() const
 {
-	// Show a notification toast to remind the user that there's an experience override set
-	if (ExperienceOverride.IsValid())
-	{
-		FNotificationInfo Info(FText::Format(
-			LOCTEXT("ExperienceOverrideActive", "Developer Settings Override\nExperience {0}"),
-			FText::FromName(ExperienceOverride.PrimaryAssetName)
-		));
-		Info.ExpireDuration = 2.0f;
-		FSlateNotificationManager::Get().AddNotification(Info);
-	}
+    // Show a notification toast to remind the user that there's an experience override set
+    if (ExperienceOverride.IsValid())
+    {
+        FNotificationInfo Info(FText::Format(
+            LOCTEXT("ExperienceOverrideActive", "Developer Settings Override\nExperience {0}"),
+            FText::FromName(ExperienceOverride.PrimaryAssetName)
+        ));
+        Info.ExpireDuration = 2.0f;
+        FSlateNotificationManager::Get().AddNotification(Info);
+    }
 }
 ```
 
@@ -259,27 +259,27 @@ UE5.1引入了`UE_INLINE_GENERATED_CPP_BY_NAME`宏来提升编译性能（参见
  */
 class FLyraEditorModule : public FDefaultGameModuleImpl
 {
-	// ...
-	virtual void StartupModule() override
-	{
-		FGameEditorStyle::Initialize();
+    // ...
+    virtual void StartupModule() override
+    {
+        FGameEditorStyle::Initialize();
 
-		if (!IsRunningGame())
-		{
-			// ...
-			FEditorDelegates::BeginPIE.AddRaw(this, &ThisClass::OnBeginPIE);
-			FEditorDelegates::EndPIE.AddRaw(this, &ThisClass::OnEndPIE);
-		}
-		// ...
-	}
+        if (!IsRunningGame())
+        {
+            // ...
+            FEditorDelegates::BeginPIE.AddRaw(this, &ThisClass::OnBeginPIE);
+            FEditorDelegates::EndPIE.AddRaw(this, &ThisClass::OnEndPIE);
+        }
+        // ...
+    }
 
-	void OnBeginPIE(bool bIsSimulating)
-	{
-		ULyraExperienceManager* ExperienceManager = GEngine->GetEngineSubsystem<ULyraExperienceManager>();
-		check(ExperienceManager);
-		ExperienceManager->OnPlayInEditorBegun();
-	}
-	//...
+    void OnBeginPIE(bool bIsSimulating)
+    {
+        ULyraExperienceManager* ExperienceManager = GEngine->GetEngineSubsystem<ULyraExperienceManager>();
+        check(ExperienceManager);
+        ExperienceManager->OnPlayInEditorBegun();
+    }
+    //...
 }
 ```
 
@@ -294,75 +294,75 @@ class FLyraEditorModule : public FDefaultGameModuleImpl
  */
 class FLyraEditorModule : public FDefaultGameModuleImpl
 {
-	// ...
-	virtual void StartupModule() override
-	{
-		FGameEditorStyle::Initialize();
+    // ...
+    virtual void StartupModule() override
+    {
+        FGameEditorStyle::Initialize();
 
-		if (!IsRunningGame())
-		{
-			// ...
-			if (FSlateApplication::IsInitialized())
-			{
-				ToolMenusHandle = UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&RegisterGameEditorMenus));
-			}
+        if (!IsRunningGame())
+        {
+            // ...
+            if (FSlateApplication::IsInitialized())
+            {
+                ToolMenusHandle = UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&RegisterGameEditorMenus));
+            }
 
-			// ...
-		}
-	}
-	// ...
+            // ...
+        }
+    }
+    // ...
 }
 
 static void RegisterGameEditorMenus()
 {
-	UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
-	FToolMenuSection& Section = Menu->AddSection("PlayGameExtensions", TAttribute<FText>(), FToolMenuInsert("Play", EToolMenuInsertType::After));
+    UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
+    FToolMenuSection& Section = Menu->AddSection("PlayGameExtensions", TAttribute<FText>(), FToolMenuInsert("Play", EToolMenuInsertType::After));
 
-	// Uncomment this to add a custom toolbar that is displayed during PIE
-	// Useful for making easy access to changing game state artificially, adding cheats, etc
-	// FToolMenuEntry BlueprintEntry = FToolMenuEntry::InitComboButton(
-	// 	"OpenGameMenu",
-	// 	FUIAction(
-	// 		FExecuteAction(),
-	// 		FCanExecuteAction::CreateStatic(&HasPlayWorld),
-	// 		FIsActionChecked(),
-	// 		FIsActionButtonVisible::CreateStatic(&HasPlayWorld)),
-	// 	FOnGetContent::CreateStatic(&YourCustomMenu),
-	// 	LOCTEXT("GameOptions_Label", "Game Options"),
-	// 	LOCTEXT("GameOptions_ToolTip", "Game Options"),
-	// 	FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.OpenLevelBlueprint")
-	// );
-	// BlueprintEntry.StyleNameOverride = "CalloutToolbar";
-	// Section.AddEntry(BlueprintEntry);
+    // Uncomment this to add a custom toolbar that is displayed during PIE
+    // Useful for making easy access to changing game state artificially, adding cheats, etc
+    // FToolMenuEntry BlueprintEntry = FToolMenuEntry::InitComboButton(
+    //     "OpenGameMenu",
+    //     FUIAction(
+    //         FExecuteAction(),
+    //         FCanExecuteAction::CreateStatic(&HasPlayWorld),
+    //         FIsActionChecked(),
+    //         FIsActionButtonVisible::CreateStatic(&HasPlayWorld)),
+    //     FOnGetContent::CreateStatic(&YourCustomMenu),
+    //     LOCTEXT("GameOptions_Label", "Game Options"),
+    //     LOCTEXT("GameOptions_ToolTip", "Game Options"),
+    //     FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.OpenLevelBlueprint")
+    // );
+    // BlueprintEntry.StyleNameOverride = "CalloutToolbar";
+    // Section.AddEntry(BlueprintEntry);
 
-	FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
-		"CheckContent",
-		FUIAction(
-			FExecuteAction::CreateStatic(&CheckGameContent_Clicked),
-			FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
-			FIsActionChecked(),
-			FIsActionButtonVisible::CreateStatic(&HasNoPlayWorld)),
-		LOCTEXT("CheckContentButton", "Check Content"),
-		LOCTEXT("CheckContentDescription", "Runs the Content Validation job on all checked out assets to look for warnings and errors"),
-		FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
-	);
-	CheckContentEntry.StyleNameOverride = "CalloutToolbar";
-	Section.AddEntry(CheckContentEntry);
+    FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
+        "CheckContent",
+        FUIAction(
+            FExecuteAction::CreateStatic(&CheckGameContent_Clicked),
+            FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
+            FIsActionChecked(),
+            FIsActionButtonVisible::CreateStatic(&HasNoPlayWorld)),
+        LOCTEXT("CheckContentButton", "Check Content"),
+        LOCTEXT("CheckContentDescription", "Runs the Content Validation job on all checked out assets to look for warnings and errors"),
+        FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
+    );
+    CheckContentEntry.StyleNameOverride = "CalloutToolbar";
+    Section.AddEntry(CheckContentEntry);
 
-	FToolMenuEntry CommonMapEntry = FToolMenuEntry::InitComboButton(
-		"CommonMapOptions",
-		FUIAction(
-			FExecuteAction(),
-			FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
-			FIsActionChecked(),
-			FIsActionButtonVisible::CreateStatic(&CanShowCommonMaps)),
-		FOnGetContent::CreateStatic(&GetCommonMapsDropdown),
-		LOCTEXT("CommonMaps_Label", "Common Maps"),
-		LOCTEXT("CommonMaps_ToolTip", "Some commonly desired maps while using the editor"),
-		FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Level")
-	);
-	CommonMapEntry.StyleNameOverride = "CalloutToolbar";
-	Section.AddEntry(CommonMapEntry);
+    FToolMenuEntry CommonMapEntry = FToolMenuEntry::InitComboButton(
+        "CommonMapOptions",
+        FUIAction(
+            FExecuteAction(),
+            FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
+            FIsActionChecked(),
+            FIsActionButtonVisible::CreateStatic(&CanShowCommonMaps)),
+        FOnGetContent::CreateStatic(&GetCommonMapsDropdown),
+        LOCTEXT("CommonMaps_Label", "Common Maps"),
+        LOCTEXT("CommonMaps_ToolTip", "Some commonly desired maps while using the editor"),
+        FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Level")
+    );
+    CommonMapEntry.StyleNameOverride = "CalloutToolbar";
+    Section.AddEntry(CommonMapEntry);
 }
 ```
 
@@ -371,18 +371,18 @@ static void RegisterGameEditorMenus()
 
 ```cpp
 FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
-	"CheckContent",
-	FUIAction(
-		FExecuteAction::CreateStatic(&CheckGameContent_Clicked),
-		// ...
-		),
-		// ...
-		FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
-	);
+    "CheckContent",
+    FUIAction(
+        FExecuteAction::CreateStatic(&CheckGameContent_Clicked),
+        // ...
+        ),
+        // ...
+        FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
+    );
 
 static void CheckGameContent_Clicked()
 {
-	UEditorValidator::ValidateCheckedOutContent(/*bInteractive=*/true, EDataValidationUsecase::Manual);
+    UEditorValidator::ValidateCheckedOutContent(/*bInteractive=*/true, EDataValidationUsecase::Manual);
 }
 ```
 
@@ -394,38 +394,38 @@ static void CheckGameContent_Clicked()
 ```cpp
 static TSharedRef<SWidget> GetCommonMapsDropdown()
 {
-	FMenuBuilder MenuBuilder(true, nullptr);
-	
-	for (const FSoftObjectPath& Path : GetDefault<ULyraDeveloperSettings>()->CommonEditorMaps)
-	{
-		if (!Path.IsValid())
-		{
-			continue;
-		}
-		
-		const FText DisplayName = FText::FromString(Path.GetAssetName());
-		MenuBuilder.AddMenuEntry(
-			DisplayName,
-			LOCTEXT("CommonPathDescription", "Opens this map in the editor"),
-			FSlateIcon(),
-			FUIAction(
-				FExecuteAction::CreateStatic(&OpenCommonMap_Clicked, Path.ToString()),
-				FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
-				FIsActionChecked(),
-				FIsActionButtonVisible::CreateStatic(&HasNoPlayWorld)
-			)
-		);
-	}
+    FMenuBuilder MenuBuilder(true, nullptr);
+    
+    for (const FSoftObjectPath& Path : GetDefault<ULyraDeveloperSettings>()->CommonEditorMaps)
+    {
+        if (!Path.IsValid())
+        {
+            continue;
+        }
+        
+        const FText DisplayName = FText::FromString(Path.GetAssetName());
+        MenuBuilder.AddMenuEntry(
+            DisplayName,
+            LOCTEXT("CommonPathDescription", "Opens this map in the editor"),
+            FSlateIcon(),
+            FUIAction(
+                FExecuteAction::CreateStatic(&OpenCommonMap_Clicked, Path.ToString()),
+                FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
+                FIsActionChecked(),
+                FIsActionButtonVisible::CreateStatic(&HasNoPlayWorld)
+            )
+        );
+    }
 
-	return MenuBuilder.MakeWidget();
+    return MenuBuilder.MakeWidget();
 }
 
 static void OpenCommonMap_Clicked(const FString MapPath)
 {
-	if (ensure(MapPath.Len()))
-	{
-		GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(MapPath);
-	}
+    if (ensure(MapPath.Len()))
+    {
+        GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(MapPath);
+    }
 }
 ```
 
@@ -445,11 +445,11 @@ static void OpenCommonMap_Clicked(const FString MapPath)
 在上面的例子中，我们创建按钮时也定义了它们的图标外观。
 
 ```cpp
-	FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
-		"CheckContent",
-		// ...
-		FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
-	);
+    FToolMenuEntry CheckContentEntry = FToolMenuEntry::InitToolBarButton(
+        "CheckContent",
+        // ...
+        FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
+    );
 ```
 
 虽然可以直接定义按钮图标，但我们也可以将它们集中管理。在本例中，`GameEditor.CheckContent`实际上是在简单的`FGameEditorStyle`单例中设置的。初始化时，它创建`StyleInstance`并注册到`FSlateStyleRegistry`。这是虚幻引擎中的常见模式，用于集中管理样式和资源。实际图标位于`Content/Editor/Slate/Icons/CheckContent.svg`。
@@ -459,43 +459,43 @@ TSharedPtr< FSlateStyleSet > FGameEditorStyle::StyleInstance = nullptr;
 
 void FGameEditorStyle::Initialize()
 {
-	if ( !StyleInstance.IsValid() )
-	{
-		StyleInstance = Create();
-		FSlateStyleRegistry::RegisterSlateStyle( *StyleInstance );
-	}
+    if ( !StyleInstance.IsValid() )
+    {
+        StyleInstance = Create();
+        FSlateStyleRegistry::RegisterSlateStyle( *StyleInstance );
+    }
 }
 
 TSharedRef< FSlateStyleSet > FGameEditorStyle::Create()
 {
-	TSharedRef<FSlateStyleSet> StyleRef = MakeShareable(new FSlateStyleSet(FGameEditorStyle::GetStyleSetName()));
-	StyleRef->SetContentRoot(FPaths::EngineContentDir() / TEXT("Editor/Slate"));
-	StyleRef->SetCoreContentRoot(FPaths::EngineContentDir() / TEXT("Slate"));
+    TSharedRef<FSlateStyleSet> StyleRef = MakeShareable(new FSlateStyleSet(FGameEditorStyle::GetStyleSetName()));
+    StyleRef->SetContentRoot(FPaths::EngineContentDir() / TEXT("Editor/Slate"));
+    StyleRef->SetCoreContentRoot(FPaths::EngineContentDir() / TEXT("Slate"));
 
-	FSlateStyleSet& Style = StyleRef.Get();
+    FSlateStyleSet& Style = StyleRef.Get();
 
-	const FVector2D Icon16x16(16.0f, 16.0f);
-	const FVector2D Icon20x20(20.0f, 20.0f);
-	const FVector2D Icon40x40(40.0f, 40.0f);
-	const FVector2D Icon64x64(64.0f, 64.0f);
+    const FVector2D Icon16x16(16.0f, 16.0f);
+    const FVector2D Icon20x20(20.0f, 20.0f);
+    const FVector2D Icon40x40(40.0f, 40.0f);
+    const FVector2D Icon64x64(64.0f, 64.0f);
 
-	// Toolbar 
-	{
-		Style.Set("GameEditor.CheckContent", new GAME_IMAGE_BRUSH_SVG("Icons/CheckContent", Icon20x20));
-	}
+    // Toolbar 
+    {
+        Style.Set("GameEditor.CheckContent", new GAME_IMAGE_BRUSH_SVG("Icons/CheckContent", Icon20x20));
+    }
 
-	return StyleRef;
+    return StyleRef;
 }
 ```
 
 这个模式适用于多种情况。我们只需要找到合适的地方进行`Initialize`初始化。对`Lyra`来说，这实际上就是`FLyraEditorModule`的`StartupModule`函数的第一行。
 
 ```cpp
-	virtual void StartupModule() override
-	{
-		FGameEditorStyle::Initialize();
-		// ...
-	}
+    virtual void StartupModule() override
+    {
+        FGameEditorStyle::Initialize();
+        // ...
+    }
 ```
 
 ## 自动控制台命令
@@ -503,14 +503,14 @@ TSharedRef< FSlateStyleSet > FGameEditorStyle::Create()
 
 ```cpp
 FAutoConsoleCommandWithWorldArgsAndOutputDevice GCreateRedirectorPackage(
-	TEXT("Lyra.CreateRedirectorPackage"),
-	TEXT("Usage:\n")
-	TEXT("  Lyra.CreateRedirectorPackage RedirectorName TargetPackage"),
-	FConsoleCommandWithWorldArgsAndOutputDeviceDelegate::CreateStatic(
-		[](const TArray<FString>& Params, UWorld* World, FOutputDevice& Ar)
-	{
-		// ... Implementation
-	}));
+    TEXT("Lyra.CreateRedirectorPackage"),
+    TEXT("Usage:\n")
+    TEXT("  Lyra.CreateRedirectorPackage RedirectorName TargetPackage"),
+    FConsoleCommandWithWorldArgsAndOutputDeviceDelegate::CreateStatic(
+        [](const TArray<FString>& Params, UWorld* World, FOutputDevice& Ar)
+    {
+        // ... Implementation
+    }));
 ```
 
 如上所示，实际实现是通过绑定到`FConsoleCommandWithWorldArgsAndOutputDeviceDelegate`的`lambda`函数完成的。`WithWorldArgsAndOutputDevice`部分描述了委托签名：第一个参数是`TArray<FString>`，第二个是`UWorld*`，第三个是`FOutputDevice&`。用户在控制台输入的所有参数都会作为`TArray<FString>`传递给第一个参数，我们可以像普通数组一样提取参数。
@@ -533,12 +533,12 @@ Lyra中有三个示例命令：
 UCLASS(MinimalAPI)
 class ULyraExperienceManager : public UEngineSubsystem
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 #if WITH_EDITOR
-	LYRAGAME_API void OnPlayInEditorBegun();
-	// ...
+    LYRAGAME_API void OnPlayInEditorBegun();
+    // ...
 }
 ```
 

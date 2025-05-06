@@ -20,15 +20,15 @@ lang: en
 ```cpp
 inline FConfigLayer GConfigLayers[] =
 {
-	/**************************************************
-	**** CRITICAL NOTES
-	**** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
-	**** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
-	**************************************************/
+    /**************************************************
+    **** CRITICAL NOTES
+    **** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
+    **** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
+    **************************************************/
 
-	// ...
-	// Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
-	{ TEXT("CustomConfig"),				TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
-	// ...
+    // ...
+    // Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
+    { TEXT("CustomConfig"),                TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
+    // ...
 };
 ```

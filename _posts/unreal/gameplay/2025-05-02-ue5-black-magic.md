@@ -37,40 +37,40 @@ Experience Definition acts like a decoupled "metadata" that described, in order 
 UCLASS(BlueprintType, Const)
 class ULyraExperienceDefinition : public UPrimaryDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ULyraExperienceDefinition();
+    ULyraExperienceDefinition();
 
-	//~UObject interface
+    //~UObject interface
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+    virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif
-	//~End of UObject interface
+    //~End of UObject interface
 
-	//~UPrimaryDataAsset interface
+    //~UPrimaryDataAsset interface
 #if WITH_EDITORONLY_DATA
-	virtual void UpdateAssetBundleData() override;
+    virtual void UpdateAssetBundleData() override;
 #endif
-	//~End of UPrimaryDataAsset interface
+    //~End of UPrimaryDataAsset interface
 
 public:
-	// List of Game Feature Plugins this experience wants to have active
-	UPROPERTY(EditDefaultsOnly, Category = Gameplay)
-	TArray<FString> GameFeaturesToEnable;
+    // List of Game Feature Plugins this experience wants to have active
+    UPROPERTY(EditDefaultsOnly, Category = Gameplay)
+    TArray<FString> GameFeaturesToEnable;
 
-	/** The default pawn class to spawn for players */
-	//@TODO: Make soft?
-	UPROPERTY(EditDefaultsOnly, Category=Gameplay)
-	TObjectPtr<const ULyraPawnData> DefaultPawnData;
+    /** The default pawn class to spawn for players */
+    //@TODO: Make soft?
+    UPROPERTY(EditDefaultsOnly, Category=Gameplay)
+    TObjectPtr<const ULyraPawnData> DefaultPawnData;
 
-	// List of actions to perform as this experience is loaded/activated/deactivated/unloaded
-	UPROPERTY(EditDefaultsOnly, Instanced, Category="Actions")
-	TArray<TObjectPtr<UGameFeatureAction>> Actions;
+    // List of actions to perform as this experience is loaded/activated/deactivated/unloaded
+    UPROPERTY(EditDefaultsOnly, Instanced, Category="Actions")
+    TArray<TObjectPtr<UGameFeatureAction>> Actions;
 
-	// List of additional action sets to compose into this experience
-	UPROPERTY(EditDefaultsOnly, Category=Gameplay)
-	TArray<TObjectPtr<ULyraExperienceActionSet>> ActionSets;
+    // List of additional action sets to compose into this experience
+    UPROPERTY(EditDefaultsOnly, Category=Gameplay)
+    TArray<TObjectPtr<ULyraExperienceActionSet>> ActionSets;
 };
 ```
 
@@ -83,31 +83,31 @@ To reuse some common actions as well as cominition of game features to load, the
 UCLASS(BlueprintType, NotBlueprintable)
 class ULyraExperienceActionSet : public UPrimaryDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ULyraExperienceActionSet();
+    ULyraExperienceActionSet();
 
-	//~UObject interface
+    //~UObject interface
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+    virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif
-	//~End of UObject interface
+    //~End of UObject interface
 
-	//~UPrimaryDataAsset interface
+    //~UPrimaryDataAsset interface
 #if WITH_EDITORONLY_DATA
-	virtual void UpdateAssetBundleData() override;
+    virtual void UpdateAssetBundleData() override;
 #endif
-	//~End of UPrimaryDataAsset interface
+    //~End of UPrimaryDataAsset interface
 
 public:
-	// List of actions to perform as this experience is loaded/activated/deactivated/unloaded
-	UPROPERTY(EditAnywhere, Instanced, Category="Actions to Perform")
-	TArray<TObjectPtr<UGameFeatureAction>> Actions;
+    // List of actions to perform as this experience is loaded/activated/deactivated/unloaded
+    UPROPERTY(EditAnywhere, Instanced, Category="Actions to Perform")
+    TArray<TObjectPtr<UGameFeatureAction>> Actions;
 
-	// List of Game Feature Plugins this experience wants to have active
-	UPROPERTY(EditAnywhere, Category="Feature Dependencies")
-	TArray<FString> GameFeaturesToEnable;
+    // List of Game Feature Plugins this experience wants to have active
+    UPROPERTY(EditAnywhere, Category="Feature Dependencies")
+    TArray<FString> GameFeaturesToEnable;
 };
 ```
 
@@ -125,38 +125,38 @@ They effectively decoupled input, controller, camera, the capabilities a pawn co
 /**
  * ULyraPawnData
  *
- *	Non-mutable data asset that contains properties used to define a pawn.
+ *    Non-mutable data asset that contains properties used to define a pawn.
  */
 UCLASS(BlueprintType, Const, Meta = (DisplayName = "Lyra Pawn Data", ShortTooltip = "Data asset used to define a Pawn."))
 class LyraGAME_API ULyraPawnData : public UPrimaryDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	ULyraPawnData(const FObjectInitializer& ObjectInitializer);
+    ULyraPawnData(const FObjectInitializer& ObjectInitializer);
 
 public:
 
-	// Class to instantiate for this pawn (should usually derive from ALyraPawn or ALyraCharacter).
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Pawn")
-	TSubclassOf<APawn> PawnClass;
+    // Class to instantiate for this pawn (should usually derive from ALyraPawn or ALyraCharacter).
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Pawn")
+    TSubclassOf<APawn> PawnClass;
 
-	// Ability sets to grant to this pawn's ability system.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
-	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
+    // Ability sets to grant to this pawn's ability system.
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
+    TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
 
-	// What mapping of ability tags to use for actions taking by this pawn
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
-	TObjectPtr<ULyraAbilityTagRelationshipMapping> TagRelationshipMapping;
+    // What mapping of ability tags to use for actions taking by this pawn
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
+    TObjectPtr<ULyraAbilityTagRelationshipMapping> TagRelationshipMapping;
 
-	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Input")
-	TObjectPtr<ULyraInputConfig> InputConfig;
+    // Input configuration used by player controlled pawns to create input mappings and bind input actions.
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Input")
+    TObjectPtr<ULyraInputConfig> InputConfig;
 
-	// Default camera mode used by player controlled pawns.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Camera")
-	TSubclassOf<ULyraCameraMode> DefaultCameraMode;
+    // Default camera mode used by player controlled pawns.
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Camera")
+    TSubclassOf<ULyraCameraMode> DefaultCameraMode;
 };
 ```
 
@@ -166,34 +166,34 @@ The `ULyraAbilitySet` basically described when this set is being granted to the 
 /**
  * ULyraAbilitySet
  *
- *	Non-mutable data asset used to grant gameplay abilities and gameplay effects.
+ *    Non-mutable data asset used to grant gameplay abilities and gameplay effects.
  */
 UCLASS(BlueprintType, Const)
 class ULyraAbilitySet : public UPrimaryDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	ULyraAbilitySet(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    ULyraAbilitySet(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	// Grants the ability set to the specified ability system component.
-	// The returned handles can be used later to take away anything that was granted.
-	void GiveToAbilitySystem(ULyraAbilitySystemComponent* LyraASC, FLyraAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
+    // Grants the ability set to the specified ability system component.
+    // The returned handles can be used later to take away anything that was granted.
+    void GiveToAbilitySystem(ULyraAbilitySystemComponent* LyraASC, FLyraAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
 
 protected:
 
-	// Gameplay abilities to grant when this ability set is granted.
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities", meta=(TitleProperty=Ability))
-	TArray<FLyraAbilitySet_GameplayAbility> GrantedGameplayAbilities;
+    // Gameplay abilities to grant when this ability set is granted.
+    UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities", meta=(TitleProperty=Ability))
+    TArray<FLyraAbilitySet_GameplayAbility> GrantedGameplayAbilities;
 
-	// Gameplay effects to grant when this ability set is granted.
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects", meta=(TitleProperty=GameplayEffect))
-	TArray<FLyraAbilitySet_GameplayEffect> GrantedGameplayEffects;
+    // Gameplay effects to grant when this ability set is granted.
+    UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects", meta=(TitleProperty=GameplayEffect))
+    TArray<FLyraAbilitySet_GameplayEffect> GrantedGameplayEffects;
 
-	// Attribute sets to grant when this ability set is granted.
-	UPROPERTY(EditDefaultsOnly, Category = "Attribute Sets", meta=(TitleProperty=AttributeSet))
-	TArray<FLyraAbilitySet_AttributeSet> GrantedAttributes;
+    // Attribute sets to grant when this ability set is granted.
+    UPROPERTY(EditDefaultsOnly, Category = "Attribute Sets", meta=(TitleProperty=AttributeSet))
+    TArray<FLyraAbilitySet_AttributeSet> GrantedAttributes;
 };
 ```
 ### Ability Set GameplayAbility
@@ -204,26 +204,26 @@ This means we can couple input tag to an ability, so the binding between input a
 /**
  * FLyraAbilitySet_GameplayAbility
  *
- *	Data used by the ability set to grant gameplay abilities.
+ *    Data used by the ability set to grant gameplay abilities.
  */
 USTRUCT(BlueprintType)
 struct FLyraAbilitySet_GameplayAbility
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	// Gameplay ability to grant.
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ULyraGameplayAbility> Ability = nullptr;
+    // Gameplay ability to grant.
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<ULyraGameplayAbility> Ability = nullptr;
 
-	// Level of ability to grant.
-	UPROPERTY(EditDefaultsOnly)
-	int32 AbilityLevel = 1;
+    // Level of ability to grant.
+    UPROPERTY(EditDefaultsOnly)
+    int32 AbilityLevel = 1;
 
-	// Tag used to process input for the ability.
-	UPROPERTY(EditDefaultsOnly, Meta = (Categories = "InputTag"))
-	FGameplayTag InputTag;
+    // Tag used to process input for the ability.
+    UPROPERTY(EditDefaultsOnly, Meta = (Categories = "InputTag"))
+    FGameplayTag InputTag;
 };
 ```
 ### Ability Set GameplayEffect
@@ -232,22 +232,22 @@ Similarly, the granted gameplay effects are also stored in a custom struct `FLyr
 /**
  * FLyraAbilitySet_GameplayEffect
  *
- *	Data used by the ability set to grant gameplay effects.
+ *    Data used by the ability set to grant gameplay effects.
  */
 USTRUCT(BlueprintType)
 struct FLyraAbilitySet_GameplayEffect
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	// Gameplay effect to grant.
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UGameplayEffect> GameplayEffect = nullptr;
+    // Gameplay effect to grant.
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UGameplayEffect> GameplayEffect = nullptr;
 
-	// Level of gameplay effect to grant.
-	UPROPERTY(EditDefaultsOnly)
-	float EffectLevel = 1.0f;
+    // Level of gameplay effect to grant.
+    UPROPERTY(EditDefaultsOnly)
+    float EffectLevel = 1.0f;
 };
 ```
 
@@ -257,17 +257,17 @@ So far this is just a wrapper of Attribute Set, but wrapping it up like GA and G
 /**
  * FLyraAbilitySet_AttributeSet
  *
- *	Data used by the ability set to grant attribute sets.
+ *    Data used by the ability set to grant attribute sets.
  */
 USTRUCT(BlueprintType)
 struct FLyraAbilitySet_AttributeSet
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Gameplay effect to grant.
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UAttributeSet> AttributeSet;
+    // Gameplay effect to grant.
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UAttributeSet> AttributeSet;
 
 };
 ```
@@ -278,33 +278,33 @@ This stores the actual underlying GAS data of GA, GE and Attribute Sets, after t
 /**
  * FLyraAbilitySet_GrantedHandles
  *
- *	Data used to store handles to what has been granted by the ability set.
+ *    Data used to store handles to what has been granted by the ability set.
  */
 USTRUCT(BlueprintType)
 struct FLyraAbilitySet_GrantedHandles
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	void AddAbilitySpecHandle(const FGameplayAbilitySpecHandle& Handle);
-	void AddGameplayEffectHandle(const FActiveGameplayEffectHandle& Handle);
-	void AddAttributeSet(UAttributeSet* Set);
+    void AddAbilitySpecHandle(const FGameplayAbilitySpecHandle& Handle);
+    void AddGameplayEffectHandle(const FActiveGameplayEffectHandle& Handle);
+    void AddAttributeSet(UAttributeSet* Set);
 
-	void TakeFromAbilitySystem(ULyraAbilitySystemComponent* LyraASC);
+    void TakeFromAbilitySystem(ULyraAbilitySystemComponent* LyraASC);
 
 protected:
 
-	// Handles to the granted abilities.
-	UPROPERTY()
-	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
+    // Handles to the granted abilities.
+    UPROPERTY()
+    TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
 
-	// Handles to the granted gameplay effects.
-	UPROPERTY()
-	TArray<FActiveGameplayEffectHandle> GameplayEffectHandles;
+    // Handles to the granted gameplay effects.
+    UPROPERTY()
+    TArray<FActiveGameplayEffectHandle> GameplayEffectHandles;
 
-	// Pointers to the granted attribute sets
-	UPROPERTY()
-	TArray<TObjectPtr<UAttributeSet>> GrantedAttributeSets;
+    // Pointers to the granted attribute sets
+    UPROPERTY()
+    TArray<TObjectPtr<UAttributeSet>> GrantedAttributeSets;
 };
 ```
