@@ -239,7 +239,7 @@ public bool bUseChecksInShipping = true ;
 
 实际上可配置的属性远不止这些。自动生成的文档`UnrealBuildTool.xml`足足有32000行内容，我已将其提交至[Github Repo]供参考。
 
-> Epic also has a [Giant Page] for the build configs available.
+> Epic 也提供了一大篇关于构建配置的文档 [Giant Page]
 {: .prompt-info }
 
 ## LyraServerEOS & LyraGameEOS & CustomConfig
