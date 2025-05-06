@@ -17,7 +17,8 @@ layout: compress
 {% endif %}
 
 <!-- `site.alt_lang` can specify a language different from the UI -->
-<html lang="{{ page.lang | default: site.alt_lang | default: site.active_lang }}" {{ prefer_mode }}>
+{% assign active_lang = page.lang | default: site.lang | default: site.default_lang %}
+<html lang="{{ page.lang | default: site.alt_lang | default: active_lang }}" {{ prefer_mode }}>
   {% include head.html %}
 
   <body>

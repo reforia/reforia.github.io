@@ -3,7 +3,7 @@
 icon: fas fa-info-circle
 order: 6
 title: ebp
-lang: en
+lang: zh-CN
 ---
 
 `mov ebp esp` gets executed when entering a new function frame.

@@ -3,7 +3,7 @@
 icon: fas fa-code
 order: 3
 title: "Python IDE"
-lang: en
+lang: zh-CN
 ---
 
 {% include pythoneditor.html %}
