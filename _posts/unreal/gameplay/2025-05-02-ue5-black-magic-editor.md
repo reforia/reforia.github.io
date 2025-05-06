@@ -16,10 +16,10 @@ lang: en
 ## Separated .uproject and Modules
 Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`.
 
-![From EGS](lyra-egs.png){: width="400"}
+![From EGS](lyra_egs.png){: width="400"}
 _Lyra from EGS_
 
-![From Github](lyra-git.png){: width="400"}
+![From Github](lyra_git.png){: width="400"}
 _Lyra from Github_
 
 While this is not a big deal, if we then look at the `Source` folder, we would see that neither `Lyra` nor `LyraStarterGame` are the modules' name (Which it would be if we just create the project from setup wizard). Instead, they are `LyraGame` and `LyraEditor`. Again, not a big deal, but it also shows us that the `uproject` or the folder name is about the project itself. And in `Source` code, we can have a more granular control over the module name. They don't have to be the same.
@@ -140,6 +140,9 @@ In the end, we can put them into the config file, since this is a `TArray`, we c
 +CommonEditorMaps=/ShooterCore/Maps/L_ShooterGym.L_ShooterGym
 +CommonEditorMaps=/ShooterTests/Maps/L_ShooterTest_DeviceProperties.L_ShooterTest_DeviceProperties
 ```
+
+> For more information about Config files, Epic has provided a [Config File Documentation] that touchs the details of how it works.
+{: .prompt-info }
 
 ## GetOptions meta
 `GetOptions` meta allow a property to be displayed as a dropdown in the editor. Based on a function that returns a list of options.
@@ -561,4 +564,5 @@ For each related category, there's a hint to describe what the potential pitfall
 [Community Post]: https://dev.epicgames.com/community/learning/tutorials/vyKB/unreal-engine-creating-a-custom-asset-type-with-its-own-editor-in-c
 [UE5.1 Official Release Note]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-5.1-release-notes?application_version=5.1
 [Commandlet Documentation]: https://zhuanlan.zhihu.com/p/512610557
+[Config File Documentation]: https://dev.epicgames.com/documentation/en-US/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0
 

@@ -1,34 +1,34 @@
 ---
 layout: post
-title: "Lyra Breakdown - Project Build Config"
+title: "Lyra技术解析 - 项目配置"
 description:
-  This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+  这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
 date: 2025-05-06 19:07 +0800
 categories: [Unreal, Gameplay]
 published: true
 tags: [Unreal, Gameplay]
 media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-editor-project/
-lang: en
+lang: zh-CN
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
-## Build Targets
-Just by a quick glance at the project structure, we can see that Lyra has 6 different build targets. Each of them has a different purpose and can be used to build the project in different ways.
+## 构建目标
+只需快速浏览项目结构，我们就能发现`Lyra`包含6个不同的构建目标。每个目标都有特定用途，可用于以不同方式构建项目。
 
-- LyraEditor
-- LyraClient
-- LyraServer
-- LyraServerEOS
-- LyraGame
-- LyraGameEOS
+- `LyraEditor`
+- `LyraClient`
+- `LyraServer`
+- `LyraServerEOS`
+- `LyraGame`
+- `LyraGameEOS`
 
 ![Lyra Build Target](build_target.png){: width="500"}
 
-We will go through each of them, but we will touch LyraGame last, as this is a larger file that contains a lot of information about the project. The other targets are much smaller and easier to digest.
+我们将逐一分析这些目标，但会把`LyraGame`留到最后讨论，因为该文件体量较大且包含大量项目信息。其他目标规模较小，更容易理解。
 
 ## LyraEditor
-Simple enough, the `LyraEditor` target is used to build the editor. It includes the `LyraGame` and `LyraEditor` modules, and it also enables the `RemoteSession` plugin for touch screen development. So this is something we could get rid of if we are not using touch screens.
+这个目标非常直白，`LyraEditor`用于构建编辑器。它包含`LyraGame`和`LyraEditor`模块，同时还启用了用于触屏开发的`RemoteSession`插件。因此如果我们不使用触屏设备，可以移除这个模块。
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -57,14 +57,14 @@ public class LyraEditorTarget : TargetRules
 }
 ```
 
-### Target Type
-The first line of the target is `Type = TargetType.Editor;`, this is a property of the `TargetRules` class, and it is used to specify the type of target we are building. The possible values are:
+### 目标类型
+目标定义的首行是`Type = TargetType.Editor;`，这是`TargetRules`类的属性，用于指定我们正在构建的目标类型。可选值包括：
 
-- Game
-- Editor
-- Client
-- Server
-- Program
+- `Game`
+- `Editor`
+- `Client`
+- `Server`
+- `Program`
 
 ```cpp
 /// <summary>
@@ -99,7 +99,7 @@ public static class TargetType
 }
 ```
 
-Most types are self explanatory, but the `Program` type is used to build standalone programs that are not part of the engine or the game. This is useful for building tools or utilities that are not part of the game itself. An example would be the `UnrealFrontend` tool.
+大多数类型都无需解释，但`Program`类型用于构建独立于引擎或游戏之外的程序。这个类型适用于构建不属于游戏本身的工具或实用程序，例如`UnrealFrontend`工具。
 
 ```cs
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
@@ -128,24 +128,24 @@ public class UnrealFrontendTarget : TargetRules
 }
 ```
 
-### Target Dependencies vs Global Dependencies
-Normally, we would just enable a plugin in the `uproject` file, declare it as a dependency in the `Target.cs` file, and then we would be able to use it. It's almost a second nature to do this, however if we think about it, we really didn't need to have such global dependencies introduced in the first place if it only matters for some targets. Hence in the above example, we can specifically toggle a plugin for a specific target. in this case, the `RemoteSession` plugin is only enabled for the `LyraEditor` target since that's for touch screen development only.
+### 目标依赖与全局依赖的区别
+通常我们只需在`uproject`文件中启用插件，在`Target.cs`文件中声明依赖，就能使用该插件。这种操作几乎成为本能，但仔细想想，如果某些依赖仅对特定目标有效，我们本就不需要在一开始引入全局依赖。因此在上例中，我们可以针对特定目标单独启用插件——这里`RemoteSession`插件仅对`LyraEditor`目标启用，因为该目标专用于触屏开发。
 
-### Cross Target Dependencies
-The last line is quite exotic, which is a call to `LyraGameTarget.ApplySharedLyraTargetSettings(this);`. This is a method that is defined in the `LyraGame` target, and it is used to apply some shared settings to all targets. We will go through this method's implementation later, but for now, just know that it is used to apply some common settings to all targets.
+### 跨目标依赖
+最后一行代码较为特殊：`LyraGameTarget.ApplySharedLyraTargetSettings(this);`。这是在调用`LyraGame`目标中定义的方法，用于向所有目标应用共享设置。我们稍后会分析该方法的实现，目前只需知道它负责为所有目标配置通用参数。
 
-#### How UBT performs it's magic?
-But wait a second, what is this `LyraGameTarget` object? How come we are calling a function from it without even using (include) the header file? To answer this question, we need to understand how UBT works. We are not going to dive too deep into UBT, simply put:
+#### UBT的运作机制
+但这里有个疑问：`LyraGameTarget`对象从何而来？为何能在不引入头文件的情况下直接调用其函数？要解答这个问题，需要理解`UBT（Unreal Build Tool）`的工作原理。我们不会深入探讨`UBT`，简而言之：
 
-- UBT collects all the `target.cs` files as well as the module files (`build.cs`) and compiles them into a single assembly.
-  - This assembly is stored in the `Intermediate/Build/BuildRule/LyraModuleRules.dll` folder
-  - Yes, all of them, including those from the plugins, include `server.target.cs`, `game.target.cs` into one single assembly.
-  - That's why we can use `LyraGameTarget` without including the header file, because UBT has already compiled it into an assembly and `LyraEditor` knows `LyraGameTarget` existence.
-  - Note that compiling all the targets into a single assembly doesn't mean that they are being built. When we build `LyraEditor.Target.cs`. It only will look `LyraGame.Build.cs` because it's listed as `ExtraModuleNames`. And `LyraServer.Target.cs` won't be built at all.
+- `UBT`会收集所有`target.cs`文件及模块文件`（build.cs）`，并将它们编译为单一程序集：
+  - 该程序集存储在`Intermediate/Build/BuildRule/LyraModuleRules.dll`目录
+  - 注意：包括插件中的文件在内，所有`server.target.cs`、`game.target.cs`都会被合并到同一个程序集
+  - 这就是为什么无需引入头文件即可使用`LyraGameTarget`——`UBT`已将其编译至程序集中，`LyraEditor`能感知`LyraGameTarget`的存在
+  - 需要强调的是：将所有目标编译到同一程序集并不等同于构建它们。当构建`LyraEditor.Target.cs`时，系统只会检查`LyraGame.Build.cs`（因其列在`ExtraModuleNames`中），而`LyraServer.Target.cs`则完全不会被构建
 
-Even that, why are we able to call it directly? Where do we get the `LyraGameTarget` object from?
+但问题仍未解决：为何能直接调用该方法？`LyraGameTarget`对象实例从何获取？
 
-Answer is we don't, this function is a static function, and C# doesn't use the `::` operator to call static functions like C++ would, they are all called from a `.`.
+答案是：我们根本不需要实例。该方法是静态函数，而C#不像C++那样使用`::`运算符调用静态函数——所有调用都通过`.`操作符完成。
 
 ```cs
 internal static void ApplySharedLyraTargetSettings(TargetRules Target)
@@ -154,19 +154,19 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
   }
 ```
 
-The brief process is:
-- `RulesCompiler` collects all the files and creates a single assembly target `RulesAssembly`, passing these files to it.
-- `RulesAssembly` compiles the files and creates a single assembly that all other `Target.cs` can access during build.
+简要流程如下：
+- `RulesCompiler`收集所有文件并创建单一程序集目标`RulesAssembly`，将这些文件传递给它
+- `RulesAssembly`编译这些文件并创建单个程序集，其他所有`Target.cs`在构建期间都能访问该程序集
 
-I know, I also found it hard to believe, how come my `Client` target aware of my `ServerEOS` target while building? But here's the proof (Just stepping into the UBT should be easier, but I really want to see it with my own eyes), here's a decompiled version of the `ModuleRules.dll`
+我知道这听起来难以置信——为什么我的`Client`目标在构建时能感知`ServerEOS`目标？但这里有确凿证据（虽然直接进入`UBT`调试会更简单，但我更想亲眼验证）。以下是反编译后的`ModuleRules.dll`内容：
 
 ![Decompiled Dll 1](decompiled_dll_1.png)
 
-Indeed, everything is in this dll. Client, Editor, Server, Game, All the Plugins, etc. Everything, and here's more, we can see this `ConfigureGameFeaturePlugins` function in the dll as well.
+确实，所有内容都在这个dll中。客户端、编辑器、服务器、游戏、所有插件等等。不仅如此，我们还能在这个dll中看到`ConfigureGameFeaturePlugins`函数。
 
 ![Decompiled Dll 2](decompiled_dll_2.png)
 
-And where is it in code? Here, inside the `LyraGameTarget` class, so this should be a good answer to our question.:
+那么它在源代码中的位置呢？就在这里，位于`LyraGameTarget`类内部。这应该能完美解答我们的疑问。
 
 ```cs
     // Configures which game feature plugins we want to have enabled
@@ -180,7 +180,7 @@ And where is it in code? Here, inside the `LyraGameTarget` class, so this should
 ```
 
 ## LyraClient
-Same old, no fancy stuff here once we figured out the previous one.
+老套路了，理解前面的内容后，这里就没有什么新花样了。
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -202,7 +202,7 @@ public class LyraClientTarget : TargetRules
 ```
 
 ## LyraServer
-New target, new rules, this one introducese a new property `bUseChecksInShipping` which is used to enable or disable checks in shipping builds. This is useful for debugging purposes, but it can also be used to enable or disable certain features in shipping builds.
+新目标带来新规则，这个目标引入了一个新属性`bUseChecksInShipping`，用于控制是否在发行版构建中启用检查。虽然主要用于调试，但也可以用来控制发行版的特定功能开关。
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -226,7 +226,7 @@ public class LyraServerTarget : TargetRules
 }
 ```
 
-Some similar properties are:
+类似的属性还有：
 
 ```cs
 public bool bUseLoggingInShipping = true ;
@@ -237,13 +237,13 @@ public bool bUseChecksInShipping = true ;
 #define FORCE_USE_STATS 1
 ```
 
-There are a LOT LOT more properties available, in fact, the auto generated document `UnrealBuildTool.xml` file has a wooping 32000 lines of contents. So I submitted it to this [Github Repo] for reference.
+实际上可配置的属性远不止这些。自动生成的文档`UnrealBuildTool.xml`足足有32000行内容，我已将其提交至[Github Repo]供参考。
 
 > Epic also has a [Giant Page] for the build configs available.
 {: .prompt-info }
 
 ## LyraServerEOS & LyraGameEOS & CustomConfig
-Almost there, these two targets are pretty simple at a glance, they inherit from their respective parent targets, `LyraServer` and `LyraGame`, and they only add a new property `CustomConfig` which is used to specify the custom config file to use for the target.
+接近尾声了，这两个目标乍看很简单：它们分别继承自父目标`LyraServer`和`LyraGame`，仅新增了一个`CustomConfig`属性，用于指定目标使用的自定义配置文件。
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -274,7 +274,7 @@ public class LyraGameEOSTarget : LyraGameTarget
 }
 ```
 
-What the `CustomConfig` does is it tells the engine that we have a custom config file exists. And the target should jam it into the build process. The folder path is defined in the source below.
+`CustomConfig`的作用是告知引擎存在自定义配置文件，该文件需要被整合到构建流程中。具体路径定义在以下源码中：
 
 ```cpp
 inline FConfigLayer GConfigLayers[] =
@@ -294,14 +294,14 @@ inline FConfigLayer GConfigLayers[] =
 
 ![Global Configs](global_configs.png)
 
-As can be seen above, we have a lot of configs, aside from those that our class with `Config` meta specifier will read from, there are also a bunch of folders for each possible platform. And there's a `Custom` folder as well.
+从上面可以看出，除了带有`Config`元数据的类会读取的配置外，我们还为每个可能的平台准备了配置文件夹，其中就包含这个`Custom`专用目录。
 
-### Config Layers
-Immediately, we found a problem. There seems to have multiple `Custom/EOS` folders, one just exists at the root and the other is inside the `Windows` folder, so which one is actually being used?
+### 配置层级
+我们立即发现了一个问题：存在多个`Custom/EOS`文件夹，一个位于根目录，另一个在`Windows`文件夹内。那么实际使用的是哪个呢？
 
 ![Config Layer](config_layer.png)
 
-As mentioned in the [Config Documentation] and from source code, we can see that unreal reads config by the following order:
+根据[Config Documentation]和源码所示，Unreal引擎读取配置的顺序如下：
 
 - Engine/Config/Base.ini
 - Engine/Config/Base[Type].ini
@@ -357,21 +357,21 @@ inline FConfigLayer GConfigLayers[] =
 };
 ```
 
-Which well explains how different `EOS` folders are being used, unreal first loads the `Custom/EOS` folder, and then it loads the `Windows/EOS` folder.
+这很好地解释了不同`EOS`文件夹的使用方式：Unreal会先加载`Custom/EOS`文件夹，然后加载`Windows/EOS`文件夹.
 
-## `;` is NOT a comment?!
-> This part is from Epic's documentation, however, I don't think it is the case anymore.
+## `;` 不是注释？！
+> 这部分内容来自Epic官方文档，但是在我的测试中，似乎已经不是这么回事了。
 {: .prompt-warning }
 
-From the above document, Epic has brought up a interesting topic, which is the `;` character, they mentioned it's almost an instinct to think that `;` is a comment, but in fact, it is not. The reason it "mostly" just work perfectly as a comment is because during the parsing process. `FConfigFile::ProcessInputFileContents` doesn't actually treat a line without a `=` sign that forms a key-value pair. So this line is skipped. As a result, if we somehow has:
+从上述文档中，Epic提出了一个有趣的话题：`;`字符。我们本能地会认为`;`是注释符号，但实际上并非如此。它"大多数情况下"能像注释一样工作，是因为在解析过程中，`FConfigFile::ProcessInputFileContents`并不会处理那些不包含`=`符号来构成键值对的行。因此这些行会被跳过。然而，如果我们遇到这种情况：
 
 ```ini
 ;A = 1
 ```
 
-Then we are actually defining a key-value pair of key `A` and value `1`. So this is a valid line, and it will be parsed as such.
+那么实际上我们定义了一个键为`;A`，值为`1`的键值对。因此这是一个有效的配置行，它将会被正常解析。
 
-BUT! here's what `FConfigFile::ProcessInputFileContents` looks like: Which clearly shows that it explicitly checks for `;` and ignores it. Which means that the above statement is not true.
+但是！`FConfigFile::ProcessInputFileContents`的实现如下：从中我们可以看到它明确检查了`;`并忽略它。这意味着上面的说法并不成立。
 
 ```cpp
     // ...
@@ -397,10 +397,10 @@ BUT! here's what `FConfigFile::ProcessInputFileContents` looks like: Which clear
     }
 ```
 
-## LyraGame and Shared Target Settings
-We finally made it to the `LyraGame` target, with previous knowledge, the file shouldn't be too hard to understand, aside from normal target properties, it exposed a few more static functions for other targets to use. With that being said, the takeaway here is that we can centralize our common target settings in one place, and allow other targets to just use them, instead of duplicating the code everywhere.
+## LyraGame与共享目标设置
+我们终于来到了`LyraGame`目标，凭借之前的知识，这个文件应该不难理解。除了常规的目标属性外，它还公开了一些静态函数供其他目标使用。由此可见，我们可以将通用目标设置集中管理，避免代码重复。
 
-An intersting thing here is that we can have a machine that set its the `IsBuildMachine` environment variable to `1`, and this will allow us to do something fancy only on that machine, great use for DevOps. This is useful for build machines that need to have all the plugins enabled for testing purposes.
+这里有个有趣的细节：我们可以通过将某台机器的`IsBuildMachine`环境变量设为`1`，从而让该机器执行特殊操作，这对DevOps非常实用。尤其适用于那些需要启用所有插件进行测试的构建机器。
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -709,4 +709,4 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
 
 [Github Repo]: https://github.com/reforia/UnrealGeneratedDoc/blob/main/UnrealBuildTool.xml
 [Giant Page]: https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configuration-for-unreal-engine?application_version=5.5
-[Config Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0
+[Config Documentation]: https://dev.epicgames.com/documentation/zh-CN/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0

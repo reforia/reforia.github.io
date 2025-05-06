@@ -243,16 +243,16 @@ It's a common approach to guard certain info in a scoped class to make the code 
 For example, we have a `Serialize` function to process the messages which will take care of ignored cases and verbosity. Though I feel it's a bit wierd to call it `Serialize`, since it doesn't really serialize the strings to anything like an `FArchive`, but rather just processes the messages.
 
 ```cpp
-class FKingdomValidationMessageGatherer : public FOutputDevice
+class FLyraValidationMessageGatherer : public FOutputDevice
 {
 public:
-    FKingdomValidationMessageGatherer()
+    FLyraValidationMessageGatherer()
         : FOutputDevice()
     {
         GLog->AddOutputDevice(this);
     }
 
-    virtual ~FKingdomValidationMessageGatherer() override
+    virtual ~FLyraValidationMessageGatherer() override
     {
         GLog->RemoveOutputDevice(this);
     }

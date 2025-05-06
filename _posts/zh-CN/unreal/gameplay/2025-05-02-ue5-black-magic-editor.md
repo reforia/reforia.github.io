@@ -139,6 +139,9 @@ class ULyraDeveloperSettings : public UDeveloperSettingsBackedByCVars
 +CommonEditorMaps=/ShooterTests/Maps/L_ShooterTest_DeviceProperties.L_ShooterTest_DeviceProperties
 ```
 
+> 欲了解更多内容，Epic提供了一个官方文档[Config File Documentation]详细描述了Config的运作方式。
+{: .prompt-info }
+
 ## GetOptions 元数据
 `GetOptions`元数据能让属性在编辑器中显示为下拉菜单，其选项由指定函数动态生成。例如`ULyraPlatformEmulationSettings`中的`PretendPlatform`成员，通过返回平台ID列表的函数实现下拉选项。
 
@@ -559,4 +562,6 @@ public:
 [Community Post]: https://dev.epicgames.com/community/learning/tutorials/vyKB/unreal-engine-creating-a-custom-asset-type-with-its-own-editor-in-c
 [UE5.1 Official Release Note]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-5.1-release-notes?application_version=5.1
 [Commandlet Documentation]: https://zhuanlan.zhihu.com/p/512610557
+[Config File Documentation]: https://dev.epicgames.com/documentation/zh-CN/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0
+
 

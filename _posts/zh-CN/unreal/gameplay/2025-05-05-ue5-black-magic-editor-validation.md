@@ -243,16 +243,16 @@ struct FMessageDialog
 例如，其 `Serialize` 函数会处理消息的忽略情况和详细级别。不过个人认为命名为 `Serialize` 稍显怪异，因为它并未像 `FArchive` 那样对字符串执行真正的序列化输出操作，而仅仅是处理消息内容。
 
 ```cpp
-class FKingdomValidationMessageGatherer : public FOutputDevice
+class FLyraValidationMessageGatherer : public FOutputDevice
 {
 public:
-    FKingdomValidationMessageGatherer()
+    FLyraValidationMessageGatherer()
         : FOutputDevice()
     {
         GLog->AddOutputDevice(this);
     }
 
-    virtual ~FKingdomValidationMessageGatherer() override
+    virtual ~FLyraValidationMessageGatherer() override
     {
         GLog->RemoveOutputDevice(this);
     }
