@@ -13,6 +13,13 @@ lang: en
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
+## Target.cs and Build.cs
+`Target.cs` defines, in order to produce a target, what modules are needed to be included in the build. It also defines the target type, when `UBT` processes it, it will generate one or more `dll` files depends on the settings.
+
+For each of the modules in the target, it will look for their `Build.cs` files, and include them in the build process. The `Build.cs` file defines the module's dependencies, and it also defines the module's settings.
+
+`Target.cs` is a bigger picture, and `Build.cs` is a local module picture.
+
 ## Build Targets
 Just by a quick glance at the project structure, we can see that Lyra has 6 different build targets. Each of them has a different purpose and can be used to build the project in different ways.
 
@@ -131,9 +138,44 @@ public class UnrealFrontendTarget : TargetRules
 ### Target Dependencies vs Global Dependencies
 Normally, we would just enable a plugin in the `uproject` file, declare it as a dependency in the `Build.cs` file, and then we would be able to use it in code. It's almost a second nature to do this, however if we think about it, we really didn't need to have such global dependencies introduced in the first place if it only matters for some targets. Hence in the above example, we can specifically toggle a plugin for a specific target. in this case, the `RemoteSession` plugin is only enabled for the `LyraEditor` target since that's for touch screen development only.
 
-> Note: in order to use plugin in code, we need to add it to the `Build.cs`, which will static link against the plugin source. But if we are just using the plugin's Blueprint assets, or other contents, then the UBT will dynamically link the plugin's `dll`. Which means enable the plugin in the project and link it in `Build.cs` are two different things. The plugin content will be cooked as long as `uproject` enabled it and depends on it.
-{: .prompt-info }
+<div class="box-warning" markdown="1">
+<div class="title"> Traps on `EnabledPlugins` </div>
+Manipulating the `EnabledPlugins` property in non-editor build will require a full rebuild of the engine (The unreal engine, not the project), in other words, if we are pulling the Unreal Engine directly from Epic Launcher, and we are adding plugins to a non-editor build. UBT will throw an error. `Explicitly enabling and disabling plugins for a target is only supported when using a unique build environment (eg. for monolithic game targets)`
 
+This is because in order to achieve this, the target will have to be built in a unique build environment (Opposite to Shared) So that we could compile the `Engine` and `Intermediate` files into the project folder. But a pre-built engine from Epic Launcher doesn't have this capability. (We don't even have the source code for it to compile), see `Unique vs Shared Environment` section below.
+
+```cpp
+/// <summary>
+/// Validates that the build environment matches the shared build environment, by comparing the TargetRules instance to the vanilla target rules for the current target type.
+/// </summary>
+static void ValidateSharedEnvironment(RulesAssembly RulesAssembly, string ThisTargetName, CommandLineArguments Arguments, TargetRules ThisRules, ILogger Logger)
+{
+    Dictionary<string, (string?, string?)> PropNamesThatRequiredUnique = new();
+    string? BaseTargetName;
+    if (ThisRules.RequiresUniqueEnvironment(RulesAssembly, Arguments, PropNamesThatRequiredUnique, out BaseTargetName))
+    {
+        throw new BuildException("{0} modifies the values of properties: [ {1} ]. This is not allowed, as {0} has build products in common with {2}.\nRemove the modified setting, change {0} to use a unique build environment by setting 'BuildEnvironment = TargetBuildEnvironment.Unique;' in the {3} constructor, or set bOverrideBuildEnvironment = true to force this setting on.",
+            ThisTargetName, String.Join(", ", PropNamesThatRequiredUnique.Select(x => $"{x.Key}: {x.Value.Item1} != {x.Value.Item2}")), BaseTargetName, ThisRules.GetType().Name);
+    }
+
+    // Make sure that we don't explicitly enable or disable any plugins through the target rules. We can't do this with the shared build environment because it requires recompiling the "Projects" engine module.
+    bool bUsesTargetReceiptToEnablePlugins = (ThisRules.Type == TargetType.Editor && ThisRules.LinkType != TargetLinkType.Monolithic);
+    // programs can enable/disable plugins even when modular
+    bool bIsProgramTarget = ThisRules.Type == TargetType.Program;
+
+    if (!bUsesTargetReceiptToEnablePlugins && !bIsProgramTarget && (ThisRules.EnablePlugins.Count > 0 || ThisRules.DisablePlugins.Count > 0))
+    {
+        throw new BuildException(String.Format("Explicitly enabling and disabling plugins for a target is only supported when using a unique build environment (eg. for monolithic game targets). EnabledPlugins={0}, DisabledPlugins={1}",
+            String.Join(", ", ThisRules.EnablePlugins),
+            String.Join(", ", ThisRules.DisablePlugins)
+        ));
+    }
+}
+```
+</div>
+
+> Note: Normally in order to use plugin in code, we need to add it to the `Build.cs`, which will static link against the plugin source. But if we are just using the plugin's Blueprint assets, or other contents, then the UBT will dynamically link the plugin's `dll`. Which means enable the plugin in the project and link it in `Build.cs` are two different things. The plugin content will be cooked as long as `uproject` enabled it and depends on it.
+{: .prompt-info }
 
 ### Cross Target Dependencies
 The last line is quite exotic, which is a call to `LyraGameTarget.ApplySharedLyraTargetSettings(this);`. This is a method that is defined in the `LyraGame` target, and it is used to apply some shared settings to all targets. We will go through this method's implementation later, but for now, just know that it is used to apply some common settings to all targets.
@@ -143,7 +185,7 @@ But wait a second, what is this `LyraGameTarget` object? How come we are calling
 
 - UBT collects all the `target.cs` files as well as the module files (`build.cs`) and compiles them into a single assembly.
   - This assembly is stored in the `Intermediate/Build/BuildRule/LyraModuleRules.dll` folder
-  - Yes, all of them, including those from the plugins, include `server.target.cs`, `game.target.cs` into one single assembly.
+  - Yes, all of them, including those from the plugins, include `server.target.cs`, `game.target.cs`, `editor.target.cs` into one single assembly. No exceptions, this is the intended C# behavior
   - That's why we can use `LyraGameTarget` without including the header file, because UBT has already compiled it into an assembly and `LyraEditor` knows `LyraGameTarget` existence.
   - Note that compiling all the targets into a single assembly doesn't mean that they are being built. When we build `LyraEditor.Target.cs`. It only will look `LyraGame.Build.cs` because it's listed as `ExtraModuleNames`. And `LyraServer.Target.cs` won't be built at all.
 
@@ -182,7 +224,6 @@ And where is it in code? Here, inside the `LyraGameTarget` class, so this should
         // ...
   }
 ```
-
 ## LyraClient
 Same old, no fancy stuff here once we figured out the previous one.
 
@@ -325,39 +366,39 @@ As mentioned in the [Config Documentation] and from source code, we can see that
 
 inline FConfigLayer GConfigLayers[] =
 {
-	/**************************************************
-	**** CRITICAL NOTES
-	**** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
-	**** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
-	**************************************************/
+    /**************************************************
+    **** CRITICAL NOTES
+    **** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
+    **** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
+    **************************************************/
 
-	// Engine/Base.ini
-	{ TEXT("AbsoluteBase"),				TEXT("{ENGINE}/Config/Base.ini"), EConfigLayerFlags::NoExpand},
+    // Engine/Base.ini
+    { TEXT("AbsoluteBase"),                TEXT("{ENGINE}/Config/Base.ini"), EConfigLayerFlags::NoExpand},
 
-	// Engine/Base*.ini
-	{ TEXT("Base"),						TEXT("{ENGINE}/Config/Base{TYPE}.ini") },
-	// Engine/Platform/BasePlatform*.ini
-	{ TEXT("BasePlatform"),				TEXT("{ENGINE}/Config/{PLATFORM}/Base{PLATFORM}{TYPE}.ini")  },
-	// Project/Default*.ini
-	{ TEXT("ProjectDefault"),			TEXT("{PROJECT}/Config/Default{TYPE}.ini"), EConfigLayerFlags::AllowCommandLineOverride },
-	// Project/Generated*.ini Reserved for files generated by build process and should never be checked in 
-	{ TEXT("ProjectGenerated"),			TEXT("{PROJECT}/Config/Generated{TYPE}.ini") },
-	// Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
-	{ TEXT("CustomConfig"),				TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
-	// Engine/Platform/Platform*.ini
-	{ TEXT("EnginePlatform"),			TEXT("{ENGINE}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/Platform*.ini
-	{ TEXT("ProjectPlatform"),			TEXT("{PROJECT}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/GeneratedPlatform*.ini Reserved for files generated by build process and should never be checked in 
-	{ TEXT("ProjectPlatformGenerated"),	TEXT("{PROJECT}/Config/{PLATFORM}/Generated{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/Custom/CustomConfig/Platform*.ini only if CustomConfig is defined
-	{ TEXT("CustomConfigPlatform"),		TEXT("{PROJECT}/Config/{PLATFORM}/Custom/{CUSTOMCONFIG}/{PLATFORM}{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
-	// UserSettings/.../User*.ini
-	{ TEXT("UserSettingsDir"),			TEXT("{USERSETTINGS}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
-	// UserDir/.../User*.ini
-	{ TEXT("UserDir"),					TEXT("{USER}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
-	// Project/User*.ini
-	{ TEXT("GameDirUser"),				TEXT("{PROJECT}/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // Engine/Base*.ini
+    { TEXT("Base"),                        TEXT("{ENGINE}/Config/Base{TYPE}.ini") },
+    // Engine/Platform/BasePlatform*.ini
+    { TEXT("BasePlatform"),                TEXT("{ENGINE}/Config/{PLATFORM}/Base{PLATFORM}{TYPE}.ini")  },
+    // Project/Default*.ini
+    { TEXT("ProjectDefault"),            TEXT("{PROJECT}/Config/Default{TYPE}.ini"), EConfigLayerFlags::AllowCommandLineOverride },
+    // Project/Generated*.ini Reserved for files generated by build process and should never be checked in 
+    { TEXT("ProjectGenerated"),            TEXT("{PROJECT}/Config/Generated{TYPE}.ini") },
+    // Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
+    { TEXT("CustomConfig"),                TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
+    // Engine/Platform/Platform*.ini
+    { TEXT("EnginePlatform"),            TEXT("{ENGINE}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/Platform*.ini
+    { TEXT("ProjectPlatform"),            TEXT("{PROJECT}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/GeneratedPlatform*.ini Reserved for files generated by build process and should never be checked in 
+    { TEXT("ProjectPlatformGenerated"),    TEXT("{PROJECT}/Config/{PLATFORM}/Generated{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/Custom/CustomConfig/Platform*.ini only if CustomConfig is defined
+    { TEXT("CustomConfigPlatform"),        TEXT("{PROJECT}/Config/{PLATFORM}/Custom/{CUSTOMCONFIG}/{PLATFORM}{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
+    // UserSettings/.../User*.ini
+    { TEXT("UserSettingsDir"),            TEXT("{USERSETTINGS}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // UserDir/.../User*.ini
+    { TEXT("UserDir"),                    TEXT("{USER}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // Project/User*.ini
+    { TEXT("GameDirUser"),                TEXT("{PROJECT}/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
 };
 ```
 
@@ -404,7 +445,7 @@ BUT! here's what `FConfigFile::ProcessInputFileContents` looks like: Which clear
 ## LyraGame and Shared Target Settings
 We finally made it to the `LyraGame` target, with previous knowledge, the file shouldn't be too hard to understand, aside from normal target properties, it exposed a few more static functions for other targets to use. With that being said, the takeaway here is that we can centralize our common target settings in one place, and allow other targets to just use them, instead of duplicating the code everywhere.
 
-An intersting thing here is that we can have a machine that set its the `IsBuildMachine` environment variable to `1`, and this will allow us to do something fancy only on that machine, great use for DevOps. This is useful for build machines that need to have all the plugins enabled for testing purposes.
+An interesting thing here is that we can have a machine that set its the `IsBuildMachine` environment variable to `1`, and this will allow us to do something fancy only on that machine, great use for DevOps. This is useful for build machines that need to have all the plugins enabled for testing purposes.
 
 ```cs
 // Copyright Epic Games, Inc. All Rights Reserved.
@@ -468,6 +509,153 @@ public class LyraGameTarget : TargetRules
     }
 }
 ```
+
+### Monolithic vs Modular Link
+As mentioned before, a `Target.cs` may contain one or more modules, and it will eventually guide the `UBT` to produce one or more `dll`, but exactly how many? Who defines whether it should be one or multiple?
+
+To understand this, we need to be clear that the behavior of compiling all the modules into a single `dll` is called `Monolithic` Link. this will reduce loading time since there's only one dll to load, but harder to maintain, since one change would require us to rebuild the whole dll, on contrary, `Modular` Link will put each module into its own assembly, even though they might contain same code, but this will allow us to only rebuild the module that we changed. This is a trade off between performance and maintainability.
+
+By default, we will use the Default Link type based on the current target type, unless specifically specified.
+
+From the source code, we can see that the default link type is `Modular` for `Editor` targets, and `Monolithic` for all other targets. It's easy to understand, `Editor` targets need features like `Hot Reload` and `Live Coding`, which requires the modules to be loaded separately, so they can be reloaded without restarting the editor. But for `Game` targets, we don't need that, so we can just compile everything into a single `dll`.
+
+```cs
+// TargetRules.cs
+    /// <summary>
+    /// Specifies how to link all the modules in this target
+    /// </summary>
+    [Serializable]
+    public enum TargetLinkType
+    {
+        /// <summary>
+        /// Use the default link type based on the current target type
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Link all modules into a single binary
+        /// </summary>
+        Monolithic,
+
+        /// <summary>
+        /// Link modules into individual dynamic libraries
+        /// </summary>
+        Modular,
+    }
+
+// -------
+    /// <summary>
+    /// Specifies how to link modules in this target (monolithic or modular). This is currently protected for backwards compatibility. Call the GetLinkType() accessor
+    /// until support for the deprecated ShouldCompileMonolithic() override has been removed.
+    /// </summary>
+    public TargetLinkType LinkType
+    {
+        get => (LinkTypePrivate != TargetLinkType.Default) ? LinkTypePrivate : ((Type == global::UnrealBuildTool.TargetType.Editor) ? TargetLinkType.Modular : TargetLinkType.Monolithic);
+        set => LinkTypePrivate = value;
+    }
+
+```
+
+### Unique vs Shared Environment
+We have mentioned this a bit in the `LyraEditorTarget` section above, in short, a `Unique` build environment will have to recompile the engine, and put the engine binaries and intermediates into the project folder, while a `Shared` build environment will use the engine binaries and intermediates from the engine folder. This is useful for monolithic builds, where we don't want to recompile the engine every time we build the project.
+
+So it's obvious that this part tries to check whether we are building the target in a shared environment or not, and warn the user if the user trying to modify anything related to `PCH` generation under shared environment, because it simply won't work, the shared environment will use the same engine binaries and intermediates for all targets.
+
+From UBT code we can see that as long as the `IsEngineInstalled` is true (Meaning the engine come from Epic Launcher), then the build environment will be `Shared`, otherwise it will be `Unique`.
+
+```cs
+internal static void ApplySharedLyraTargetSettings(TargetRules Target)
+    {
+        // ...
+
+        if (Target.BuildEnvironment == TargetBuildEnvironment.Unique)
+        {
+            // ...
+        }
+        else
+        {
+            // !!!!!!!!!!!! WARNING !!!!!!!!!!!!!
+            // Any changes in here must not affect PCH generation, or the target
+            // needs to be set to TargetBuildEnvironment.Unique
+
+            // This only works in editor or Unique build environments
+            if (Target.Type == TargetType.Editor)
+            {
+                LyraGameTarget.ConfigureGameFeaturePlugins(Target);
+            }
+            else
+            {
+                // Shared monolithic builds cannot enable/disable plugins or change any options because it tries to re-use the installed engine binaries
+                if (!bHasWarnedAboutShared)
+                {
+                    bHasWarnedAboutShared = true;
+                    Logger.LogWarning("LyraGameEOS and dynamic target options are disabled when packaging from an installed version of the engine");
+                }
+            }
+        }
+  }
+
+// TargetRules.cs
+    /// <summary>
+    /// Specifies whether to share engine binaries and intermediates with other projects, or to create project-specific versions. By default,
+    /// editor builds always use the shared build environment (and engine binaries are written to Engine/Binaries/Platform), but monolithic builds
+    /// and programs do not (except in installed builds). Using the shared build environment prevents target-specific modifications to the build
+    /// environment.
+    /// </summary>
+    [Serializable]
+    public enum TargetBuildEnvironment
+    {
+        /// <summary>
+        /// Engine binaries and intermediates are output to the engine folder. Target-specific modifications to the engine build environment will be ignored.
+        /// </summary>
+        Shared,
+
+        /// <summary>
+        /// Engine binaries and intermediates are specific to this target
+        /// </summary>
+        Unique,
+
+        /// <summary>
+        /// Will switch to Unique if needed - per-project sdk is enabled, or a property that requires unique is set away from default
+        /// </summary>
+        UniqueIfNeeded,
+    }
+
+
+    /// <summary>
+    /// Specifies the build environment for this target. See TargetBuildEnvironment for more information on the available options.
+    /// </summary>
+    public TargetBuildEnvironment BuildEnvironment
+    {
+        get
+        {
+            if (BuildEnvironmentOverride.HasValue)
+            {
+                if (BuildEnvironmentOverride.Value == TargetBuildEnvironment.UniqueIfNeeded)
+                {
+                    throw new BuildException($"Target {Name} had BuildEnv set to UniqueIfNeeded when querying, which means UpdateBuildEnvironmentIfNeeded wasn't called in time");
+                }
+                return BuildEnvironmentOverride.Value;
+            }
+            if (Type == TargetType.Program && ProjectFile != null && File!.IsUnderDirectory(ProjectFile.Directory))
+            {
+                return TargetBuildEnvironment.Unique;
+            }
+            else if (Unreal.IsEngineInstalled() || LinkType != TargetLinkType.Monolithic)
+            {
+                return TargetBuildEnvironment.Shared;
+            }
+            else
+            {
+                return TargetBuildEnvironment.Unique;
+            }
+        }
+        set => BuildEnvironmentOverride = value;
+    }
+```
+
+### Further Reading
+Epic has a thorough and excellent [Build Documentation] here, which covers more details about how the build process works.
 
 ## Appendix: `ApplySharedLyraTargetSettings`
 ```cs
@@ -714,3 +902,4 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
 [Github Repo]: https://github.com/reforia/UnrealGeneratedDoc/blob/main/UnrealBuildTool.xml
 [Giant Page]: https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configuration-for-unreal-engine?application_version=5.5
 [Config Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0
+[Build Documentation]: https://dev.epicgames.com/community/learning/tutorials/Kp1k/unreal-engine-build-time-asset-and-plugin-exclusion

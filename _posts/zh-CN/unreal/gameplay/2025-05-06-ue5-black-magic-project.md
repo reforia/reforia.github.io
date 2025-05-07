@@ -13,6 +13,13 @@ lang: zh-CN
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
+## Target.cs 和 Build.cs
+`Target.cs` 定义了生成目标时需要将哪些模块包含在构建中。它还定义了目标类型，当 `UBT` 处理它时，会根据设置生成一个或多个 `dll` 文件。
+
+对于目标中的每个模块，构建系统会查找它们的 `Build.cs` 文件，并将其包含在构建过程中。`Build.cs` 文件定义了模块的依赖关系，同时也配置了模块的设置。
+
+`Target.cs` 是从全局视角出发，而 `Build.cs` 则是从单个模块的局部视角出发。
+
 ## 构建目标
 只需快速浏览项目结构，我们就能发现`Lyra`包含6个不同的构建目标。每个目标都有特定用途，可用于以不同方式构建项目。
 
@@ -131,6 +138,42 @@ public class UnrealFrontendTarget : TargetRules
 ### 目标依赖与全局依赖的区别
 通常我们只需在`uproject`文件中启用插件，在`Build.cs`文件中声明依赖，就能在代码中使用该插件。这种操作几乎成为本能，但仔细想想，如果某些依赖仅对特定目标有效，我们本就不需要在一开始引入全局依赖。因此在上例中，我们可以针对特定目标单独启用插件——这里`RemoteSession`插件仅对`LyraEditor`目标启用，因为该目标专用于触屏开发。
 
+
+<div class="box-warning" markdown="1">
+<div class="title"> `EnabledPlugins` 的陷阱</div>
+在非编辑器构建中修改 `EnabledPlugins` 属性将需要完整重新编译引擎（指Unreal引擎本身而非项目）。换句话说，如果我们直接从Epic Launcher获取的预编译Unreal引擎中向非编辑器构建添加插件，UBT将会报错：`Explicitly enabling and disabling plugins for a target is only supported when using a unique build environment (eg. for monolithic game targets)`
+
+这是因为要实现此功能，目标必须在一个`Unique`构建环境（与`Shared`环境相对）中进行编译，从而允许将 `Engine` 和 `Intermediate` 文件编译到项目目录中。但通过Epic Launcher获取的预编译引擎不具备这种能力（我们甚至没有可供编译的源代码），具体参见下文 `Unique vs Shared 环境` 章节。
+
+```cpp
+/// <summary>
+/// Validates that the build environment matches the shared build environment, by comparing the TargetRules instance to the vanilla target rules for the current target type.
+/// </summary>
+static void ValidateSharedEnvironment(RulesAssembly RulesAssembly, string ThisTargetName, CommandLineArguments Arguments, TargetRules ThisRules, ILogger Logger)
+{
+    Dictionary<string, (string?, string?)> PropNamesThatRequiredUnique = new();
+    string? BaseTargetName;
+    if (ThisRules.RequiresUniqueEnvironment(RulesAssembly, Arguments, PropNamesThatRequiredUnique, out BaseTargetName))
+    {
+        throw new BuildException("{0} modifies the values of properties: [ {1} ]. This is not allowed, as {0} has build products in common with {2}.\nRemove the modified setting, change {0} to use a unique build environment by setting 'BuildEnvironment = TargetBuildEnvironment.Unique;' in the {3} constructor, or set bOverrideBuildEnvironment = true to force this setting on.",
+            ThisTargetName, String.Join(", ", PropNamesThatRequiredUnique.Select(x => $"{x.Key}: {x.Value.Item1} != {x.Value.Item2}")), BaseTargetName, ThisRules.GetType().Name);
+    }
+
+    // Make sure that we don't explicitly enable or disable any plugins through the target rules. We can't do this with the shared build environment because it requires recompiling the "Projects" engine module.
+    bool bUsesTargetReceiptToEnablePlugins = (ThisRules.Type == TargetType.Editor && ThisRules.LinkType != TargetLinkType.Monolithic);
+    // programs can enable/disable plugins even when modular
+    bool bIsProgramTarget = ThisRules.Type == TargetType.Program;
+
+    if (!bUsesTargetReceiptToEnablePlugins && !bIsProgramTarget && (ThisRules.EnablePlugins.Count > 0 || ThisRules.DisablePlugins.Count > 0))
+    {
+        throw new BuildException(String.Format("Explicitly enabling and disabling plugins for a target is only supported when using a unique build environment (eg. for monolithic game targets). EnabledPlugins={0}, DisabledPlugins={1}",
+            String.Join(", ", ThisRules.EnablePlugins),
+            String.Join(", ", ThisRules.DisablePlugins)
+        ));
+    }
+}
+```
+</div>
 > 注意: 欲在代码中使用插件，我们需要将插件加入`Build.cs`的依赖，这样会使得我们的代码静态链接到插件源代码中。但如果我们仅使用插件的蓝图资源或其他内容，则`UBT`会动态链接插件的`dll`。这意味着在项目中启用插件和在`Build.cs`中链接插件是两回事。只要`uproject`启用了插件并依赖于它，插件内容就会被Cook。
 {: .prompt-info }
 
@@ -324,39 +367,39 @@ inline FConfigLayer GConfigLayers[] =
 
 inline FConfigLayer GConfigLayers[] =
 {
-	/**************************************************
-	**** CRITICAL NOTES
-	**** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
-	**** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
-	**************************************************/
+    /**************************************************
+    **** CRITICAL NOTES
+    **** If you change this array, you need to also change EnumerateConfigFileLocations() in ConfigHierarchy.cs!!!
+    **** And maybe UObject::GetDefaultConfigFilename(), UObject::GetGlobalUserConfigFilename()
+    **************************************************/
 
-	// Engine/Base.ini
-	{ TEXT("AbsoluteBase"),				TEXT("{ENGINE}/Config/Base.ini"), EConfigLayerFlags::NoExpand},
+    // Engine/Base.ini
+    { TEXT("AbsoluteBase"),                TEXT("{ENGINE}/Config/Base.ini"), EConfigLayerFlags::NoExpand},
 
-	// Engine/Base*.ini
-	{ TEXT("Base"),						TEXT("{ENGINE}/Config/Base{TYPE}.ini") },
-	// Engine/Platform/BasePlatform*.ini
-	{ TEXT("BasePlatform"),				TEXT("{ENGINE}/Config/{PLATFORM}/Base{PLATFORM}{TYPE}.ini")  },
-	// Project/Default*.ini
-	{ TEXT("ProjectDefault"),			TEXT("{PROJECT}/Config/Default{TYPE}.ini"), EConfigLayerFlags::AllowCommandLineOverride },
-	// Project/Generated*.ini Reserved for files generated by build process and should never be checked in 
-	{ TEXT("ProjectGenerated"),			TEXT("{PROJECT}/Config/Generated{TYPE}.ini") },
-	// Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
-	{ TEXT("CustomConfig"),				TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
-	// Engine/Platform/Platform*.ini
-	{ TEXT("EnginePlatform"),			TEXT("{ENGINE}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/Platform*.ini
-	{ TEXT("ProjectPlatform"),			TEXT("{PROJECT}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/GeneratedPlatform*.ini Reserved for files generated by build process and should never be checked in 
-	{ TEXT("ProjectPlatformGenerated"),	TEXT("{PROJECT}/Config/{PLATFORM}/Generated{PLATFORM}{TYPE}.ini") },
-	// Project/Platform/Custom/CustomConfig/Platform*.ini only if CustomConfig is defined
-	{ TEXT("CustomConfigPlatform"),		TEXT("{PROJECT}/Config/{PLATFORM}/Custom/{CUSTOMCONFIG}/{PLATFORM}{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
-	// UserSettings/.../User*.ini
-	{ TEXT("UserSettingsDir"),			TEXT("{USERSETTINGS}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
-	// UserDir/.../User*.ini
-	{ TEXT("UserDir"),					TEXT("{USER}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
-	// Project/User*.ini
-	{ TEXT("GameDirUser"),				TEXT("{PROJECT}/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // Engine/Base*.ini
+    { TEXT("Base"),                        TEXT("{ENGINE}/Config/Base{TYPE}.ini") },
+    // Engine/Platform/BasePlatform*.ini
+    { TEXT("BasePlatform"),                TEXT("{ENGINE}/Config/{PLATFORM}/Base{PLATFORM}{TYPE}.ini")  },
+    // Project/Default*.ini
+    { TEXT("ProjectDefault"),            TEXT("{PROJECT}/Config/Default{TYPE}.ini"), EConfigLayerFlags::AllowCommandLineOverride },
+    // Project/Generated*.ini Reserved for files generated by build process and should never be checked in 
+    { TEXT("ProjectGenerated"),            TEXT("{PROJECT}/Config/Generated{TYPE}.ini") },
+    // Project/Custom/CustomConfig/Default*.ini only if CustomConfig is defined
+    { TEXT("CustomConfig"),                TEXT("{PROJECT}/Config/Custom/{CUSTOMCONFIG}/Default{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
+    // Engine/Platform/Platform*.ini
+    { TEXT("EnginePlatform"),            TEXT("{ENGINE}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/Platform*.ini
+    { TEXT("ProjectPlatform"),            TEXT("{PROJECT}/Config/{PLATFORM}/{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/GeneratedPlatform*.ini Reserved for files generated by build process and should never be checked in 
+    { TEXT("ProjectPlatformGenerated"),    TEXT("{PROJECT}/Config/{PLATFORM}/Generated{PLATFORM}{TYPE}.ini") },
+    // Project/Platform/Custom/CustomConfig/Platform*.ini only if CustomConfig is defined
+    { TEXT("CustomConfigPlatform"),        TEXT("{PROJECT}/Config/{PLATFORM}/Custom/{CUSTOMCONFIG}/{PLATFORM}{TYPE}.ini"), EConfigLayerFlags::RequiresCustomConfig },
+    // UserSettings/.../User*.ini
+    { TEXT("UserSettingsDir"),            TEXT("{USERSETTINGS}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // UserDir/.../User*.ini
+    { TEXT("UserDir"),                    TEXT("{USER}Unreal Engine/Engine/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
+    // Project/User*.ini
+    { TEXT("GameDirUser"),                TEXT("{PROJECT}/Config/User{TYPE}.ini"), EConfigLayerFlags::NoExpand },
 };
 ```
 
@@ -467,6 +510,153 @@ public class LyraGameTarget : TargetRules
     }
 }
 ```
+
+### Monolithic vs Modular Link
+如前所述，`Target.cs` 可能包含一个或多个模块，并最终指引 `UBT` 生成一个或多个 `dll`。但具体生成多少个？由谁决定应该是单个还是多个？
+
+要理解这一点，首先需要明确：将所有模块编译到单个 `dll` 的行为称为 单体型（`Monolithic`） 链接。这种方式能减少加载时间（只需加载一个`dll`），但维护性较差——任何修改都需要重新编译整个`dll`。相反，模块化（`Modular`） 链接会将每个模块放入独立的程序集，即使它们可能包含相同代码。这种方式允许我们仅重新编译被修改的模块，这是性能与可维护性之间的权衡。
+
+默认情况下，系统会根据当前目标类型自动选择链接方式（除非显式指定）。从源代码可见：
+
+编辑器（`Editor`） 目标默认采用 模块化链接, 其他所有目标默认采用 单体型链接。这很容易理解：编辑器目标需要 热重载（`Hot Reload`） 和 实时编码（`Live Coding`） 等功能，这就要求模块能够独立加载（无需重启编辑器即可重新加载）。而对于 游戏（`Game`） 目标则不需要这些特性，因此可以直接将所有内容编译到单个`dll`中。
+
+```cs
+// TargetRules.cs
+    /// <summary>
+    /// Specifies how to link all the modules in this target
+    /// </summary>
+    [Serializable]
+    public enum TargetLinkType
+    {
+        /// <summary>
+        /// Use the default link type based on the current target type
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Link all modules into a single binary
+        /// </summary>
+        Monolithic,
+
+        /// <summary>
+        /// Link modules into individual dynamic libraries
+        /// </summary>
+        Modular,
+    }
+
+// -------
+    /// <summary>
+    /// Specifies how to link modules in this target (monolithic or modular). This is currently protected for backwards compatibility. Call the GetLinkType() accessor
+    /// until support for the deprecated ShouldCompileMonolithic() override has been removed.
+    /// </summary>
+    public TargetLinkType LinkType
+    {
+        get => (LinkTypePrivate != TargetLinkType.Default) ? LinkTypePrivate : ((Type == global::UnrealBuildTool.TargetType.Editor) ? TargetLinkType.Modular : TargetLinkType.Monolithic);
+        set => LinkTypePrivate = value;
+    }
+
+```
+
+### Unique vs Shared 环境
+我们在前文`LyraEditorTarget`章节已简单提及：独立(`Unique`)构建环境需要重新编译引擎，并将引擎二进制文件和中间产物输出到项目目录；而共享(`Shared`)构建环境则会直接使用引擎目录中的预编译二进制文件和中间产物。这对于单体型构建特别有用——我们不必每次构建项目时都重新编译引擎。
+
+因此很明显，这部分代码会检测当前是否处于共享构建环境。如果用户尝试在共享环境下修改任何与`PCH`生成相关的配置，系统就会发出警告——因为这些修改根本不会生效。在共享环境中，所有目标都将使用同一套引擎二进制文件和中间产物。
+
+从UBT源码可以看出：只要`IsEngineInstalled`为`true`（表示引擎来自Epic启动器安装），构建环境就会被设置为共享；否则将使用独立构建环境。
+
+```cs
+internal static void ApplySharedLyraTargetSettings(TargetRules Target)
+    {
+        // ...
+
+        if (Target.BuildEnvironment == TargetBuildEnvironment.Unique)
+        {
+            // ...
+        }
+        else
+        {
+            // !!!!!!!!!!!! WARNING !!!!!!!!!!!!!
+            // Any changes in here must not affect PCH generation, or the target
+            // needs to be set to TargetBuildEnvironment.Unique
+
+            // This only works in editor or Unique build environments
+            if (Target.Type == TargetType.Editor)
+            {
+                LyraGameTarget.ConfigureGameFeaturePlugins(Target);
+            }
+            else
+            {
+                // Shared monolithic builds cannot enable/disable plugins or change any options because it tries to re-use the installed engine binaries
+                if (!bHasWarnedAboutShared)
+                {
+                    bHasWarnedAboutShared = true;
+                    Logger.LogWarning("LyraGameEOS and dynamic target options are disabled when packaging from an installed version of the engine");
+                }
+            }
+        }
+  }
+
+// TargetRules.cs
+    /// <summary>
+    /// Specifies whether to share engine binaries and intermediates with other projects, or to create project-specific versions. By default,
+    /// editor builds always use the shared build environment (and engine binaries are written to Engine/Binaries/Platform), but monolithic builds
+    /// and programs do not (except in installed builds). Using the shared build environment prevents target-specific modifications to the build
+    /// environment.
+    /// </summary>
+    [Serializable]
+    public enum TargetBuildEnvironment
+    {
+        /// <summary>
+        /// Engine binaries and intermediates are output to the engine folder. Target-specific modifications to the engine build environment will be ignored.
+        /// </summary>
+        Shared,
+
+        /// <summary>
+        /// Engine binaries and intermediates are specific to this target
+        /// </summary>
+        Unique,
+
+        /// <summary>
+        /// Will switch to Unique if needed - per-project sdk is enabled, or a property that requires unique is set away from default
+        /// </summary>
+        UniqueIfNeeded,
+    }
+
+
+    /// <summary>
+    /// Specifies the build environment for this target. See TargetBuildEnvironment for more information on the available options.
+    /// </summary>
+    public TargetBuildEnvironment BuildEnvironment
+    {
+        get
+        {
+            if (BuildEnvironmentOverride.HasValue)
+            {
+                if (BuildEnvironmentOverride.Value == TargetBuildEnvironment.UniqueIfNeeded)
+                {
+                    throw new BuildException($"Target {Name} had BuildEnv set to UniqueIfNeeded when querying, which means UpdateBuildEnvironmentIfNeeded wasn't called in time");
+                }
+                return BuildEnvironmentOverride.Value;
+            }
+            if (Type == TargetType.Program && ProjectFile != null && File!.IsUnderDirectory(ProjectFile.Directory))
+            {
+                return TargetBuildEnvironment.Unique;
+            }
+            else if (Unreal.IsEngineInstalled() || LinkType != TargetLinkType.Monolithic)
+            {
+                return TargetBuildEnvironment.Shared;
+            }
+            else
+            {
+                return TargetBuildEnvironment.Unique;
+            }
+        }
+        set => BuildEnvironmentOverride = value;
+    }
+```
+
+### 扩展阅读
+Epic 提供了一份全面且出色的[Build Documentation]，其中详细阐述了构建流程的具体实现细节。
 
 ## Appendix: `ApplySharedLyraTargetSettings`
 ```cs
@@ -713,3 +903,4 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
 [Github Repo]: https://github.com/reforia/UnrealGeneratedDoc/blob/main/UnrealBuildTool.xml
 [Giant Page]: https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configuration-for-unreal-engine?application_version=5.5
 [Config Documentation]: https://dev.epicgames.com/documentation/zh-CN/unreal-engine/configuration-files-in-unreal-engine?application_version=5.0
+[Build Documentation]: https://dev.epicgames.com/community/learning/tutorials/Kp1k/unreal-engine-build-time-asset-and-plugin-exclusion
