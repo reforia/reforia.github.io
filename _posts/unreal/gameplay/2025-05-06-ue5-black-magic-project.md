@@ -129,7 +129,11 @@ public class UnrealFrontendTarget : TargetRules
 ```
 
 ### Target Dependencies vs Global Dependencies
-Normally, we would just enable a plugin in the `uproject` file, declare it as a dependency in the `Target.cs` file, and then we would be able to use it. It's almost a second nature to do this, however if we think about it, we really didn't need to have such global dependencies introduced in the first place if it only matters for some targets. Hence in the above example, we can specifically toggle a plugin for a specific target. in this case, the `RemoteSession` plugin is only enabled for the `LyraEditor` target since that's for touch screen development only.
+Normally, we would just enable a plugin in the `uproject` file, declare it as a dependency in the `Build.cs` file, and then we would be able to use it in code. It's almost a second nature to do this, however if we think about it, we really didn't need to have such global dependencies introduced in the first place if it only matters for some targets. Hence in the above example, we can specifically toggle a plugin for a specific target. in this case, the `RemoteSession` plugin is only enabled for the `LyraEditor` target since that's for touch screen development only.
+
+> Note: in order to use plugin in code, we need to add it to the `Build.cs`, which will static link against the plugin source. But if we are just using the plugin's Blueprint assets, or other contents, then the UBT will dynamically link the plugin's `dll`. Which means enable the plugin in the project and link it in `Build.cs` are two different things. The plugin content will be cooked as long as `uproject` enabled it and depends on it.
+{: .prompt-info }
+
 
 ### Cross Target Dependencies
 The last line is quite exotic, which is a call to `LyraGameTarget.ApplySharedLyraTargetSettings(this);`. This is a method that is defined in the `LyraGame` target, and it is used to apply some shared settings to all targets. We will go through this method's implementation later, but for now, just know that it is used to apply some common settings to all targets.
