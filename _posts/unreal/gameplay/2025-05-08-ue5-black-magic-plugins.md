@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Lyra Breakdown - Plugins Overview"
+title: "Lyra Breakdown - Plugins I"
 description:
   This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
 date: 2025-05-08 1:18 +0800
