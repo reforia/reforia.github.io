@@ -658,7 +658,7 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
 ### 扩展阅读
 Epic 提供了一份全面且出色的[Build Documentation]，其中详细阐述了构建流程的具体实现细节。
 
-## Appendix: `ApplySharedLyraTargetSettings`
+## Appendix: ApplySharedLyraTargetSettings
 ```cs
 internal static void ApplySharedLyraTargetSettings(TargetRules Target)
     {
@@ -733,7 +733,7 @@ internal static void ApplySharedLyraTargetSettings(TargetRules Target)
   }
 ```
 
-## Appendix: `ConfigureGameFeaturePlugins`
+## Appendix: ConfigureGameFeaturePlugins
 ```cs
     // Configures which game feature plugins we want to have enabled
     // This is a fairly simple implementation, but you might do things like build different
