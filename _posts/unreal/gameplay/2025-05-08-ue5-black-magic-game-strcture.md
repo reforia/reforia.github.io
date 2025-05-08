@@ -116,6 +116,8 @@ Supports generate physx convex hull at runtime.
 <div class="box-info" markdown="1">
 <div class="title"> AnimationLocomotionLibrary </div>
 A Blueprint Library that provides a set of functions for DistanceMatching and CharacterMovement
+
+[Distance Maching] Document is an example of how to use the library in action.
 </div>
 
 <div class="box-info" markdown="1">
@@ -793,3 +795,4 @@ Project can be categorized into even more modules. Before we go through them in 
 [Online Subsystem]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-subsystem-in-unreal-engine?application_version=5.1
 [Common User Plugin]: https://dev.epicgames.com/documentation/en-us/unreal-engine/common-user-plugin-in-unreal-engine-for-lyra-sample-game
 [Standard Plugins]: https://argonauts.hatenablog.jp/entry/2021/12/23/083634
+[Distance Maching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
