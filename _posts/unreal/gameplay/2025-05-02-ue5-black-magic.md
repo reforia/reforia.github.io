@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra - Epic's Black Magic Spell Book"
 description:
-  This is a note about what I've learnd from the transition from UE4 to UE5. Most of the knowledge are from the Lyra Starter Game.
+  This is a note about what I've learned from the transition from UE4 to UE5. Most of the knowledge are from the Lyra Starter Game.
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: false
