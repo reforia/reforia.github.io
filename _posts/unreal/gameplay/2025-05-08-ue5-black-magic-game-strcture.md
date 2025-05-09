@@ -122,12 +122,14 @@ A Blueprint Library that provides a set of functions for DistanceMatching and Ch
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimationWarping </div>
-C++ utility class for managing asynchronous operations like loading.
+A library to provide utilities about animation warping, such as OrientationWarping, SlopeWarping, StrideWarping, etc.
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> ContextualAnimation </div>
-C++ utility class for managing asynchronous operations like loading.
+This plugin does all the heavy lifting for us to sync multiple characters' animations together in a montage, so that we can make cool execution finishers, sit down on a chair smoothly, pull our hands on a wall, to name a few.
+
+A great [CAS Tutorial] can be found here
 </div>
 
 
@@ -135,7 +137,7 @@ C++ utility class for managing asynchronous operations like loading.
 
 <div class="box-info" markdown="1">
 <div class="title"> Metasound </div>
-C++ utility class for managing asynchronous operations like loading.
+No need to introduce this, cuz it's famous enough and complex enough to even start. Epic has a dedicated [Metasound Documentation] for it.
 </div>
 
 <div class="box-info" markdown="1">
@@ -796,3 +798,5 @@ Project can be categorized into even more modules. Before we go through them in 
 [Common User Plugin]: https://dev.epicgames.com/documentation/en-us/unreal-engine/common-user-plugin-in-unreal-engine-for-lyra-sample-game
 [Standard Plugins]: https://argonauts.hatenablog.jp/entry/2021/12/23/083634
 [Distance Maching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
+[CAS Tutorial]: https://vorixo.github.io/devtricks/contextual-anim/#how-to-play-a-contextual-animation-during-gameplay
+[Metasound Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/metasounds-in-unreal-engine
