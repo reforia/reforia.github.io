@@ -135,7 +135,7 @@ Official documentation: [Water]
 <div class="title"> AnimationLocomotionLibrary </div>
 A Blueprint Library that provides a set of functions for DistanceMatching and CharacterMovement
 
-[Distance Maching] Document is an example of how to use the library in action.
+[Distance Matching] Document is an example of how to use the library in action.
 </div>
 
 <div class="box-info" markdown="1">
@@ -163,12 +163,13 @@ No need to introduce this, cuz it's famous enough and complex enough to even sta
 This plugin adds Audio Modulation and Control Bus, as well as Control Bus Mix to Unreal Engine, function wise, it is slightly similar to what the previous UE4's audio duck down system does. But having a control bus is a more flexible and powerful way to manage audio in Unreal Engine. And the user experience is also much closer to a professional DAWs like Wwise.
 
 [Audio Modulation Quick Start] is a good place to start.
+
 [Audio Modulation Documentation] for more details.
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplayVolume </div>
-A small plugin that can allow a volume to control the audio features like reverb, etc. Which normally would be done manually with a blueprint or code. This plugin has already took care of stuff like Reverb, Submix, Attennuation, etc.
+A small plugin that can allow a volume to control the audio features like reverb, etc. Which normally would be done manually with a blueprint or code. This plugin has already took care of stuff like Reverb, Submix, Attenuation, etc.
 
 Related documentation [Audio Gameplay Volume]
 </div>
@@ -199,7 +200,7 @@ Official documentation: [Movie Render Pipeline]
 
 <div class="box-info" markdown="1">
 <div class="title"> MoviePipelineMaskRenderPass </div>
-Added additional render passes to the Movie Render Pipeline, such as `MoviePiplelineObjectIdPass` and `MoviePiplelinePanoramicPass`.
+Added additional render passes to the Movie Render Pipeline, such as `MoviePipelineObjectIdPass` and `MoviePipelinePanoramicPass`.
 </div>
 
 
@@ -233,7 +234,7 @@ It also binds widgets of game substitles to a Media Player
 <div class="box-info" markdown="1">
 <div class="title"> UIExtension </div>
 From [Lyra's Plugins]:
-"UI Extension Overview: https://x157.github.io/UE5/UIExtension/
+"UI Extension Overview: [UIExtension Documentation]
 
 Provides a map of Extension Point Gameplay Tag to Activatable Widget.
 
@@ -268,7 +269,7 @@ Although I wasn't really sure why not just use `RawInput` plugin directly. [Raw 
 <div class="title"> ReplicationGraph </div>
 A new replication system that allow more granular and nuanced control over what and how data is replicated over the network. It leverages the replication graph nodes to determin what's being replciated to whom, and cache the data for much scalable and efficient replication. With this plugin, FNBR can support 100+ players and 50000 replicated actors in a session without bloating the network and CPU.
 
-Offcial Documentation: [Replication Grpah]
+Official Documentation: [Replication Graph]
 
 Official Livestream: [Replication Graph Live Stream]
 </div>
@@ -325,7 +326,7 @@ Tutorial: [UE Online Subsystem Steam Tutorial]
 <div class="title"> OnlineSubsystemEOS </div>
 Similar to Steam OSS, with the EOS as service provider.
 
-EOS OSS Official Documentation: [Online Subsystem EOS]
+EOS OSS Official Documentation: [EOS OSS Documentation]
 
 Tutorial: [EOS OSS Tutorial]
 </div>
@@ -334,8 +335,7 @@ Tutorial: [EOS OSS Tutorial]
 <div class="title"> OnlineServicesEOS </div>
 The newer `OnlineServices` plugin that is meant to replace the old `OnlineSubsystem` plugin. It provides a more modern and flexible way to handle online services in Unreal Engine, allowing for easier integration with third-party services and better support for cross-platform play.
 
-Official Documentation: [Online Service EOS]
-, [Online Sevice Overview]
+Official Documentation: [EOS OSS Documentation], [Online Service Overview]
 
 </div>
 
@@ -353,7 +353,7 @@ A compatibility layer that allows the new `OnlineServices` plugin to work with t
 
 
 ### Gameplay
-This is a huge topic, before we dive into any of the plugins, Epic has a greate documentation that helps us wrap our head around the gameplay framework in UE5. [Making Interactive Experiences]
+This is a huge topic, before we dive into any of the plugins, Epic has a great documentation that helps us wrap our head around the gameplay framework in UE5. [Make Interactive Experiences]
 
 <div class="box-info" markdown="1">
 <div class="title"> ModularGameplay </div>
@@ -372,7 +372,7 @@ From [Lyra's Plugins]:
 
 All of Lyra’s base classes are themselves based on Modular Gameplay Actors."
 
-Overview of a ModularGameplay Plugin: https://x157.github.io/UE5/ModularGameplay/
+Overview of a ModularGameplay Plugin: [Modular Gameplay Plugin Overview]
 </div>
 
 <div class="box-info" markdown="1">
@@ -387,12 +387,12 @@ This also makes it easy to use Gamepads to navigate your UI Menus, as they are a
 
 <div class="box-info" markdown="1">
 <div class="title"> GameplayInteractions </div>
-A framework for handling interactions for players and AI. Although it is the description of this plugin, but seems currently only NPC AI is supported, a huge amount of code is realted to StateTree
+A framework for handling interactions for players and AI. Although it is the description of this plugin, but seems currently only NPC AI is supported, a huge amount of code is related to StateTree
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> GameplayBehaviors </div>
-From the `uplugin` description it sais: 	"Encapsulated fire-and-forget behaviors for AI agents". From the actual code it seems to be a wrap up of the behavior tree system. Combines blackboard values to gameplay tags.
+From the `uplugin` description it says: 	"Encapsulated fire-and-forget behaviors for AI agents". From the actual code it seems to be a wrap up of the behavior tree system. Combines blackboard values to gameplay tags.
 </div>
 
 <div class="box-info" markdown="1">
@@ -420,6 +420,7 @@ Official Documentation: [State Tree]
 GAS is a huge topic that doesn't need further introduction here. It's one of the most discussed and documented system on the internet and is the go-to way of implementing interactions in a game in UE5.
 
 Official Documentation: [GAS]
+
 Community Documentation: [GAS Community Docs]
 </div>
 
@@ -459,7 +460,7 @@ Provides Common User Subsystem, Common Session Subsystem and a Common User Initi
 
 
 ### QC
-The plugins here are really useful for the Automation System, docoumented here [Automation System Overview] That can allow us to quickly create and run unit tests.
+The plugins here are really useful for the Automation System, documented here [Automation System Overview] That can allow us to quickly create and run unit tests.
 
 <div class="box-info" markdown="1">
 <div class="title"> FunctionalTestingEditor </div>
@@ -479,7 +480,7 @@ There aren't any officual documentations for this, so it would be better to just
 <div class="title"> Gauntlet </div>
 This is another automation test framework that can run tests. Differnece is Gauntlet is targeting a broader picture, it's not amiming for build the framework to test a specific gameplay feature, but rather to manage a whole `Unreal Session`, consider a multiplayer game test where we need to run 4 clients and 1 server, Gauntlet will get to correct build, fire up needed processes, run the tests, waiting for session quit, and then report the results.
 
-Offifcial Documentation: [Gauntlet], [Run Gauntlet Tests], [Gauntlet Primer]
+Official Documentation: [Gauntlet], [Run Gauntlet Tests], [Gauntlet Primer]
 </div>
 
 
@@ -512,9 +513,7 @@ From [Lyra's Plugins]:
 
 It is designed as a cleaner, compact solution for the classic way to render 3D characters in menus, which usually implies loading a map outside the normal gameplay boundaries.
 
-Excellent Pocket Worlds Example and documentation:
-
-https://gitlab.com/IsmaFilo/pocketworldexample"
+Excellent Pocket Worlds Example and documentation: [Pocket Worlds Documentation]"
 </div>
 
 ## Project Structure
@@ -850,7 +849,7 @@ Project can be categorized into even more modules. Before we go through them in 
 [Online Subsystem]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-subsystem-in-unreal-engine?application_version=5.1
 [Common User Plugin]: https://dev.epicgames.com/documentation/en-us/unreal-engine/common-user-plugin-in-unreal-engine-for-lyra-sample-game
 [Standard Plugins]: https://argonauts.hatenablog.jp/entry/2021/12/23/083634
-[Distance Maching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
+[Distance Matching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
 [CAS Tutorial]: https://vorixo.github.io/devtricks/contextual-anim/#how-to-play-a-contextual-animation-during-gameplay
 [Metasound Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/metasounds-in-unreal-engine
 [Audio Modulation Quick Start]: https://dev.epicgames.com/documentation/en-us/unreal-engine/audio-modulation-quick-start-guide
@@ -871,7 +870,7 @@ Project can be categorized into even more modules. Before we go through them in 
 [EOS OSS Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-subsystem-eos-plugin-in-unreal-engine
 [EOS OSS Tutorial]: https://dev.epicgames.com/community/learning/courses/1px/unreal-engine-the-eos-online-subsystem-oss-plugin/Lnjn/unreal-engine-introduction
 [Online Service EOS]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-services-eos-plugins-in-unreal-engine
-[Online Sevice Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-online-services-in-unreal-engine
+[Online Service Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-online-services-in-unreal-engine
 [Setup and Configure Online Services]: https://dev.epicgames.com/documentation/en-us/unreal-engine/setup-and-configure-the-online-services-plugins-in-unreal-engine
 [Structure and Implement the Online Services Plugins]: https://dev.epicgames.com/documentation/en-us/unreal-engine/structure-and-implement-the-online-services-plugins-in-unreal-engine
 [Make Interactive Experiences]: https://dev.epicgames.com/documentation/en-us/unreal-engine/making-interactive-experiences-and-gameplay-in-unreal-engine
@@ -880,7 +879,7 @@ Project can be categorized into even more modules. Before we go through them in 
 [GAS]: https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine
 [GAS Community Docs]: https://github.com/tranek/GASDocumentation
 [ControlFlows Tutorial]: https://unrealengine.hatenablog.com/entry/2023/01/29/211937
-[Funciontal Testing]: https://dev.epicgames.com/documentation/en-us/unreal-engine/functional-testing-in-unreal-engine
+[Functional Testing]: https://dev.epicgames.com/documentation/en-us/unreal-engine/functional-testing-in-unreal-engine
 [Automation System Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/automation-system-overview?application_version=4.27
 [Gauntlet]: https://dev.epicgames.com/documentation/en-us/unreal-engine/gauntlet-automation-framework-in-unreal-engine
 [Run Gauntlet Tests]: https://dev.epicgames.com/documentation/en-us/unreal-engine/running-gauntlet-tests-in-unreal-engine
@@ -893,3 +892,6 @@ Project can be categorized into even more modules. Before we go through them in 
 [Modeling Tools Community Docs]: https://www.unrealengine.com/en-US/tech-blog/unreal-engine-5-s-modeling-mode-takes-shape
 [Geometry Scripting Official Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/geometry-scripting-users-guide-in-unreal-engine
 [Geometry Scripting Community Tutorial]: https://qiita.com/Rinderon/items/70765fb914d2242a448e
+[UIExtension Documentation]: https://x157.github.io/UE5/UIExtension/
+[Modular Gameplay Plugin Overview]: https://x157.github.io/UE5/ModularGameplay/
+[Pocket Worlds Documentation]: https://gitlab.com/IsmaFilo/pocketworldexample

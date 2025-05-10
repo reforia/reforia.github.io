@@ -129,7 +129,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 <div class="title"> AnimationLocomotionLibrary </div>
 提供距离匹配(DistanceMatching)和角色移动功能的蓝图函数库。
 
-[Distance Maching] 文档展示了该库的实际应用案例。
+[Distance Matching] 文档展示了该库的实际应用案例。
 </div>
 
 <div class="box-info" markdown="1">
@@ -157,19 +157,20 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 为引擎添加音频调制、控制总线(`Control Bus`)和混音总线功能，在概念上类似UE4的音频Ducking系统，但控制总线方案更灵活强大，操作体验接近`Wwise`等专业`DAW`。
 
 入门推荐 [Audio Modulation Quick Start]
+
 详细功能请参阅 [Audio Modulation Documentation]
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplayVolume </div>
-通过体积控件自动管理混响等音频特性的小型插件，替代传统蓝图/代码手动配置方案，已内置混响(`Reverb`)、子混音(`Submix`)、衰减(`Attennuation`)等功能。
+通过体积控件自动管理混响等音频特性的小型插件，替代传统蓝图/代码手动配置方案，已内置混响(`Reverb`)、子混音(`Submix`)、衰减(`Attenuation`)等功能。
 
 相关文档 [Audio Gameplay Volume]
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplay </div>
-类似`Gameplay Ability`但是是为了Audio而生的的音频响应系统，使音频组件能根据游戏事件（如进入区域、交互行为、生命值变化等）触发特定音频逻辑。
+类似`Gameplay Ability`但是是为了Audio而生的音频响应系统，使音频组件能根据游戏事件（如进入区域、交互行为、生命值变化等）触发特定音频逻辑。
 </div>
 
 <div class="box-info" markdown="1">
@@ -193,7 +194,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> MoviePipelineMaskRenderPass </div>
-为电影渲染管线扩展渲染通道，新增`MoviePiplelineObjectIdPass`（对象ID通道）和`MoviePiplelinePanoramicPass`（全景通道）功能。 
+为电影渲染管线扩展渲染通道，新增`MoviePipelineObjectIdPass`（对象ID通道）和`MoviePipelinePanoramicPass`（全景通道）功能。 
 </div>
 
 
@@ -225,7 +226,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 <div class="box-info" markdown="1">
 <div class="title"> UIExtension </div>
 来自 [Lyra's Plugins]:
-""UI扩展系统概述: https://x157.github.io/UE5/UIExtension/
+"UI扩展系统概述: [UIExtension Documentation]
 
 建立扩展点游戏标签(Extension Point Gameplay Tag)与可激活控件的映射关系。
 
@@ -258,7 +259,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 <div class="title"> ReplicationGraph </div>
 一个新的网络同步系统，允许更精细地控制网络中数据的同步内容和方式。它利用复制图节点来确定哪些数据复制给哪些客户端，并缓存数据以实现更高效、可扩展的同步机制。借助此插件，FNBR可以支持100多名玩家和50000个同步Actor的会话，而不会挤爆网络和CPU的负担。
 
-官方文档：[Replication Grpah]
+官方文档：[Replication Graph]
 
 官方直播：[Replication Graph Live Stream]
 </div>
@@ -314,7 +315,7 @@ Steam OSS官方文档：[Online Subsystem Steam]
 <div class="title"> OnlineSubsystemEOS </div>
 类似于Steam OSS，但服务提供商是EOS。
 
-EOS OSS官方文档：[Online Subsystem EOS]
+EOS OSS官方文档：[EOS OSS Documentation]
 
 教程：[EOS OSS Tutorial]
 </div>
@@ -323,8 +324,7 @@ EOS OSS官方文档：[Online Subsystem EOS]
 <div class="title"> OnlineServicesEOS </div>
  新的`OnlineServices`插件，旨在取代旧的`OnlineSubsystem`插件。它提供了更现代、更灵活的方式来处理Unreal Engine中的在线服务，便于与第三方服务集成，并更好地支持跨平台游戏。
 
-官方文档：[Online Service EOS]
-, [Online Sevice Overview]
+官方文档：[Online Service EOS], [Online Service Overview]
 </div>
 
 <div class="box-info" markdown="1">
@@ -341,7 +341,7 @@ EOS OSS官方文档：[Online Subsystem EOS]
 
 
 ### Gameplay
-这是一个非常庞大的主题。在深入探讨任何插件之前，Epic 提供了一份优秀的文档帮助我们理解UE5中玩法框架的核心概念。[Making Interactive Experiences]
+这是一个非常庞大的主题。在深入探讨任何插件之前，Epic 提供了一份优秀的文档帮助我们理解UE5中玩法框架的核心概念。[Make Interactive Experiences]
 
 <div class="box-info" markdown="1">
 <div class="title"> ModularGameplay </div>
@@ -359,7 +359,7 @@ EOS OSS官方文档：[Online Subsystem EOS]
 "提供基类，使得游戏功能插件能够在运行时加载组件、控件等。
 Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
 
-模块化玩法插件概述：https://x157.github.io/UE5/ModularGameplay/
+模块化玩法插件概述：[Modular Gameplay Plugin Overview]
 </div>
 
 <div class="box-info" markdown="1">
@@ -406,6 +406,7 @@ Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
 `GAS`（`Gameplay Ability System`）是一个无需在此赘述的庞大主题。它是互联网上讨论和文档最多的系统之一，也是 `UE5` 中实现游戏交互的首选方式。
 
 官方文档：[GAS]
+
 社区文档：[GAS Community Docs]
 </div>
 
@@ -495,8 +496,7 @@ Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
 
 它设计为一种更简洁、紧凑的解决方案，替代传统在菜单中渲染3D角色的方法（传统方法通常需要加载正常游戏边界外的地图）。
 
-优秀的Pocket Worlds示例和文档:
-https://gitlab.com/IsmaFilo/pocketworldexample"
+优秀的Pocket Worlds示例和文档: [Pocket Worlds Documentation]"
 </div>
 
 ## 项目结构
@@ -832,7 +832,7 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 [Online Subsystem]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-subsystem-in-unreal-engine?application_version=5.1
 [Common User Plugin]: https://dev.epicgames.com/documentation/en-us/unreal-engine/common-user-plugin-in-unreal-engine-for-lyra-sample-game
 [Standard Plugins]: https://argonauts.hatenablog.jp/entry/2021/12/23/083634
-[Distance Maching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
+[Distance Matching]: https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine?application_version=5.0
 [CAS Tutorial]: https://vorixo.github.io/devtricks/contextual-anim/#how-to-play-a-contextual-animation-during-gameplay
 [Metasound Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/metasounds-in-unreal-engine
 [Audio Modulation Quick Start]: https://dev.epicgames.com/documentation/en-us/unreal-engine/audio-modulation-quick-start-guide
@@ -853,7 +853,7 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 [EOS OSS Documentation]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-subsystem-eos-plugin-in-unreal-engine
 [EOS OSS Tutorial]: https://dev.epicgames.com/community/learning/courses/1px/unreal-engine-the-eos-online-subsystem-oss-plugin/Lnjn/unreal-engine-introduction
 [Online Service EOS]: https://dev.epicgames.com/documentation/en-us/unreal-engine/online-services-eos-plugins-in-unreal-engine
-[Online Sevice Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-online-services-in-unreal-engine
+[Online Service Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-online-services-in-unreal-engine
 [Setup and Configure Online Services]: https://dev.epicgames.com/documentation/en-us/unreal-engine/setup-and-configure-the-online-services-plugins-in-unreal-engine
 [Structure and Implement the Online Services Plugins]: https://dev.epicgames.com/documentation/en-us/unreal-engine/structure-and-implement-the-online-services-plugins-in-unreal-engine
 [Make Interactive Experiences]: https://dev.epicgames.com/documentation/en-us/unreal-engine/making-interactive-experiences-and-gameplay-in-unreal-engine
@@ -862,7 +862,7 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 [GAS]: https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine
 [GAS Community Docs]: https://github.com/tranek/GASDocumentation
 [ControlFlows Tutorial]: https://unrealengine.hatenablog.com/entry/2023/01/29/211937
-[Funciontal Testing]: https://dev.epicgames.com/documentation/en-us/unreal-engine/functional-testing-in-unreal-engine
+[Functional Testing]: https://dev.epicgames.com/documentation/en-us/unreal-engine/functional-testing-in-unreal-engine
 [Automation System Overview]: https://dev.epicgames.com/documentation/en-us/unreal-engine/automation-system-overview?application_version=4.27
 [Gauntlet]: https://dev.epicgames.com/documentation/en-us/unreal-engine/gauntlet-automation-framework-in-unreal-engine
 [Run Gauntlet Tests]: https://dev.epicgames.com/documentation/en-us/unreal-engine/running-gauntlet-tests-in-unreal-engine
@@ -875,3 +875,6 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 [Modeling Tools Community Docs]: https://www.unrealengine.com/en-US/tech-blog/unreal-engine-5-s-modeling-mode-takes-shape
 [Geometry Scripting Official Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/geometry-scripting-users-guide-in-unreal-engine
 [Geometry Scripting Community Tutorial]: https://qiita.com/Rinderon/items/70765fb914d2242a448e
+[UIExtension Documentation]: https://x157.github.io/UE5/UIExtension/
+[Modular Gameplay Plugin Overview]: https://x157.github.io/UE5/ModularGameplay/
+[Pocket Worlds Documentation]: https://gitlab.com/IsmaFilo/pocketworldexample
