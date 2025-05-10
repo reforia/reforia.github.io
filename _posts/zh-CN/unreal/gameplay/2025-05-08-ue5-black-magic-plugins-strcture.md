@@ -38,7 +38,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> ActorPalette </div>
-该插件为编辑器添加新选项卡，可快速向关卡添加角色。本质上会打开新关卡，支持在不同关卡间拖放角色。
+该插件为编辑器添加新选项卡，可快速向关卡添加Actor。本质上会打开新关卡，支持在不同关卡间拖放Actors。
 
 简易视频教程: 
 {% include embed/youtube.html id="Ed2Ppnji4Tc" %}
@@ -46,7 +46,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> Lyra Ext Tool </div>
-来自[Lyra's Plugins]： "添加`EUW_MaterialTool`，这是在Lyra材质编辑器中看似实用的编辑器控件。
+来自[Lyra's Plugins]： "添加`EUW_MaterialTool`，这是在Lyra材质编辑器中实用的编辑器控件。
 同时添加BP函数`Change Mesh Materials`，该函数在网格体变更时显式调用`PostEditChange`。"
 </div>
 
@@ -63,6 +63,9 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 虚幻引擎中管理数据资产的高级系统。允许创建数据资产注册表，并提供运行时查询和操作方式。这是对`DataTable`或`CurveTable`系统的升级，更接近数据库概念。
 
 其最大优势在于`DataRegistry`以解耦方式通过统一API从任何可用资源获取数据。不再需要硬引用`DataTable`或`CurveTable`，只需使用`DataRegistry API`即可从任意来源同步/异步获取数据，甚至支持缓存。
+
+官方文档: [Data Registry]
+教程: [Data Registry Tutorial]
 </div>
 
 <div class="box-info" markdown="1">
@@ -80,12 +83,19 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> ModelingToolsEditorMode </div>
-为虚幻引擎添加新编辑器模式，支持直接在编辑器中创建和操作3D模型。适用于无需离开编辑器即可创建自定义资产或修改现有资产。不过相比`Blender`或`Maya`等专业3D软件，该工具在控制和精度上有所欠缺，更像是原型工具而非生产工具。
+为虚幻引擎添加了一个新编辑器模式，支持直接在编辑器中创建和操作3D模型。适用于无需离开编辑器即可创建自定义资产或修改现有资产。不过相比`Blender`或`Maya`等专业3D软件，该工具在控制和精度上有所欠缺，更像是原型工具而非生产工具。
+
+社区文档: [Modeling Tools Community Docs]
+视频:
+{% include embed/youtube.html id="GtaeYUgbgzE" %}
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> GeometryScripting </div>
 功能类似`Houdini`，可通过该插件实现程序化建模。也可用于运行时生成碰撞框或其他几何体。
+
+官方教程: [Geometry Scripting Official Tutorial]
+社区教程: [Geometry Scripting Community Tutorial]
 </div>
 
 ### 渲染与图形
@@ -126,7 +136,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> ContextualAnimation </div>
-该插件实现了多角色动画在蒙太奇中的同步功能，可流畅制作处决技、坐下动作、扶墙动作等复杂互动动画。
+该插件实现了多角色动画在蒙太奇中的同步功能，可流畅制作处决技、找个凳子坐下动作、扶墙动作等复杂互动动画。
 
 推荐学习 [CAS Tutorial] 获取详细指导。
 </div>
@@ -156,7 +166,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplay </div>
-类似`Gameplay Ability`的音频响应系统，使音频组件能根据游戏事件（如进入区域、交互行为、生命值变化等）触发特定音频逻辑。
+类似`Gameplay Ability`但是是为了Audio而生的的音频响应系统，使音频组件能根据游戏事件（如进入区域、交互行为、生命值变化等）触发特定音频逻辑。
 </div>
 
 <div class="box-info" markdown="1">
@@ -857,3 +867,8 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 [Significance Manager]: https://dev.epicgames.com/documentation/en-us/unreal-engine/significance-manager-in-unreal-engine
 [Niagara]: https://dev.epicgames.com/documentation/en-us/unreal-engine/creating-visual-effects-in-niagara-for-unreal-engine
 [Water]: https://dev.epicgames.com/documentation/en-us/unreal-engine/water-system-in-unreal-engine
+[Data Registry]: https://dev.epicgames.com/documentation/en-us/unreal-engine/data-registries-in-unreal-engine
+[Data Registry Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-guide-for-unreal-engine-data-registries
+[Modeling Tools Community Docs]: https://www.unrealengine.com/en-US/tech-blog/unreal-engine-5-s-modeling-mode-takes-shape
+[Geometry Scripting Official Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/geometry-scripting-users-guide-in-unreal-engine
+[Geometry Scripting Community Tutorial]: https://qiita.com/Rinderon/items/70765fb914d2242a448e

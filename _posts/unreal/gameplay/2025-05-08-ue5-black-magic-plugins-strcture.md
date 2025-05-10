@@ -68,6 +68,9 @@ C++ utility class for managing asynchronous operations like loading.
 An advanced system for managing data assets in Unreal Engine. It allows us to create a registry of data assets and provides a way to query and manipulate them at runtime. It advances the DataTable or CurveTable system, it's more like a database.
 
 The biggest advantage of which is DataRegistry provides a decoupled way to pull data from any viable resources but with a unified API. We no longer need to read a hard reference to a DataTable or CurveTable, we can just use the DataRegistry API to pull data from any source. Sync or Async, and even cached.
+
+Official Documentation: [Data Registry]
+Tutorial: [Data Registry Tutorial]
 </div>
 
 <div class="box-info" markdown="1">
@@ -86,11 +89,19 @@ A plugin to block some asset from being referenced by other assets. This is usef
 <div class="box-info" markdown="1">
 <div class="title"> ModelingToolsEditorMode </div>
 Add a new editor mode to Unreal Engine that allows us to create and manipulate 3D models directly in the editor. This is useful for creating custom assets or modifying existing ones without having to leave the editor. However, I think this is more a prototype tool than a production tool, as it doesn't have the same level of control and precision as a dedicated 3D modeling software like Blender or Maya.
+
+Community Documentation: [Modeling Tools Community Docs]
+Video Tutorial:
+{% include embed/youtube.html id="GtaeYUgbgzE" %}
+
 </div>
 
 <div class="box-info" markdown="1">
 <div class="title"> GeometryScripting </div>
 Very much alike houdini where procedural modeling can be achieved with this plugin. It could also be useful to do stuff like generate collision boxes or other geometry at runtime.
+
+Official Tutorial: [Geometry Scripting Official Tutorial]
+Community Tutorial: [Geometry Scripting Community Tutorial]
 </div>
 
 ### Render & GFX
@@ -874,3 +885,8 @@ Project can be categorized into even more modules. Before we go through them in 
 [Significance Manager]: https://dev.epicgames.com/documentation/en-us/unreal-engine/significance-manager-in-unreal-engine
 [Niagara]: https://dev.epicgames.com/documentation/en-us/unreal-engine/creating-visual-effects-in-niagara-for-unreal-engine
 [Water]: https://dev.epicgames.com/documentation/en-us/unreal-engine/water-system-in-unreal-engine
+[Data Registry]: https://dev.epicgames.com/documentation/en-us/unreal-engine/data-registries-in-unreal-engine
+[Data Registry Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-guide-for-unreal-engine-data-registries
+[Modeling Tools Community Docs]: https://www.unrealengine.com/en-US/tech-blog/unreal-engine-5-s-modeling-mode-takes-shape
+[Geometry Scripting Official Tutorial]: https://dev.epicgames.com/documentation/en-us/unreal-engine/geometry-scripting-users-guide-in-unreal-engine
+[Geometry Scripting Community Tutorial]: https://qiita.com/Rinderon/items/70765fb914d2242a448e
