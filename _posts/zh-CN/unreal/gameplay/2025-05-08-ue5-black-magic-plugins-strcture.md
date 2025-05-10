@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Lyra 技术解析 - 插件结构"
+title: "Lyra技术解析 - 插件结构"
 description:
   本文深入研究了Lyra中的插件，所以您就不用再遭罪了。这些插件已与相关文档一起整理编译，方便搜索。
 date: 2025-05-08 1:18 +0800
