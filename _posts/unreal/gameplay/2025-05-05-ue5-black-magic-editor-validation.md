@@ -13,6 +13,8 @@ lang: en
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
+{% include ue_engine_post_disclaimer.html %}
+
 > This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
 {: .prompt-info }
 

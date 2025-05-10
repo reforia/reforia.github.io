@@ -13,6 +13,8 @@ lang: zh-CN
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
+{% include ue_engine_post_disclaimer.html %}
+
 > 这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
 {: .prompt-info }
 
