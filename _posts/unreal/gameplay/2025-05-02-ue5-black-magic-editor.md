@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra Breakdown - Editor Module"
 description:
-  This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+  You can extend the editor and engine like that? What about all the wheels I reinvented?
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: en
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+{: .prompt-info }
 
 ## Separated .uproject and Modules
 Maybe Epic has a somewhat automated project setup method or manually renamed the `uproject` afterwards, but comparing with the pre-build Binary version of Lyra in EGS vs Github, the project name is different. One called `LyraStarterGame` and the other just called `Lyra`.

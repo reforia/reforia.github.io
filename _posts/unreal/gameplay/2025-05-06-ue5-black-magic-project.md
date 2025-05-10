@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra Breakdown - Project Build Config"
 description:
-  This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+  Target.cs, Build.cs, Configs, Modules, what in the world is going on?
 date: 2025-05-06 19:07 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: en
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+{: .prompt-info }
 
 ## Target.cs and Build.cs
 `Target.cs` defines, in order to produce a target, what modules are needed to be included in the build. It also defines the target type, when `UBT` processes it, it will generate one or more `dll` files depends on the settings.

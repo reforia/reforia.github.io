@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra技术解析 - 编辑器验证"
 description:
-  这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+  今日事，今日毕，写完功能代码提交一波美滋滋...等等...
 date: 2025-05-05 12:05 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: zh-CN
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> 这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+{: .prompt-info }
 
 ## 验证函数
 在上一篇文章中，我们讨论了如何在编辑器中添加触发特定操作的新按钮（"检查内容"的示例）。该按钮调用了定义在`EditorValidator.cpp`中的`UEditorValidator::ValidateCheckedOutContent`函数，该函数负责验证从源代码控制系统中检出的内容。我们将逐步分析这个函数的具体实现。

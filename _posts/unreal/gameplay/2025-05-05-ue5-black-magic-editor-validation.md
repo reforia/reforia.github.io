@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra Breakdown - Editor Validation"
 description:
-  This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+  A feature has been finished beautifully, and let's submit it and call it a day. Oh wait...
 date: 2025-05-05 12:05 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: en
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+{: .prompt-info }
 
 ## Validation Functions
 In the last post, we talked about how to add a new button in editor that would trigger some actions (The Check Content example). The button is calling `UEditorValidator::ValidateCheckedOutContent` function, which is defined in `EditorValidator.cpp`. This function is responsible for validating the content that has been checked out from source control. We will go through the function step by step to understand what it does.

@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra技术解析 - 编辑器模块"
 description:
-  这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+  还能这么扩展编辑器和引擎？那我之前那波轮子不是白造了？
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: zh-CN
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> 这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+{: .prompt-info }
 
 ## 分离的.uproject与模块命名
 Epic可能采用了某种自动化项目设置方法，或是后期手动重命名了`uproject`文件。对比EGS平台预编译版本和Github上的Lyra项目，两者的项目名称并不一致——一个名为`LyraStarterGame`，另一个则简称为`Lyra`。

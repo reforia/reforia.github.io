@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra技术解析 - 项目配置"
 description:
-  这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+  Target.cs, Build.cs, Configs, Modules, 哥们给我干哪来了？
 date: 2025-05-06 19:07 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -12,6 +12,9 @@ lang: zh-CN
 ---
 
 {% include ue_version_disclaimer.html version="5.5.4" %}
+
+> 这是一系列关于我从Epic的Lyra项目中学到的知识笔记。该项目声称展示了当前虚幻引擎框架下的最佳实践。其中有些内容是我之前不了解的，有些则已经知晓，但认为仍然值得记录。
+{: .prompt-info }
 
 ## Target.cs 和 Build.cs
 `Target.cs` 定义了生成目标时需要将哪些模块包含在构建中。它还定义了目标类型，当 `UBT` 处理它时，会根据设置生成一个或多个 `dll` 文件。
