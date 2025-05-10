@@ -22,7 +22,7 @@ Lyra has enabled a huge amount of plugins, and they can be categorized into quit
 > Here's also some other posts about plugins at here [Lyra's Plugins], here [UE5 Study], here [Zomg's Unreal Engine Notes] and here [Standard Plugins]
 {: .prompt-tip }
 
-### Settings
+## Settings
 
 <div class="box-info" markdown="1">
 <div class="title"> GameSettings </div>
@@ -35,13 +35,14 @@ Something to note is all the settings data is declared in C++, meaning designers
 </div>
 
 
-### Editor Tools
+## Editor Tools
 
 <div class="box-info" markdown="1">
 <div class="title"> ActorPalette </div>
 A plugin that adds a new tab to the editor that allows you to quickly add actors to your level. This will basically open up a new level and allowing us to drag and drop actors from one to another.
 
-Simple Video Tutorial: https://www.youtube.com/watch?v=Ed2Ppnji4Tc
+Simple Video Tutorial:
+{% include embed/youtube.html id="Ed2Ppnji4Tc" %}
 </div>
 
 <div class="box-info" markdown="1">
@@ -53,7 +54,7 @@ Also adds a BP function Change Mesh Materials, which explicitly invokes PostEdit
 </div>
 
 
-### Asset Management
+## Asset Management
 
 <div class="box-info" markdown="1">
 <div class="title"> AsyncMixin </div>
@@ -78,7 +79,7 @@ A plugin to block some asset from being referenced by other assets. This is usef
 </div>
 
 
-### Geometry Tool
+## Geometry Tool
 
 <div class="box-info" markdown="1">
 <div class="title"> ModelingToolsEditorMode </div>
@@ -90,7 +91,7 @@ Add a new editor mode to Unreal Engine that allows us to create and manipulate 3
 Very much alike houdini where procedural modeling can be achieved with this plugin. It could also be useful to do stuff like generate collision boxes or other geometry at runtime.
 </div>
 
-### Render & GFX
+## Render & GFX
 <div class="box-info" markdown="1">
 <div class="title"> Volumetrics </div>
 A library of volume creation and rendering tools using Blueprints.
@@ -112,7 +113,7 @@ The Water plugin in Unreal Engine is used for creating realistic water surfaces 
 Official documentation: [Water]
 </div>
 
-### Animations
+## Animations
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimationLocomotionLibrary </div>
@@ -134,7 +135,7 @@ A great [CAS Tutorial] can be found here
 </div>
 
 
-### Audio
+## Audio
 
 <div class="box-info" markdown="1">
 <div class="title"> Metasound </div>
@@ -171,7 +172,7 @@ A utility library for sound related info, like `GetQFromBandwidth`, `ConvertDeci
 Provides a `FSourceSpatializer` struct and `FITDSpatialization` class for processing ITD spactialization.
 </div>
 
-### Cinematic
+## Cinematic
 
 <div class="box-info" markdown="1">
 <div class="title"> MovieRenderPipeline </div>
@@ -186,7 +187,7 @@ Added additional render passes to the Movie Render Pipeline, such as `MoviePiple
 </div>
 
 
-### UI
+## UI
 
 <div class="box-info" markdown="1">
 <div class="title"> CommonUI </div>
@@ -228,7 +229,7 @@ Think of this as a harbour, where the main UI will define a port - an arbitrary 
 </div>
 
 
-### Input
+## Input
 
 <div class="box-info" markdown="1">
 <div class="title"> EnhancedInput </div>
@@ -245,7 +246,7 @@ Although I wasn't really sure why not just use `RawInput` plugin directly. [Raw 
 </div>
 
 
-### Network
+## Network
 
 <div class="box-info" markdown="1">
 <div class="title"> ReplicationGraph </div>
@@ -335,7 +336,7 @@ A compatibility layer that allows the new `OnlineServices` plugin to work with t
 </div>
 
 
-### Gameplay
+## Gameplay
 This is a huge topic, before we dive into any of the plugins, Epic has a greate documentation that helps us wrap our head around the gameplay framework in UE5. [Making Interactive Experiences]
 
 <div class="box-info" markdown="1">
@@ -428,7 +429,7 @@ A plugin that enables a modular and declarative way to define flow tasks in code
 Tutorial can be found here: [ControlFlows Tutorial]
 </div>
 
-### Authentication
+## Authentication
 
 <div class="box-info" markdown="1">
 <div class="title"> CommonUser </div>
@@ -441,7 +442,7 @@ Provides Common User Subsystem, Common Session Subsystem and a Common User Initi
 </div>
 
 
-### QC
+## QC
 The plugins here are really useful for the Automation System, docoumented here [Automation System Overview] That can allow us to quickly create and run unit tests.
 
 <div class="box-info" markdown="1">
@@ -466,7 +467,7 @@ Offifcial Documentation: [Gauntlet], [Run Gauntlet Tests], [Gauntlet Primer]
 </div>
 
 
-### Performance
+## Performance
 
 <div class="box-info" markdown="1"> <div class="title"> GameplayInsights </div> From Gameplay Insights is a powerful profiling tool that helps analyze and visualize gameplay-related data such as replication, network traffic, ability usage, and more.
 
@@ -503,7 +504,7 @@ https://gitlab.com/IsmaFilo/pocketworldexample"
 ## Project Structure
 Project can be categorized into even more modules. Before we go through them in the following posts, let's first inspect them. (Some categories marked with "Separate" means they are more or less an extension of the core Lyra architecture. The project could still compile without them, they are crucial to the actual game content.)
 
-### Ability System
+## Ability System
 - /Abilities
   - AbilityCost
     - AbilityCost_InventoryItem
@@ -536,16 +537,16 @@ Project can be categorized into even more modules. Before we go through them in 
 - TaggedActor
 - GameplayAbilityTargetData_SingleTargetHit
 
-### Audio
+## Audio
 - /Audio
   - AudioMixEffectsSubsystem
   - AudioSettings
 
-### Animations
+## Animations
 - /Animation
   - AnimInstance
 
-### Camera
+## Camera
 - /Camera
   - CameraAssistInterface
   - CameraComponent
@@ -555,7 +556,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - PlayerCameraManager
   - UICameraManagerComponent
 
-### Character
+## Character
 - /Character
   - Pawn
   - PawnData
@@ -566,7 +567,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - HeroComponent
   - PawnExtensionComponent
 
-### (Separate) Cosmetics
+## (Separate) Cosmetics
 - /Cosmetics
   - CharacterPartTypes
   - ControllerComponent_CharacterParts
@@ -575,13 +576,13 @@ Project can be categorized into even more modules. Before we go through them in 
   - CosmeticDeveloperSettings
   - PawnComponent_CharacterParts
 
-### Development
+## Development
 - /Development
   - DeveloperSettings
   - PlatformEmulationSettings
   - BotCheats
 
-### (Separate) Equipment
+## (Separate) Equipment
 - /Equipment
   - EquipmentDefinition
   - EquipmentInstance
@@ -590,7 +591,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - PickupDefinition
   - QuickBarComponent
 
-### Feedback
+## Feedback
 - /Feedback
   - /ContextEffects
     - ContextEffectsLibrary
@@ -604,7 +605,7 @@ Project can be categorized into even more modules. Before we go through them in 
     - NumberPopComponent_MeshText
     - NumberPopComponent_NiagaraText
 
-### GameFeatures
+## GameFeatures
 - /GameFeatures
   - GameFeaturePolicy
   - GameFeatureAction_AddInputContextMapping
@@ -616,7 +617,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - GameFeatureAction_SplitscreenConfig
   - GameFeatureAction_WorldActionBase
 
-### GameModes
+## GameModes
 - /GameModes
   - GameMode
   - GameState
@@ -629,18 +630,18 @@ Project can be categorized into even more modules. Before we go through them in 
   - AsyncAction_ExperienceReady
   - BotCreationComponent
 
-### (Separate) Hotfix
+## (Separate) Hotfix
 - /Hotfix
   - HotfixManager
   - RuntimeOptions
   - TextHotfixConfig
 
-### Input
+## Input
 - /Input
   - InputComponent
   - InputConfig
 
-### (Separate) Interaction
+## (Separate) Interaction
 - /Interaction
   - /Abilities
     - GameplayAbilityTargetActor_Interact
@@ -656,7 +657,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - InteractionStatics
   - InteractionDurationMessage
 
-### Inventory
+## Inventory
 - /Inventory
   - IPickupable
   - InventoryItemDefinition
@@ -667,7 +668,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - InventoryFragment_QuickBarIcon
   - InventoryFragment_SetStats
 
-### Messages
+## Messages
 - /Messages
   - VerbMessage
   - VerbMessageHelpers
@@ -675,19 +676,19 @@ Project can be categorized into even more modules. Before we go through them in 
   - NotificationMessage
   - GameplayMessageProcessor
 
-### Performance
+## Performance
 - /Performance
   - PerformanceSettings
   - PerformanceStatSubsystem
   - PerformanceStatTypes
   - MemoryDebugCommands
 
-### Physics
+## Physics
 - /Physics
   - CollisionChannels
   - PhysicalMaterialWithTags
 
-### Player
+## Player
 - /Player
   - CheatManager
   - DebugCameraController
@@ -698,12 +699,12 @@ Project can be categorized into even more modules. Before we go through them in 
   - PlayerStart
   - PlayerState
 
-### Replays
+## Replays
 - /Replays
   - ReplaySubsystem
   - AsyncAction_QueryReplays
 
-### Settings
+## Settings
 - /Settings
   - /CustomSettings
     - SettingKeyboardInput
@@ -729,7 +730,7 @@ Project can be categorized into even more modules. Before we go through them in 
     - GameSettingRegistry_Video
     - GameSettingRegistry_PerfStats
 
-### System
+## System
 - /System
   - GameplayTagStack
   - AssetManager
@@ -746,7 +747,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - ActorUtilities
   - DevelopmentStatics
 
-### Teams
+## Teams
 - /Teams
   - TeamAgentInterface
   - TeamCheats
@@ -760,12 +761,12 @@ Project can be categorized into even more modules. Before we go through them in 
   - AsyncAction_ObserveTeam
   - AsyncAction_ObserveTeamColors
 
-### Tests
+## Tests
 - /Tests
   - GameplayRpcRegistrationComponent
   - TestControllerBootTest
 
-### UI
+## UI
 - /UI
   - /Basic
     - MaterialProgressBar
@@ -816,7 +817,7 @@ Project can be categorized into even more modules. Before we go through them in 
   - TaggedWidget
   - TouchRegion
 
-### (Separate) Weapons
+## (Separate) Weapons
 - /Weapons
   - WeaponDebugSettings
   - WeaponInstance
