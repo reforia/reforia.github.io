@@ -70,6 +70,7 @@ An advanced system for managing data assets in Unreal Engine. It allows us to cr
 The biggest advantage of which is DataRegistry provides a decoupled way to pull data from any viable resources but with a unified API. We no longer need to read a hard reference to a DataTable or CurveTable, we can just use the DataRegistry API to pull data from any source. Sync or Async, and even cached.
 
 Official Documentation: [Data Registry]
+
 Tutorial: [Data Registry Tutorial]
 </div>
 
@@ -91,6 +92,7 @@ A plugin to block some asset from being referenced by other assets. This is usef
 Add a new editor mode to Unreal Engine that allows us to create and manipulate 3D models directly in the editor. This is useful for creating custom assets or modifying existing ones without having to leave the editor. However, I think this is more a prototype tool than a production tool, as it doesn't have the same level of control and precision as a dedicated 3D modeling software like Blender or Maya.
 
 Community Documentation: [Modeling Tools Community Docs]
+
 Video Tutorial:
 {% include embed/youtube.html id="GtaeYUgbgzE" %}
 
@@ -101,6 +103,7 @@ Video Tutorial:
 Very much alike houdini where procedural modeling can be achieved with this plugin. It could also be useful to do stuff like generate collision boxes or other geometry at runtime.
 
 Official Tutorial: [Geometry Scripting Official Tutorial]
+
 Community Tutorial: [Geometry Scripting Community Tutorial]
 </div>
 

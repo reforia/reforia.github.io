@@ -65,6 +65,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 其最大优势在于`DataRegistry`以解耦方式通过统一API从任何可用资源获取数据。不再需要硬引用`DataTable`或`CurveTable`，只需使用`DataRegistry API`即可从任意来源同步/异步获取数据，甚至支持缓存。
 
 官方文档: [Data Registry]
+
 教程: [Data Registry Tutorial]
 </div>
 
@@ -86,6 +87,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 为虚幻引擎添加了一个新编辑器模式，支持直接在编辑器中创建和操作3D模型。适用于无需离开编辑器即可创建自定义资产或修改现有资产。不过相比`Blender`或`Maya`等专业3D软件，该工具在控制和精度上有所欠缺，更像是原型工具而非生产工具。
 
 社区文档: [Modeling Tools Community Docs]
+
 视频:
 {% include embed/youtube.html id="GtaeYUgbgzE" %}
 </div>
@@ -95,6 +97,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 功能类似`Houdini`，可通过该插件实现程序化建模。也可用于运行时生成碰撞框或其他几何体。
 
 官方教程: [Geometry Scripting Official Tutorial]
+
 社区教程: [Geometry Scripting Community Tutorial]
 </div>
 
