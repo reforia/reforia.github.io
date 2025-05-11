@@ -517,61 +517,21 @@ Excellent Pocket Worlds Example and documentation: [Pocket Worlds Documentation]
 </div>
 
 ## Project Structure
-Project can be categorized into even more modules. Before we go through them in the following posts, let's first inspect them. (Some categories marked with "Separate" means they are more or less an extension of the core Lyra architecture. The project could still compile without them, they are crucial to the actual game content.)
+Project can be categorized into even more modules. Before we go through them in the following posts, let's first inspect them. (Some categories marked with "Extend" means they are more or less an extension of the core Lyra architecture. The project could still compile without them, they are crucial to the actual game content.)
 
-### Ability System
-- /Abilities
-  - AbilityCost
-    - AbilityCost_InventoryItem
-    - AbilityCost_ItemTagStack
-    - AbilityCost_PlayerTagStack
-  - AbilitySimpleFailureMessage
-  - GameplayAbility
-    - GameplayAbility_Death
-    - GameplayAbility_Jump
-    - GameplayAbility_Reset
-- /Attributes
-  - AttributeSet
-  - CombatSet
-  - HealthSet
-- /Executions
-  - DamageExecution
-  - HealExecution
-- /Phases
-  - PhaseAbility
-  - PhaseLog
-  - PhaseSubsystem
-- AbilitySet
-- AbilitySourceInterface
-- AbilitySystemComponent
-- AbilitySystemGlobals
-- AbilityTagRelationshipMapping
-- GameplayCueManager
-- GameplayEffectContext
-- GlobalAbilitySystem
-- TaggedActor
-- GameplayAbilityTargetData_SingleTargetHit
+### Full Core
+The core of the project, the most basic and essential modules that are required for the project to function. These modules provide the foundation for the entire project and are typically genre agnostic.
 
-### Audio
+#### Audio
 - /Audio
   - AudioMixEffectsSubsystem
   - AudioSettings
 
-### Animations
+#### Animation
 - /Animation
   - AnimInstance
 
-### Camera
-- /Camera
-  - CameraAssistInterface
-  - CameraComponent
-  - CameraMode
-    - CameraMode_ThirdPerson
-  - PenetrationAvoidanceFeeler
-  - PlayerCameraManager
-  - UICameraManagerComponent
-
-### Character
+#### Character
 - /Character
   - Pawn
   - PawnData
@@ -582,128 +542,17 @@ Project can be categorized into even more modules. Before we go through them in 
   - HeroComponent
   - PawnExtensionComponent
 
-### (Separate) Cosmetics
-- /Cosmetics
-  - CharacterPartTypes
-  - ControllerComponent_CharacterParts
-  - CosmeticAnimationTypes
-  - CosmeticCheats
-  - CosmeticDeveloperSettings
-  - PawnComponent_CharacterParts
-
-### Development
-- /Development
-  - DeveloperSettings
-  - PlatformEmulationSettings
-  - BotCheats
-
-### (Separate) Equipment
-- /Equipment
-  - EquipmentDefinition
-  - EquipmentInstance
-  - EquipmentManagerComponent
-  - GameplayAbility_FromEquipment
-  - PickupDefinition
-  - QuickBarComponent
-
-### Feedback
-- /Feedback
-  - /ContextEffects
-    - ContextEffectsLibrary
-    - ContextEffectComponent
-    - ContextEffectsInterface
-    - ContextEffectsSubsystem
-    - AnimNotify_ContextEffect
-  - /NumberPops
-    - DamagePopStyle
-    - NumberPopComponent
-    - NumberPopComponent_MeshText
-    - NumberPopComponent_NiagaraText
-
-### GameFeatures
-- /GameFeatures
-  - GameFeaturePolicy
-  - GameFeatureAction_AddInputContextMapping
-  - GameFeatureAction_WorldActionBase
-  - GameFeatureAction_AddAbilities
-  - GameFeatureAction_AddGameplayCuePath
-  - GameFeatureAction_AddInputBinding
-  - GameFeatureAction_AddWidget
-  - GameFeatureAction_SplitscreenConfig
-  - GameFeatureAction_WorldActionBase
-
-### GameModes
-- /GameModes
-  - GameMode
-  - GameState
-  - WorldSettings
-  - UserFacingExperienceDefinition
-  - ExperienceActionSet
-  - ExperienceDefinition
-  - ExperienceManager
-  - ExperienceManagerComponent
-  - AsyncAction_ExperienceReady
-  - BotCreationComponent
-
-### (Separate) Hotfix
-- /Hotfix
-  - HotfixManager
-  - RuntimeOptions
-  - TextHotfixConfig
-
-### Input
+#### Input
 - /Input
   - InputComponent
   - InputConfig
 
-### (Separate) Interaction
-- /Interaction
-  - /Abilities
-    - GameplayAbilityTargetActor_Interact
-    - GameplayAbility_Interact
-  - /Tasks
-    - AbilityTask_GrantNearbyInteraction
-    - AbilityTask_WaitForInteractableTargets
-    - AbilityTask_WaitForInteractableTargets_SingleLineTrace
-  - IInteractableTarget
-  - IInteractionInstigator
-  - InteractionOption
-  - InteractionQuery
-  - InteractionStatics
-  - InteractionDurationMessage
-
-### Inventory
-- /Inventory
-  - IPickupable
-  - InventoryItemDefinition
-  - InventoryItemInstance
-  - InventoryManagerComponent
-  - InventoryFragment_EquippableItem
-  - InventoryFragment_PickupIcon
-  - InventoryFragment_QuickBarIcon
-  - InventoryFragment_SetStats
-
-### Messages
-- /Messages
-  - VerbMessage
-  - VerbMessageHelpers
-  - VerbMessageReplication
-  - NotificationMessage
-  - GameplayMessageProcessor
-
-### Performance
-- /Performance
-  - PerformanceSettings
-  - PerformanceStatSubsystem
-  - PerformanceStatTypes
-  - MemoryDebugCommands
-
-### Physics
+#### Physics
 - /Physics
   - CollisionChannels
   - PhysicalMaterialWithTags
 
-### Player
+#### Player
 - /Player
   - CheatManager
   - DebugCameraController
@@ -714,134 +563,297 @@ Project can be categorized into even more modules. Before we go through them in 
   - PlayerStart
   - PlayerState
 
-### Replays
-- /Replays
-  - ReplaySubsystem
-  - AsyncAction_QueryReplays
+### Core Extension (Strong Related)
+This part of the code is still very much related to the core of the game, but it is not as essential as the previous part. These modules provide additional functionality and features that are commonly used in many games, but they are not strictly necessary for the game to function.
 
-### Settings
-- /Settings
-  - /CustomSettings
-    - SettingKeyboardInput
-    - SettingAction_SafeZoneEditor
-    - SettingValueDiscrete_Language
-    - SettingValueDiscrete_MobileFPSType
-    - SettingValueDiscrete_OverallQuality
-    - SettingValueDiscrete_PerfStat
-    - SettingValueDiscrete_Resolution
-    - SettingValueDiscreteDynamic_AudioOutputDevice
-  - /Screens
-    - BrightnessEditor
-    - SafeZoneEditor
-  - /Widgets
-    - SettingsListEntrySetting_KeyboardInput
-  - SettingsLocal
-  - SettingsShared
-  - GameSettingRegistry
-    - GameSettingRegistry_Audio
-    - GameSettingRegistry_Gamepad
-    - GameSettingRegistry_Gameplay
-    - GameSettingRegistry_MouseAndKeyboard
-    - GameSettingRegistry_Video
-    - GameSettingRegistry_PerfStats
+#### Camera
+- /Camera
+  - CameraAssistInterface
+  - CameraComponent
+  - PlayerCameraManager
+  - UICameraManagerComponent
+  - CameraMode
+    - (Extend) CameraMode_ThirdPerson
+  - (Extend) PenetrationAvoidanceFeeler
 
-### System
+#### GameModes
+- /GameModes
+  - ExperienceActionSet
+  - ExperienceDefinition
+  - ExperienceManager
+  - ExperienceManagerComponent
+  - GameMode
+  - GameState
+  - WorldSettings
+  - UserFacingExperienceDefinition
+  - (Extend) AsyncAction_ExperienceReady
+  - (Extend) BotCreationComponent
+
+#### Development
+- /Development
+  - DeveloperSettings
+  - PlatformEmulationSettings
+  - (Extend) BotCheats
+
+#### Message
+- /Messages
+  - VerbMessage
+  - VerbMessageHelpers
+  - (Extend) VerbMessageReplication
+  - (Extend) NotificationMessage
+  - (Extend) GameplayMessageProcessor
+
+#### Performance
+- /Performance
+  - PerformanceSettings
+  - PerformanceStatSubsystem
+  - PerformanceStatTypes
+  - (Extend) MemoryDebugCommands
+
+#### System
 - /System
   - GameplayTagStack
   - AssetManager
   - AssetManagerStartupJob
   - GameData
   - GameSession
-  - GameEngine
-  - GameInstance
-  - ReplicationGraph
-  - ReplicationGraphSettings
-  - ReplicationGraphType
   - SignificanceManager
   - SystemStatics
-  - ActorUtilities
-  - DevelopmentStatics
+  - (Extend) GameEngine
+  - (Extend) GameInstance
+  - (Extend) ReplicationGraph
+  - (Extend) ReplicationGraphSettings
+  - (Extend) ReplicationGraphType
+  - (Extend) ActorUtilities
+  - (Extend) DevelopmentStatics
 
-### Teams
+### Core Extension (Weak Related)
+This part of the code is less related to the core of the game, but it is still important for the overall functionality and features of the game. These modules provide additional functionality and features that might not be useful in all games, but they are still useful for many projects. More project specific.
+
+#### Ability System
+- /Abilities
+  - AbilitySimpleFailureMessage
+  - AbilityCost
+    - (Extend) AbilityCost_InventoryItem
+    - (Extend) AbilityCost_ItemTagStack
+    - (Extend) AbilityCost_PlayerTagStack
+  - (Extend) GameplayAbility
+    - (Extend) GameplayAbility_Death
+    - (Extend) GameplayAbility_Jump
+    - (Extend) GameplayAbility_Reset
+- /Attributes
+  - AttributeSet
+  - (Extend) CombatSet
+  - (Extend) HealthSet
+- /Executions
+  - (Extend) DamageExecution
+  - (Extend) HealExecution
+- (Extend) /Phases
+  - (Extend) PhaseAbility
+  - (Extend) PhaseLog
+  - (Extend) PhaseSubsystem
+- AbilitySet
+- AbilitySourceInterface
+- AbilitySystemComponent
+- AbilitySystemGlobals
+- AbilityTagRelationshipMapping
+- GameplayCueManager
+- GameplayEffectContext
+- GlobalAbilitySystem
+- TaggedActor
+- (Extend) GameplayAbilityTargetData_SingleTargetHit
+
+#### Feedback
+- /Feedback
+  - /ContextEffects
+    - ContextEffectsLibrary
+    - (Extend) ContextEffectComponent
+    - (Extend) ContextEffectsInterface
+    - (Extend) ContextEffectsSubsystem
+    - (Extend) AnimNotify_ContextEffect
+  - (Extend) /NumberPops
+    - (Extend) DamagePopStyle
+    - (Extend) NumberPopComponent
+    - (Extend) NumberPopComponent_MeshText
+    - (Extend) NumberPopComponent_NiagaraText
+
+#### GameFeatures
+- /GameFeatures
+  - GameFeatureAction_AddInputContextMapping
+  - GameFeatureAction_WorldActionBase
+  - (Extend) GameFeaturePolicy
+  - (Extend) GameFeatureAction_AddAbilities
+  - (Extend) GameFeatureAction_AddGameplayCuePath
+  - (Extend) GameFeatureAction_AddInputBinding
+  - (Extend) GameFeatureAction_AddWidget
+  - (Extend) GameFeatureAction_SplitscreenConfig
+  - (Extend) GameFeatureAction_WorldActionBase
+
+#### Inventory
+- /Inventory
+  - IPickupable
+  - InventoryItemDefinition
+  - InventoryItemInstance
+  - InventoryManagerComponent
+  - (Extend) InventoryFragment_EquippableItem
+  - (Extend) InventoryFragment_PickupIcon
+  - (Extend) InventoryFragment_QuickBarIcon
+  - (Extend) InventoryFragment_SetStats
+
+#### UI
+- /UI
+  - (Extend) /Basic
+    - (Extend) MaterialProgressBar
+  - (Extend) /Common
+    - (Extend) BoundActionButton
+    - (Extend) ListView
+    - (Extend) TabButtonBase
+    - (Extend) TabListWidgetBase
+    - (Extend) WidgetFactory
+    - (Extend) WidgetFactory_Class
+  - (Extend) /Foundation
+    - (Extend) ActionWidget
+    - (Extend) ButtonBase
+    - (Extend) ConfirmationScreen
+    - (Extend) ControllerDisconnectedScreen
+    - (Extend) LoadingScreenSubsystem
+  - (Extend) /Frontend
+    - (Extend) ApplyFrontendSettingsAction
+    - (Extend) FrontendStateComponent
+    - (Extend) LobbyBackground
+  - (Extend) /IndicatorSystem
+    - (Extend) IActorIndicatorWidget
+    - (Extend) IndicatorDescriptor
+    - (Extend) IndicatorLayer
+    - (Extend) IndicatorLibrary
+    - (Extend) IndicatorManagerComponent
+    - (Extend) SActorCanvas
+  - (Extend) /PerformanceStats
+    - (Extend) PerfStatContainerBase
+    - (Extend) PerfStatWidgetBase
+  - (Extend) /Subsystem
+    - (Extend) UIManagerSubsystem
+    - (Extend) UIMessaging
+  - (Extend) /Weapons
+    - (Extend) SCircumferenceMarkerWidget
+    - (Extend) CircumferenceMarkerWidget
+    - (Extend) SHitMarkerConfirmationWidget
+    - (Extend) HitMarkerConfirmationWidget
+    - (Extend) ReticleWidgetBase
+    - (Extend) WeaponUserInterface
+  - HUD
+  - (Extend) HUDLayout
+  - (Extend) ActivatableWidget
+  - (Extend) GameViewportClient
+  - (Extend) JoystickWidget
+  - (Extend) SettingScreen
+  - (Extend) SimulatedInputWidget
+  - (Extend) TaggedWidget
+  - (Extend) TouchRegion
+
+#### Replays
+- /Replays
+  - ReplaySubsystem
+  - (Extend) AsyncAction_QueryReplays
+
+#### Settings
+- /Settings
+  - SettingsLocal
+  - SettingsShared
+  - (Extend) /CustomSettings
+    - (Extend) SettingKeyboardInput
+    - (Extend) SettingAction_SafeZoneEditor
+    - (Extend) SettingValueDiscrete_Language
+    - (Extend) SettingValueDiscrete_MobileFPSType
+    - (Extend) SettingValueDiscrete_OverallQuality
+    - (Extend) SettingValueDiscrete_PerfStat
+    - (Extend) SettingValueDiscrete_Resolution
+    - (Extend) SettingValueDiscreteDynamic_AudioOutputDevice
+  - (Extend) /Screens
+    - (Extend) BrightnessEditor
+    - (Extend) SafeZoneEditor
+  - (Extend) /Widgets
+    - (Extend) SettingsListEntrySetting_KeyboardInput
+  - (Extend) GameSettingRegistry
+    - (Extend) GameSettingRegistry_Audio
+    - (Extend) GameSettingRegistry_Gamepad
+    - (Extend) GameSettingRegistry_Gameplay
+    - (Extend) GameSettingRegistry_MouseAndKeyboard
+    - (Extend) GameSettingRegistry_Video
+    - (Extend) GameSettingRegistry_PerfStats
+
+#### Teams
 - /Teams
   - TeamAgentInterface
   - TeamCheats
-  - TeamCreationComponent
   - TeamDisplayAsset
   - TeamInfoBase
     - TeamPrivateInfo
     - TeamPublicInfo
   - TeamStatics
   - TeamSubsystem
-  - AsyncAction_ObserveTeam
-  - AsyncAction_ObserveTeamColors
+  - (Extend) TeamCreationComponent
+  - (Extend) AsyncAction_ObserveTeam
+  - (Extend) AsyncAction_ObserveTeamColors
 
-### Tests
+#### Tests
 - /Tests
   - GameplayRpcRegistrationComponent
-  - TestControllerBootTest
+  - (Extend) TestControllerBootTest
 
-### UI
-- /UI
-  - /Basic
-    - MaterialProgressBar
-  - /Common
-    - BoundActionButton
-    - ListView
-    - TabButtonBase
-    - TabListWidgetBase
-    - WidgetFactory
-    - WidgetFactory_Class
-  - /Foundation
-    - ActionWidget
-    - ButtonBase
-    - ConfirmationScreen
-    - ControllerDisconnectedScreen
-    - LoadingScreenSubsystem
-  - /Frontend
-    - ApplyFrontendSettingsAction
-    - FrontendStateComponent
-    - LobbyBackground
-  - /IndicatorSystem
-    - IActorIndicatorWidget
-    - IndicatorDescriptor
-    - IndicatorLayer
-    - IndicatorLibrary
-    - IndicatorManagerComponent
-    - SActorCanvas
-  - /PerformanceStats
-    - PerfStatContainerBase
-    - PerfStatWidgetBase
-  - /Subsystem
-    - UIManagerSubsystem
-    - UIMessaging
-  - /Weapons
-    - SCircumferenceMarkerWidget
-    - CircumferenceMarkerWidget
-    - SHitMarkerConfirmationWidget
-    - HitMarkerConfirmationWidget
-    - ReticleWidgetBase
-    - WeaponUserInterface
-  - HUD
-  - HUDLayout
-  - ActivatableWidget
-  - GameViewportClient
-  - JoystickWidget
-  - SettingScreen
-  - SimulatedInputWidget
-  - TaggedWidget
-  - TouchRegion
+### Full Extension
+This part of the code is not directly related to the core of the game, but it is still important for the overall functionality and features of the game. These modules provide additional functionality and features that might not be useful for all games, but they are still useful for many projects. Very project specific.
 
-### (Separate) Weapons
-- /Weapons
-  - WeaponDebugSettings
-  - WeaponInstance
-  - WeaponSpawner
-  - WeaponStateComponent
-  - RangedWeaponInstance
-  - GameplayAbility_RangedWeapon
-  - DamageLogDebuggerComponent
-  - InventoryFragment_ReticleConfig
+#### (Extend) Cosmetics
+- (Extend) /Cosmetics
+  - (Extend) CharacterPartTypes
+  - (Extend) ControllerComponent_CharacterParts
+  - (Extend) CosmeticAnimationTypes
+  - (Extend) CosmeticCheats
+  - (Extend) CosmeticDeveloperSettings
+  - (Extend) PawnComponent_CharacterParts
+
+#### (Extend) Equipment
+- (Extend) /Equipment
+  - (Extend) EquipmentDefinition
+  - (Extend) EquipmentInstance
+  - (Extend) EquipmentManagerComponent
+  - (Extend) GameplayAbility_FromEquipment
+  - (Extend) PickupDefinition
+  - (Extend) QuickBarComponent
+
+#### (Extend) Weapons
+- (Extend) /Weapons
+  - (Extend) WeaponDebugSettings
+  - (Extend) WeaponInstance
+  - (Extend) WeaponSpawner
+  - (Extend) WeaponStateComponent
+  - (Extend) RangedWeaponInstance
+  - (Extend) GameplayAbility_RangedWeapon
+  - (Extend) DamageLogDebuggerComponent
+  - (Extend) InventoryFragment_ReticleConfig
+
+#### (Extend) Hotfix
+- (Extend) /Hotfix
+  - (Extend) HotfixManager
+  - (Extend) RuntimeOptions
+  - (Extend) TextHotfixConfig
+
+#### (Extend) Interaction
+- (Extend) /Interaction
+  - (Extend) /Abilities
+    - (Extend) GameplayAbilityTargetActor_Interact
+    - (Extend) GameplayAbility_Interact
+  - (Extend) /Tasks
+    - (Extend) AbilityTask_GrantNearbyInteraction
+    - (Extend) AbilityTask_WaitForInteractableTargets
+  - (Extend) AbilityTask_WaitForInteractableTargets_SingleLineTrace
+  - (Extend) IInteractableTarget
+  - (Extend) IInteractionInstigator
+  - (Extend) InteractionOption
+  - (Extend) InteractionQuery
+  - (Extend) InteractionStatics
+  - (Extend) InteractionDurationMessage
 
 [Lyra's Plugins]: https://x157.github.io/UE5/LyraStarterGame/Plugins/
 [Zomg's Unreal Engine Notes]: https://zomgmoz.tv/unreal/

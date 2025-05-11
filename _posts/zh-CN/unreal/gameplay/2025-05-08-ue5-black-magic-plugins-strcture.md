@@ -500,61 +500,21 @@ Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
 </div>
 
 ## 项目结构
-项目可以进一步划分为更多模块。在后续文章中深入探讨之前，我们先整体浏览它们。（标注为‘Separate’的类别表示它们或多或少是Lyra核心架构的扩展。即使没有这些模块，项目仍可编译，但它们对实际游戏内容至关重要。）
+项目可以进一步划分为更多模块。在后续文章中深入探讨之前，我们先整体浏览它们。（标注为‘Extend’的类别表示它们或多或少是Lyra核心架构的扩展。即使没有这些模块，项目仍可编译，但它们对实际游戏内容至关重要。）
 
-### Ability System
-- /Abilities
-  - AbilityCost
-    - AbilityCost_InventoryItem
-    - AbilityCost_ItemTagStack
-    - AbilityCost_PlayerTagStack
-  - AbilitySimpleFailureMessage
-  - GameplayAbility
-    - GameplayAbility_Death
-    - GameplayAbility_Jump
-    - GameplayAbility_Reset
-- /Attributes
-  - AttributeSet
-  - CombatSet
-  - HealthSet
-- /Executions
-  - DamageExecution
-  - HealExecution
-- /Phases
-  - PhaseAbility
-  - PhaseLog
-  - PhaseSubsystem
-- AbilitySet
-- AbilitySourceInterface
-- AbilitySystemComponent
-- AbilitySystemGlobals
-- AbilityTagRelationshipMapping
-- GameplayCueManager
-- GameplayEffectContext
-- GlobalAbilitySystem
-- TaggedActor
-- GameplayAbilityTargetData_SingleTargetHit
+### 完全核心
+这部分的代码在Codebase中缺一不可，通常是核心3C等框架，几乎所有游戏类型都会需要的框架。
 
-### Audio
+#### 音效
 - /Audio
   - AudioMixEffectsSubsystem
   - AudioSettings
 
-### Animations
+#### 动画
 - /Animation
   - AnimInstance
 
-### Camera
-- /Camera
-  - CameraAssistInterface
-  - CameraComponent
-  - CameraMode
-    - CameraMode_ThirdPerson
-  - PenetrationAvoidanceFeeler
-  - PlayerCameraManager
-  - UICameraManagerComponent
-
-### Character
+#### 角色
 - /Character
   - Pawn
   - PawnData
@@ -565,128 +525,17 @@ Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
   - HeroComponent
   - PawnExtensionComponent
 
-### (Separate) Cosmetics
-- /Cosmetics
-  - CharacterPartTypes
-  - ControllerComponent_CharacterParts
-  - CosmeticAnimationTypes
-  - CosmeticCheats
-  - CosmeticDeveloperSettings
-  - PawnComponent_CharacterParts
-
-### Development
-- /Development
-  - DeveloperSettings
-  - PlatformEmulationSettings
-  - BotCheats
-
-### (Separate) Equipment
-- /Equipment
-  - EquipmentDefinition
-  - EquipmentInstance
-  - EquipmentManagerComponent
-  - GameplayAbility_FromEquipment
-  - PickupDefinition
-  - QuickBarComponent
-
-### Feedback
-- /Feedback
-  - /ContextEffects
-    - ContextEffectsLibrary
-    - ContextEffectComponent
-    - ContextEffectsInterface
-    - ContextEffectsSubsystem
-    - AnimNotify_ContextEffect
-  - /NumberPops
-    - DamagePopStyle
-    - NumberPopComponent
-    - NumberPopComponent_MeshText
-    - NumberPopComponent_NiagaraText
-
-### GameFeatures
-- /GameFeatures
-  - GameFeaturePolicy
-  - GameFeatureAction_AddInputContextMapping
-  - GameFeatureAction_WorldActionBase
-  - GameFeatureAction_AddAbilities
-  - GameFeatureAction_AddGameplayCuePath
-  - GameFeatureAction_AddInputBinding
-  - GameFeatureAction_AddWidget
-  - GameFeatureAction_SplitscreenConfig
-  - GameFeatureAction_WorldActionBase
-
-### GameModes
-- /GameModes
-  - GameMode
-  - GameState
-  - WorldSettings
-  - UserFacingExperienceDefinition
-  - ExperienceActionSet
-  - ExperienceDefinition
-  - ExperienceManager
-  - ExperienceManagerComponent
-  - AsyncAction_ExperienceReady
-  - BotCreationComponent
-
-### (Separate) Hotfix
-- /Hotfix
-  - HotfixManager
-  - RuntimeOptions
-  - TextHotfixConfig
-
-### Input
+#### 输入
 - /Input
   - InputComponent
   - InputConfig
 
-### (Separate) Interaction
-- /Interaction
-  - /Abilities
-    - GameplayAbilityTargetActor_Interact
-    - GameplayAbility_Interact
-  - /Tasks
-    - AbilityTask_GrantNearbyInteraction
-    - AbilityTask_WaitForInteractableTargets
-    - AbilityTask_WaitForInteractableTargets_SingleLineTrace
-  - IInteractableTarget
-  - IInteractionInstigator
-  - InteractionOption
-  - InteractionQuery
-  - InteractionStatics
-  - InteractionDurationMessage
-
-### Inventory
-- /Inventory
-  - IPickupable
-  - InventoryItemDefinition
-  - InventoryItemInstance
-  - InventoryManagerComponent
-  - InventoryFragment_EquippableItem
-  - InventoryFragment_PickupIcon
-  - InventoryFragment_QuickBarIcon
-  - InventoryFragment_SetStats
-
-### Messages
-- /Messages
-  - VerbMessage
-  - VerbMessageHelpers
-  - VerbMessageReplication
-  - NotificationMessage
-  - GameplayMessageProcessor
-
-### Performance
-- /Performance
-  - PerformanceSettings
-  - PerformanceStatSubsystem
-  - PerformanceStatTypes
-  - MemoryDebugCommands
-
-### Physics
+#### 物理
 - /Physics
   - CollisionChannels
   - PhysicalMaterialWithTags
 
-### Player
+#### 玩家
 - /Player
   - CheatManager
   - DebugCameraController
@@ -697,134 +546,297 @@ Lyra 的所有基类本身都基于 Modular Gameplay Actors。"
   - PlayerStart
   - PlayerState
 
-### Replays
-- /Replays
-  - ReplaySubsystem
-  - AsyncAction_QueryReplays
+### 强核心相关扩展
+这部分的代码通常对游戏核心来说有一些至关重要的基类存在，然后由子类扩展成实际游戏内容相关的逻辑，依然是几乎所有游戏类型都会需要的框架。
 
-### Settings
-- /Settings
-  - /CustomSettings
-    - SettingKeyboardInput
-    - SettingAction_SafeZoneEditor
-    - SettingValueDiscrete_Language
-    - SettingValueDiscrete_MobileFPSType
-    - SettingValueDiscrete_OverallQuality
-    - SettingValueDiscrete_PerfStat
-    - SettingValueDiscrete_Resolution
-    - SettingValueDiscreteDynamic_AudioOutputDevice
-  - /Screens
-    - BrightnessEditor
-    - SafeZoneEditor
-  - /Widgets
-    - SettingsListEntrySetting_KeyboardInput
-  - SettingsLocal
-  - SettingsShared
-  - GameSettingRegistry
-    - GameSettingRegistry_Audio
-    - GameSettingRegistry_Gamepad
-    - GameSettingRegistry_Gameplay
-    - GameSettingRegistry_MouseAndKeyboard
-    - GameSettingRegistry_Video
-    - GameSettingRegistry_PerfStats
+#### 摄像机
+- /Camera
+  - CameraAssistInterface
+  - CameraComponent
+  - PlayerCameraManager
+  - UICameraManagerComponent
+  - CameraMode
+    - (Extend) CameraMode_ThirdPerson
+  - (Extend) PenetrationAvoidanceFeeler
 
-### System
+#### 游戏模式
+- /GameModes
+  - ExperienceActionSet
+  - ExperienceDefinition
+  - ExperienceManager
+  - ExperienceManagerComponent
+  - GameMode
+  - GameState
+  - WorldSettings
+  - UserFacingExperienceDefinition
+  - (Extend) AsyncAction_ExperienceReady
+  - (Extend) BotCreationComponent
+
+#### 开发
+- /Development
+  - DeveloperSettings
+  - PlatformEmulationSettings
+  - (Extend) BotCheats
+
+#### 信息
+- /Messages
+  - VerbMessage
+  - VerbMessageHelpers
+  - (Extend) VerbMessageReplication
+  - (Extend) NotificationMessage
+  - (Extend) GameplayMessageProcessor
+
+#### 性能
+- /Performance
+  - PerformanceSettings
+  - PerformanceStatSubsystem
+  - PerformanceStatTypes
+  - (Extend) MemoryDebugCommands
+
+#### 系统
 - /System
   - GameplayTagStack
   - AssetManager
   - AssetManagerStartupJob
   - GameData
   - GameSession
-  - GameEngine
-  - GameInstance
-  - ReplicationGraph
-  - ReplicationGraphSettings
-  - ReplicationGraphType
   - SignificanceManager
   - SystemStatics
-  - ActorUtilities
-  - DevelopmentStatics
+  - (Extend) GameEngine
+  - (Extend) GameInstance
+  - (Extend) ReplicationGraph
+  - (Extend) ReplicationGraphSettings
+  - (Extend) ReplicationGraphType
+  - (Extend) ActorUtilities
+  - (Extend) DevelopmentStatics
 
-### Teams
+### 弱核心相关扩展
+相对核心来说，这部分的模块会因项目而异，更多的从核心跨度到具体项目类型，尽管大部分模块对多数项目类型来说依然是很重要。这部分代码通常是提供了少数的抽象接口，然后大量由项目相关的子类扩展出具体业务逻辑
+
+#### 技能系统
+- /Abilities
+  - AbilitySimpleFailureMessage
+  - AbilityCost
+    - (Extend) AbilityCost_InventoryItem
+    - (Extend) AbilityCost_ItemTagStack
+    - (Extend) AbilityCost_PlayerTagStack
+  - (Extend) GameplayAbility
+    - (Extend) GameplayAbility_Death
+    - (Extend) GameplayAbility_Jump
+    - (Extend) GameplayAbility_Reset
+- /Attributes
+  - AttributeSet
+  - (Extend) CombatSet
+  - (Extend) HealthSet
+- /Executions
+  - (Extend) DamageExecution
+  - (Extend) HealExecution
+- (Extend) /Phases
+  - (Extend) PhaseAbility
+  - (Extend) PhaseLog
+  - (Extend) PhaseSubsystem
+- AbilitySet
+- AbilitySourceInterface
+- AbilitySystemComponent
+- AbilitySystemGlobals
+- AbilityTagRelationshipMapping
+- GameplayCueManager
+- GameplayEffectContext
+- GlobalAbilitySystem
+- TaggedActor
+- (Extend) GameplayAbilityTargetData_SingleTargetHit
+
+#### 反馈
+- /Feedback
+  - /ContextEffects
+    - ContextEffectsLibrary
+    - (Extend) ContextEffectComponent
+    - (Extend) ContextEffectsInterface
+    - (Extend) ContextEffectsSubsystem
+    - (Extend) AnimNotify_ContextEffect
+  - (Extend) /NumberPops
+    - (Extend) DamagePopStyle
+    - (Extend) NumberPopComponent
+    - (Extend) NumberPopComponent_MeshText
+    - (Extend) NumberPopComponent_NiagaraText
+
+#### GameFeatures
+- /GameFeatures
+  - GameFeatureAction_AddInputContextMapping
+  - GameFeatureAction_WorldActionBase
+  - (Extend) GameFeaturePolicy
+  - (Extend) GameFeatureAction_AddAbilities
+  - (Extend) GameFeatureAction_AddGameplayCuePath
+  - (Extend) GameFeatureAction_AddInputBinding
+  - (Extend) GameFeatureAction_AddWidget
+  - (Extend) GameFeatureAction_SplitscreenConfig
+  - (Extend) GameFeatureAction_WorldActionBase
+
+#### 背包
+- /Inventory
+  - IPickupable
+  - InventoryItemDefinition
+  - InventoryItemInstance
+  - InventoryManagerComponent
+  - (Extend) InventoryFragment_EquippableItem
+  - (Extend) InventoryFragment_PickupIcon
+  - (Extend) InventoryFragment_QuickBarIcon
+  - (Extend) InventoryFragment_SetStats
+
+#### UI
+- /UI
+  - (Extend) /Basic
+    - (Extend) MaterialProgressBar
+  - (Extend) /Common
+    - (Extend) BoundActionButton
+    - (Extend) ListView
+    - (Extend) TabButtonBase
+    - (Extend) TabListWidgetBase
+    - (Extend) WidgetFactory
+    - (Extend) WidgetFactory_Class
+  - (Extend) /Foundation
+    - (Extend) ActionWidget
+    - (Extend) ButtonBase
+    - (Extend) ConfirmationScreen
+    - (Extend) ControllerDisconnectedScreen
+    - (Extend) LoadingScreenSubsystem
+  - (Extend) /Frontend
+    - (Extend) ApplyFrontendSettingsAction
+    - (Extend) FrontendStateComponent
+    - (Extend) LobbyBackground
+  - (Extend) /IndicatorSystem
+    - (Extend) IActorIndicatorWidget
+    - (Extend) IndicatorDescriptor
+    - (Extend) IndicatorLayer
+    - (Extend) IndicatorLibrary
+    - (Extend) IndicatorManagerComponent
+    - (Extend) SActorCanvas
+  - (Extend) /PerformanceStats
+    - (Extend) PerfStatContainerBase
+    - (Extend) PerfStatWidgetBase
+  - (Extend) /Subsystem
+    - (Extend) UIManagerSubsystem
+    - (Extend) UIMessaging
+  - (Extend) /Weapons
+    - (Extend) SCircumferenceMarkerWidget
+    - (Extend) CircumferenceMarkerWidget
+    - (Extend) SHitMarkerConfirmationWidget
+    - (Extend) HitMarkerConfirmationWidget
+    - (Extend) ReticleWidgetBase
+    - (Extend) WeaponUserInterface
+  - HUD
+  - (Extend) HUDLayout
+  - (Extend) ActivatableWidget
+  - (Extend) GameViewportClient
+  - (Extend) JoystickWidget
+  - (Extend) SettingScreen
+  - (Extend) SimulatedInputWidget
+  - (Extend) TaggedWidget
+  - (Extend) TouchRegion
+
+#### 回放
+- /Replays
+  - ReplaySubsystem
+  - (Extend) AsyncAction_QueryReplays
+
+#### 设置
+- /Settings
+  - SettingsLocal
+  - SettingsShared
+  - (Extend) /CustomSettings
+    - (Extend) SettingKeyboardInput
+    - (Extend) SettingAction_SafeZoneEditor
+    - (Extend) SettingValueDiscrete_Language
+    - (Extend) SettingValueDiscrete_MobileFPSType
+    - (Extend) SettingValueDiscrete_OverallQuality
+    - (Extend) SettingValueDiscrete_PerfStat
+    - (Extend) SettingValueDiscrete_Resolution
+    - (Extend) SettingValueDiscreteDynamic_AudioOutputDevice
+  - (Extend) /Screens
+    - (Extend) BrightnessEditor
+    - (Extend) SafeZoneEditor
+  - (Extend) /Widgets
+    - (Extend) SettingsListEntrySetting_KeyboardInput
+  - (Extend) GameSettingRegistry
+    - (Extend) GameSettingRegistry_Audio
+    - (Extend) GameSettingRegistry_Gamepad
+    - (Extend) GameSettingRegistry_Gameplay
+    - (Extend) GameSettingRegistry_MouseAndKeyboard
+    - (Extend) GameSettingRegistry_Video
+    - (Extend) GameSettingRegistry_PerfStats
+
+#### 团队
 - /Teams
   - TeamAgentInterface
   - TeamCheats
-  - TeamCreationComponent
   - TeamDisplayAsset
   - TeamInfoBase
     - TeamPrivateInfo
     - TeamPublicInfo
   - TeamStatics
   - TeamSubsystem
-  - AsyncAction_ObserveTeam
-  - AsyncAction_ObserveTeamColors
+  - (Extend) TeamCreationComponent
+  - (Extend) AsyncAction_ObserveTeam
+  - (Extend) AsyncAction_ObserveTeamColors
 
-### Tests
+#### 测试
 - /Tests
   - GameplayRpcRegistrationComponent
-  - TestControllerBootTest
+  - (Extend) TestControllerBootTest
 
-### UI
-- /UI
-  - /Basic
-    - MaterialProgressBar
-  - /Common
-    - BoundActionButton
-    - ListView
-    - TabButtonBase
-    - TabListWidgetBase
-    - WidgetFactory
-    - WidgetFactory_Class
-  - /Foundation
-    - ActionWidget
-    - ButtonBase
-    - ConfirmationScreen
-    - ControllerDisconnectedScreen
-    - LoadingScreenSubsystem
-  - /Frontend
-    - ApplyFrontendSettingsAction
-    - FrontendStateComponent
-    - LobbyBackground
-  - /IndicatorSystem
-    - IActorIndicatorWidget
-    - IndicatorDescriptor
-    - IndicatorLayer
-    - IndicatorLibrary
-    - IndicatorManagerComponent
-    - SActorCanvas
-  - /PerformanceStats
-    - PerfStatContainerBase
-    - PerfStatWidgetBase
-  - /Subsystem
-    - UIManagerSubsystem
-    - UIMessaging
-  - /Weapons
-    - SCircumferenceMarkerWidget
-    - CircumferenceMarkerWidget
-    - SHitMarkerConfirmationWidget
-    - HitMarkerConfirmationWidget
-    - ReticleWidgetBase
-    - WeaponUserInterface
-  - HUD
-  - HUDLayout
-  - ActivatableWidget
-  - GameViewportClient
-  - JoystickWidget
-  - SettingScreen
-  - SimulatedInputWidget
-  - TaggedWidget
-  - TouchRegion
+### 完全扩展
+这部分的代码对游戏核心框架并不重要，但对游戏本身很重要。它们通常是游戏内容强相关的逻辑，视觉反馈，互动，道具等。
 
-### (Separate) Weapons
-- /Weapons
-  - WeaponDebugSettings
-  - WeaponInstance
-  - WeaponSpawner
-  - WeaponStateComponent
-  - RangedWeaponInstance
-  - GameplayAbility_RangedWeapon
-  - DamageLogDebuggerComponent
-  - InventoryFragment_ReticleConfig
+#### (Extend) 视觉装饰
+- (Extend) /Cosmetics
+  - (Extend) CharacterPartTypes
+  - (Extend) ControllerComponent_CharacterParts
+  - (Extend) CosmeticAnimationTypes
+  - (Extend) CosmeticCheats
+  - (Extend) CosmeticDeveloperSettings
+  - (Extend) PawnComponent_CharacterParts
+
+#### (Extend) 装备
+- (Extend) /Equipment
+  - (Extend) EquipmentDefinition
+  - (Extend) EquipmentInstance
+  - (Extend) EquipmentManagerComponent
+  - (Extend) GameplayAbility_FromEquipment
+  - (Extend) PickupDefinition
+  - (Extend) QuickBarComponent
+
+#### (Extend) 武器
+- (Extend) /Weapons
+  - (Extend) WeaponDebugSettings
+  - (Extend) WeaponInstance
+  - (Extend) WeaponSpawner
+  - (Extend) WeaponStateComponent
+  - (Extend) RangedWeaponInstance
+  - (Extend) GameplayAbility_RangedWeapon
+  - (Extend) DamageLogDebuggerComponent
+  - (Extend) InventoryFragment_ReticleConfig
+
+#### (Extend) Hotfix
+- (Extend) /Hotfix
+  - (Extend) HotfixManager
+  - (Extend) RuntimeOptions
+  - (Extend) TextHotfixConfig
+
+#### (Extend) 互动
+- (Extend) /Interaction
+  - (Extend) /Abilities
+    - (Extend) GameplayAbilityTargetActor_Interact
+    - (Extend) GameplayAbility_Interact
+  - (Extend) /Tasks
+    - (Extend) AbilityTask_GrantNearbyInteraction
+    - (Extend) AbilityTask_WaitForInteractableTargets
+  - (Extend) AbilityTask_WaitForInteractableTargets_SingleLineTrace
+  - (Extend) IInteractableTarget
+  - (Extend) IInteractionInstigator
+  - (Extend) InteractionOption
+  - (Extend) InteractionQuery
+  - (Extend) InteractionStatics
+  - (Extend) InteractionDurationMessage
 
 [Lyra's Plugins]: https://x157.github.io/UE5/LyraStarterGame/Plugins/
 [Zomg's Unreal Engine Notes]: https://zomgmoz.tv/unreal/
