@@ -527,7 +527,7 @@ The core of the project, the most basic and essential modules that are required 
   - AudioMixEffectsSubsystem
   - AudioSettings
 
-#### Animation
+#### Animations
 - /Animation
   - AnimInstance
 
