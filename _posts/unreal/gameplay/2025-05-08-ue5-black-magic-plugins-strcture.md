@@ -519,8 +519,11 @@ Excellent Pocket Worlds Example and documentation: [Pocket Worlds Documentation]
 ## Project Structure
 Project can be categorized into even more modules. Before we go through them in the following posts, let's first inspect them. (Some categories marked with "Extend" means they are more or less an extension of the core Lyra architecture. The project could still compile without them, they are crucial to the actual game content.)
 
+> This is only from codebase perspective, rather than actual game project perspective, for example, the Audio catrgory only have 2 classes in source code, but that doesn't mean it's a small feature, it just means the code didn't extend them more, that's it. In the actual Lyra project content, there're ton's of extensions that are done via MetaSound framework and custom blueprints.
+{: .prompt-warning }
+
 ### Full Core
-The core of the project, the most basic and essential modules that are required for the project to function. These modules provide the foundation for the entire project and are typically genre agnostic.
+The core source of the project, the most basic and essential modules that are required for the project to function. These modules provide the foundation for the entire project and are typically genre agnostic.
 
 #### Audio
 - /Audio
@@ -563,7 +566,7 @@ The core of the project, the most basic and essential modules that are required 
   - PlayerStart
   - PlayerState
 
-### Core Extension (Strong Related)
+### Core Extension (Strong Relationship)
 This part of the code is still very much related to the core of the game, but it is not as essential as the previous part. These modules provide additional functionality and features that are commonly used in many games, but they are not strictly necessary for the game to function.
 
 #### Camera
@@ -627,7 +630,7 @@ This part of the code is still very much related to the core of the game, but it
   - (Extend) ActorUtilities
   - (Extend) DevelopmentStatics
 
-### Core Extension (Weak Related)
+### Core Extension (Weak Relationship)
 This part of the code is less related to the core of the game, but it is still important for the overall functionality and features of the game. These modules provide additional functionality and features that might not be useful in all games, but they are still useful for many projects. More project specific.
 
 #### Ability System

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Lyra - Epic's Black Magic Spell Book"
+title: "Lyra Breakdown - "
 description:
   This is a note about what I've learned from the transition from UE4 to UE5. Most of the knowledge are from the Lyra Starter Game.
 date: 2025-05-02 15:24 +0800
@@ -14,6 +14,9 @@ lang: en
 {% include ue_version_disclaimer.html version="5.5.4" %}
 
 {% include ue_engine_post_disclaimer.html %}
+
+> This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
+{: .prompt-info }
 
 ## Localization
 How does that pipeline looks like
