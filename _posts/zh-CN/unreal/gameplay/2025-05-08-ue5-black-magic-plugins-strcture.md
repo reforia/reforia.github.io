@@ -163,7 +163,7 @@ Lyra启用了大量插件，这些插件可分为若干组别，涵盖从后端�
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplayVolume </div>
-通过体积控件自动管理混响等音频特性的小型插件，替代传统蓝图/代码手动配置方案，已内置混响(`Reverb`)、子混音(`Submix`)、衰减(`Attenuation`)等功能。
+通过体积控件自动管理混响等音频特性的小型插件，替代传统蓝图/代码手动配置方案，已内置混响(`Reverb`)、子混音(`Submix`)、衰减(`Attenuation`)等功能。这个功能的设计思想是，原本如果我们需要给音源加一个混响，我们可能会直接静态加在音源上，或者动态推给Submix，或者通过RTPC在Metasound中动态控制。现在我们可以把他绑在一个体积盒中，这样我们就可以创造类似“所有在这个体积中的音源可以获得一个混响效果，所有不在这个体积重的音源可以获得一个低通滤波，之类的”
 
 相关文档 [Audio Gameplay Volume]
 </div>

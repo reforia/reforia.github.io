@@ -169,7 +169,7 @@ This plugin adds Audio Modulation and Control Bus, as well as Control Bus Mix to
 
 <div class="box-info" markdown="1">
 <div class="title"> AudioGameplayVolume </div>
-A small plugin that can allow a volume to control the audio features like reverb, etc. Which normally would be done manually with a blueprint or code. This plugin has already took care of stuff like Reverb, Submix, Attenuation, etc.
+A small plugin that can allow a volume to control the audio features like reverb, etc. Which normally would be done manually with a blueprint or code. This plugin has already took care of stuff like Reverb, Submix, Attenuation, etc. The idea behind it was normally we are setting reverb either directly to the sound source itself staticly. Or through submix dynamically, or controlled by RTPC dynamically in metasound. Now it can be take care off by a real geometry. So we can say any sound that happens in a specific volume will have a reverb, anything outside of this volume would have a LFP, etc
 
 Related documentation [Audio Gameplay Volume]
 </div>
