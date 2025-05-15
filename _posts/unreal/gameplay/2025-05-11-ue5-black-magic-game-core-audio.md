@@ -67,19 +67,19 @@ In the following posts, we will focus on the full core part first (as can be see
 ```
 
 ## Audio
-Audio section only contains two classes in source, `AudioMixEffectsSubsystem` and `AudioSettings`. The `AudioSettings` class is used to store the audio settings for the game, such as volume levels and audio mix settings. Then the `AudioMixEffectsSubsystem` will load them into memory, to automatically apply related settings like submix buses.
+Audio section only contains two classes in source, `AudioMixEffectsSubsystem` and `AudioSettings`. The `AudioSettings` class is used to store the audio settings for the game, such as volume levels and audio mix settings. Then the `AudioMixEffectsSubsystem` will load them into memory, to automatically apply related settings like `Submix` buses.
 
 ## AudioSettings
 Inspecting the class, we find out that it only has a meaning header file, while the `cpp` file is empty. The file itself is quite simple and we've covered most of the tricks in previous posts. Just a refresher:
 
 - We need to have our settings class inherit from `UDeveloperSettings` to be auto discovered by the engine.
-- Class Meta Specifier `config = Game, defualt config, meta = (DisplayName = "LyraAudioSettings")`
+- Class Meta Specifier `config = Game, default config, meta = (DisplayName = "LyraAudioSettings")`
   - The content in this class will be saved in a config file, type is default game (`DefaultGame.ini`), and the section is `LyraAudioSettings`
 - Property Meta Specifier `config, EditAnywhere, Category = MixSettings, meta = (AllowedClasses = "/Script/AudioModulation.SoundControlBusMix")`
   - The property will be saved in the config file mentioned above.
   - The property is editable on archetype, or instances
   - The property will be categorized to `MixSetting`
-  - The property only acceept class is `SoundControlBusMix` from the `AudioModulation` plugin.
+  - The property only accept class is `SoundControlBusMix` from the `AudioModulation` plugin.
 
 ![Audio Settings](audio_settings.png){: width="700" }
 
@@ -151,7 +151,7 @@ public:
 ## HDR and LDR
 The first thing that worth noting is HDR and LDR, in a nutshell, players might have different audio output devices, some are fancy high-end devices, some are just cheap ones, it will differ from headphone and TV as well, they might even also have different preference or want to enable night mode. Anyway, we need to have different audio settings for different devices. The `AudioSettings` class has two properties for this purpose, `HDRAudioSubmixEffectChain` and `LDRAudioSubmixEffectChain`, which are both arrays of `FLyraSubmixEffectChainMap`. And we need to have a mechanic to switch them based on a setting that the player can config in a settings UI. If we don't do this, the audio might sound flat and dull on some devices, and too loud or quite on other ones.
 
-To accomodate this feature, the logic behind is:
+To accommodate this feature, the logic behind is:
 - Having a mechanic for the user to config whether we should output `HDR` or `LDR` audio
 - For all the sound output, we will apply a series of "Post-Process" (`SubmixEffectChain`) effect to achieve this.
 
