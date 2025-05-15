@@ -160,6 +160,10 @@ The first part should be related to a UI, once UI reports the user has confirmed
 ### Submix
 `Submix` is a signal operation concept, imagine we have weapon, footstep, ambience and musics raw files, they are usually just `wav` files, while we can wrap them up in a `metasound` class and do some processing there. (As known as per sound processing) It will also be quite helpful if we can say, OK, now I want these sounds to be grouped together, and we will add a shared effect like `EQ` to all of them, I don't care what "gameplay relationship" do they have. I just want all of them to have a shared treatment. This is where `Submix` comes in, each audio will be routed to a `Submix`, and the `Submix` will have a `SubmixEffectChain` applied to it. And different `Submix` can orchestrate together, eventually feed to the `MainSubmix`, and output from their, so all signals are being mixed.
 
+It's important to note that unless we changed the original sound's output channel, otherwise the `Submix` it sends to really just took a copy of the original signals. So like if we have a music playing, and send 100% of it to a `Mute Submix`, it will still be audible, since we are hearing a mix of the original music and a mix of "nothing", so it's still the original music.
+
+We can send a portion of the original dry sound to submix, like 0.2 means we took 20% of the orignal wave signal amplitude, and apply a submix effect like EQ to them, and then they are mixed together when playback.
+
 ![Submix Details](submix_details.png){: .width="700"}
 
 ### Submix and Sound Class
@@ -293,3 +297,16 @@ Decoupling the settings, with default and user saved data to a config file, a UI
 
 [Plugin Structure]: https://jaydengames.com/posts/ue5-black-magic-plugins-strcture/
 {: .prompt-info }
+
+Attenuation Settings
+Attenuation referencing ITD specialization settings
+
+Sound Wave or Meta Sound Source referencing Sound Attenuation settings
+
+MusicManagerComponent Base
+Add to PS as component
+Manage Intensity, fire will increase it, death will set it to 1, and gradually decrease overtime.
+Manager Look Direction
+
+When fire stinger happens, set it to 0 as out ot combat
+
