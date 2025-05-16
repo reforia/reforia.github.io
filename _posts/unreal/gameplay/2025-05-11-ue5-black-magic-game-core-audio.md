@@ -18,6 +18,9 @@ lang: en
 > This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
 {: .prompt-info }
 
+> I am not an expert in audio, so this post will be more of a summary of what I have learned from the Lyra project for my understanding. It could very likely be wrong at some aspects. Please take it with a grain of salt.
+{: .prompt-warning }
+
 ## Preface
 As mentioned in the last post [Plugin Structure], Lyra's source can be categorized into 4 different parts depending on their relationship to the game core, ordered from game agnostic to game specific.
 - Full Core
@@ -158,9 +161,9 @@ To accomodate this feature, the logic behind is:
 The first part should be related to a UI, once UI reports the user has confirmed a preferred mode, we will have a way to operate all the sound outputs, this is where we need to utilize `Submix`
 
 ### Submix
-`Submix` is a signal operation concept, imagine we have weapon, footstep, ambience and musics raw files, they are usually just `wav` files, while we can wrap them up in a `metasound` class and do some processing there. (As known as per sound processing) It will also be quite helpful if we can say, OK, now I want these sounds to be grouped together, and we will add a shared effect like `EQ` to all of them, I don't care what "gameplay relationship" do they have. I just want all of them to have a shared treatment. This is where `Submix` comes in, each audio will be routed to a `Submix`, and the `Submix` will have a `SubmixEffectChain` applied to it. And different `Submix` can orchestrate together, eventually feed to the `MainSubmix`, and output from their, so all signals are being mixed.
+`Submix` is a signal operation concept, imagine we have weapon, footstep, ambience and musics raw files, they are usually just `wav` files as raw files, then being wrapped up either in `SoundCue` or `metasound` class and do some processing there. (As known as per sound processing) It will also be quite helpful if we can say, OK, now I want these sounds to be grouped together, and we will add a shared effect like `EQ` to all of them, a shared treatment. This is where `Submix` comes in, each audio will be routed to a `Submix`, and the `Submix` will have a `SubmixEffectChain` applied to it. And different `Submix` can orchestrate together, eventually feed to the `MainSubmix`, and output from their, so all signals are being mixed.
 
-It's important to note that unless we changed the original sound's output channel, otherwise the `Submix` it sends to really just took a copy of the original signals. So like if we have a music playing, and send 100% of it to a `Mute Submix`, it will still be audible, since we are hearing a mix of the original music and a mix of "nothing", so it's still the original music.
+It's important to note that the `Submix` only took a copy of the original signals. So like if we have a music playing, and send 100% of it to a `Mute Submix`, it will still be audible, since we are hearing a mix of the original music and a mix of "nothing", so it's still the original music.
 
 We can send a portion of the original dry sound to submix, like 0.2 means we took 20% of the orignal wave signal amplitude, and apply a submix effect like EQ to them, and then they are mixed together when playback.
 
@@ -168,6 +171,8 @@ We can send a portion of the original dry sound to submix, like 0.2 means we too
 
 ### Submix and Sound Class
 `Sound Class` however, is more related to gameplay relationship rather than from a signal operation concept, each sound can be assigned to a `Sound Class`, and we can say: "When combat sound is playing, we will duck down musics to make combat SFX more prominent", and that's it, there aren't as many flexibility as `Submix`, but rather just volumes, often `Submix` and `Sound Class` are used together, which is also the case in Lyra
+
+Note that `Sound Class` can be used to ducking down groups of sounds by `Sound Mix`, which is a passive operation, and it will really just alter the original signal, meaning `Sound Mix` would have higher priority than `Submix`, if we already ducked a sound down to -60db via `Sound Mix`, and we send 100% of it to a `Submix`, the `Submix` essentially just receives a flat, non audible signals.
 
 ### FLyraSubmixEffectChainMap
 This struct binds a `Submix` class to a `USoundEffectSubmixPreset`, so that we can easily define which `Submix` would have what kind of `SubmixPresets`, the reason it's called `SubmixEffectChain` is because it's an array, meaning we can have multiple `SubmixPresets` applied for a single `Submix`.
@@ -187,6 +192,7 @@ struct LYRAGAME_API FLyraSubmixEffectChainMap
 };
 ```
 
+### Dynamic Submix Effects
 But here's a problem: A `Submix` can have it's own `SubmixEffectChain` configured in that `Submix` asset directly, so what's the whole point of wrapping it around again?
 
 ![EarlyReflection](submix_effect_chain_in_submix.png){: width="800" }
@@ -310,3 +316,6 @@ Manager Look Direction
 
 When fire stinger happens, set it to 0 as out ot combat
 
+Sound Concurrency don't have any referencers other than the sound per se
+
+Convolution Reverb is using a IR asset, which is created from a wav file, it esseentually captured the spatial representation, include material, early reflection, energy air absorption, etc through analysis of the recorded pop sound wave. To guide the input sound source how to behave as if it was in that space.
