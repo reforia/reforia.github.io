@@ -160,8 +160,6 @@ The first part should be related to a UI, once UI reports the user has confirmed
 ### Dynamic Submix Effects
 But here's a problem: A `Submix` can just configure it's own `SubmixEffectChain` directly, so what's the whole point of wrapping it to `FLyraSubmixEffectChainMap` again?
 
-![EarlyReflection](submix_effect_chain_in_submix.png){: width="800" }
-
 The answer is: in this case, the struct is really just used for `HDRAudioSubmixEffectChain` and `LDRAudioSubmixEffectChain`, despite the struct seems to be for generic purpose. The other `Submix`es were just directly applying their own `SubmixEffectChain` in the `Submix` asset.
 
 ![HDR and LDR submix](hdr_ldr_submix.png){: width="800" }
@@ -277,12 +275,14 @@ The tap delay effect is used to create a delay effect on the audio signal, it ca
 ### Early Reflection
 In Lyra, the `SubmixEffectTapDelay` and `SubmixEffectFilter` are all used in the `EarlyReflection` system. An early reflection is a sound that arrives at the listener's ears after a short delay, it can be used to create a sense of space and depth in the sound. Everytime when the gunfire happens, it will shot out a serious of raycasts, and a few bounce rays, and determine the space based on the ray travel distance and energy absorption.
 
+![Early Reflection](submix_effect_chain_in_submix.png){: width="800" }
+
 The two filter has prameter configured to:
 - HPF cutoff frequency = 300hz
 - LPF cutoff frequency = 10000hz
 
 So that's equivalanet to clamp the sound between `300hz` and `10khz`, which is the human voice range.
-![Early Reflections](early_reflection_submix.png){: width="700" }
+![Early Reflections](early_reflection_submix.png){: width="800" }
 
 #### Multiband Compressor
 There's also a `low multiband compressor` exist but not being refererenced, it is used to compress the audio signal based on a certain frequency range. The `multiband compressor` has 4 bands ranging from `2.5khz` to `20khz`, and each band has its own `threshold`, `ratio`, `attack`, and `release time`.
@@ -307,7 +307,7 @@ It's a good time to review what we've covered so far. The whole audio process ca
 #### Control Bus Mix
 Like mentioned before, `Control Bus Mix` is a collection of operations to each control bus, so it's used to control multiple `control buses` at the same time. However, this doesn't mean once we've set a `control bus mix`, we can't change the control bus value anymore. Both method co-exist with each other.
 
-![Control Bus Mix](control_bus_mix.png){ width="700" }
+![Control Bus Mix](control_bus_mix.png){: width="700" }
 
 #### Parameter Patch
 The relationship of different mixes can be controlled by a `Parameter Patch`, which is a class that contains a collection of `control buses` and a collection of `parameters`.

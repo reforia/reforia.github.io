@@ -130,7 +130,6 @@ lang: zh-CN
 
 ![Submix Details](submix_details.png){: .width="700"}
 
-
 ### FLyraSubmixEffectChainMap
 这里需要稍微涉及源码：这个结构体将 `Submix` 类与 `USoundEffectSubmixPreset` 绑定，便于定义每个 `Submix` 应应用哪些预设效果。之所以称为 `SubmixEffectChain`（效果链），是因为它是一个数组，意味着单个 `Submix` 可以叠加多个效果（如 `EQ`、`LPF` 等）。
 
@@ -161,13 +160,11 @@ struct LYRAGAME_API FLyraSubmixEffectChainMap
 ### 动态 Submix 效果
 但问题来了：既然 `Submix` 本身可直接配置 `SubmixEffectChain`，为何还要封装成 `FLyraSubmixEffectChainMap`？
 
-![EarlyReflection](submix_effect_chain_in_submix.png){: width="800" }
-
 答案在于：该结构体实际仅用于 `HDRAudioSubmixEffectChain` 和 `LDRAudioSubmixEffectChain`，其他 `Submix` 的效果链是直接在资产中静态配置的。
 
 ![HDR and LDR submix](hdr_ldr_submix.png){: width="800" }
 
-如下图所示，只有 `MainSubmix` 会进一步动态处理——因为 `HDR/LDR` 的选择是运行时决定的。
+如上图所示，只有 `MainSubmix` 会进一步动态处理——因为 `HDR/LDR` 的选择是运行时决定的。
 
 ### HDR 效果
 HDR 效果属于压缩器类型，其逻辑如下：
@@ -284,6 +281,8 @@ HDR 效果属于压缩器类型，其逻辑如下：
 ### 早期反射（Early Reflection）
 `Lyra` 使用 `SubmixEffectTapDelay` 和 `SubmixEffectFilter` 构建早期反射系统。早期反射是指声音经短延迟后到达听者的现象，能增强空间纵深感。每次开火时，系统会发射一系列射线（含若干反弹射线），根据射线传播距离和能量吸收判定空间特征。
 
+![EarlyReflection](submix_effect_chain_in_submix.png){: width="800" }
+
 两个滤波器的参数设置为：
 - 高通截止频率 = 300Hz
 - 低通截止频率 = 10000Hz
@@ -315,7 +314,7 @@ HDR 效果属于压缩器类型，其逻辑如下：
 #### 控制总线混音（Control Bus Mix）
 正如前文所述，`Control Bus Mix` 是一组针对控制总线的操作集合，用于同时调控多个 `Control Bus`。但要注意：设置混音后仍可单独调整总线值，两种调控方式可以共存。
 
-![Control Bus Mix](control_bus_mix.png){ width="700" }
+![Control Bus Mix](control_bus_mix.png){: width="700" }
 
 #### 参数补丁（Parameter Patch）
 不同混音之间的关系由 `Parameter Patch` 控制，这个类包含一组 `Control Bus` 和一组参数。例如：
