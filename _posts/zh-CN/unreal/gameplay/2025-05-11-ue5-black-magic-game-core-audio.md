@@ -2,7 +2,7 @@
 layout: post
 title: "Lyra技术解析 - 核心音频"
 description:
-  Digital sound is a signal, and it's all about signal processing.
+  音频的本质是信号，音频调制的本质是信号处理。
 date: 2025-05-11 20:50 +0800
 categories: [Unreal, Gameplay]
 published: true
