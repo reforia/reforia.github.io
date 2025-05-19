@@ -19,55 +19,284 @@ lang: en
 {: .prompt-info }
 
 ## Animation System Structure
-The whole structure of audio system in Lyra can be summarized as:
-- The Character BP referencing the Animation Blueprint to drive the character skeleton.
-- The Animation Blueprint is a framework that only contains the logic and transitions between different animation states. No actual animation assets are referenced here.
-- The actual animation assets are being dynamically injected into the Animation Blueprint as an Animation Linked Layer. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used.
+Epic has already released an official document about [Animations In Lyra]. The whole structure of animation system in Lyra can be summarized as:
+- The `Character BP` referencing the `Animation Blueprint` to drive the character skeleton.
+- The `Animation Blueprint` is a framework that only contains the logic and transitions between different animation states. No actual animation assets are referenced here.
+- The actual animation assets are being dynamically injected into the Animation Blueprint as an `Animation Linked Layer`. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used.
+
+In short, there are 4 main conuterparts in the animation system:
+- `Animation Linked Interface` - A shared protocol for the animation blueprints involved, it defines a common contract, for each `ALI` function, we can input something (Or usually nothing), and return out an animation pose
+- `Animation Blueprint` - The main logic that determins what state should we be in, and get one interface function from the `ALI` to presume that the animation needed here will be injected some time in the future. This class constructed a logic framework and connects animations with a virtual hook point. It only cares about what arbitrary animation should be played at what time, without caring about the actual animation assets.
+- `Animation Linked Layer Base` - The base class that actually implements each `ALI` interface, but still doesn't contain any animation assets, instead, all animation assets are variables. This class contructed a data binding flow, that binds the virtual hook point, to virtual animation assets. It only cares about what animation assets should be used per interface function, without caring about who would use it.
+- `Animation Linked Layer` - The actual animation assets that are being injected into the `Animation Linked Layer Base`. Since it inherits from the `Animation Linked Layer Base`, there's no need to implement any further logics, so think of it as a data container. This class provides all the data that the `AnimLLB` needs, hence `AnimLLB` would dynamically output an animation pose for `AnimBP` through `ALI`, eventually feed back to the `AnimBP` and finally output to the skeleton mesh.
+
+Sounds complicated but once you get the hang of it, it's actually quite simple. The benefit of this approach is very obvious, want to add 20 types of weapons without letting an animation blueprint to load all the assets? Not felling like duplicating the same logic over and over again? Hate to debug animation and write error prone logic? Want multiple teammates to work together? Well this is the savior.
 
 ## Animation Blueprint
-From the reference chain we can see that this part is still the same as before, we have character BP, on which we would have some skeleton meshes, and then we references an anim bp as AnimInstance. So far so good.
+From the reference chain we can see that this part is still the same as UE4, we have character BP, on which we would have some skeleton meshes, and then we references an anim bp as `AnimInstance`. So far so good.
 
 ![Animation BP Reference](animbp_reference.png){: width="700"}
 
-Inspect the asset, the first thing we see is this is not a normal anim instance, but a class derived from `LyraAnimInstance`.
-![AnimBP Class](animbp_type.png)
+Inspecting the asset, the first thing we see is this is not a normal anim instance, but a class derived from `LyraAnimInstance`. We will cover what does it do later.
+![AnimBP Class](animbp_type.png){: width="600"}
 
-What does it do? There's only one way to find out.
+## Animation Blueprint Structure
+The class itself seems overwhelming, it kind of is. But let's don't lose our focus here and break it down step by step.
+
+First thing first, an animation blueprint really just does one thing - Tell the controlled skeleton what to do at current frame. For each frame, it's actually just outputting a pose. Which was calculated by a tons of logics, correction, IK, anim swapping, procedural operations, blah blah. Yet it doesn't change it's nature - An `AnimGraph` usually consists of a `locomotion` state machine, then after some pre-processing, some post-processing, some blending and mixing, etc. finally a final pose gets generated.
+
+In order to have all these decisions (when to play what) to be made, we are constantly pulling data from our character, or even from the game itself.
+
+Ultimately, we are trying to decide which pose should we playing now (in `Anim Graph`), based on the data we have (in `Event Graph` and/or `functions`).
+
+To echo with the first section, we have mentioned that this class is merely a framework, it doesn't contain any animation assets. The actual animation assets are being dynamically injected into the `Animation Blueprint` as an `Animation Linked Layer`. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used. In fact, here's the comment left by Epic:
+
+<div class="box-info" markdown="1">
+<div class="title"> AnimBP Tour #3</div>
+This `Anim Graph` does not reference any animations directly. It instead provides entry points for `Montages` and `Linked Animation Layers` to play poses at certain points in the graph. This graph's main purpose is to blend those entry points together (e.g. blending upper and lower body poses together).
+This approach allows us to only load animations when they're needed. For example, a weapon will hold references to the required `Montages` and `Linked Animation Layers`, so that data will only be loaded when the weapon is loaded.
+E.g. `B_WeaponInstance_Shotgun` holds references to `Montages` and `Linked Animation Layers`. That data will only be loaded when `B_WeaponInstance_Shotgun` is loaded.
+`B_WeaponInstance_Base` is responsible for linking animation layers for weapons.
+</div>
+
+If the reader was used to UE4 animation system, be ready, there're quite some differences between the two engine versions. Since Animation system are well known for its CPU thirty nature, in order to leverage multithreading as much as possible, a bunch of practices used in Lyra Animation were coming from this post [Animation Optimization], so it's highly recommended to skim through that over first, otherwise the rest contents might be a bit hard to digest. Anyway, let's begin exploring the anatomy of the `AnimGraph`:
+
+### Locomotion And Left Hand Override
+The first part is `locomotion`, a state machine that handles the basic movement of the character, once we output a pose, it went into `LeftHandPose_OverrideState` and being cached for future usage.
+
+![Locomotion](locomotion.png){: width="700"}
+
+The `LeftHandPose_OverrideState` is an `AnimationLinkedInterface`, as mentioned before, it defines a shared protocol for the main animation blueprint and the `linked animation layers`, think of it as a hook, where we can plug in other animation assets, and the main logic will just take whatever is being plugged in. For more information about this, please refer to the official document [Animation Linked Layer]
+
+![left hand pose override](left_hand_pose_override.png){: width="700"}
+
+> Notice the `Flash` icon on the node? This is a `Fast Path` node, well explained in the [Animation Optimization]
+{: .prompt-info }
+
+In the implementation, we can see that the pose from `locomotion` state machine is being blended with a `left hand pose override` variable, a `SequenceEvaluator(ByTime)` node is wired afterwards, with `ExplicitTime` set to `0`, this means that we will just extract the first frame of that override animation. Then, both pose went through a `LayeredBlendPerBone` node. Which bone? All the left hand fingers.
+
+![Left Fingers Blend Mask](left_fingers_blend_mask.png){: width="600"}
+
+To this point, we kinda know what is actually happening here, some weapons might have a different grip, that when we snap our left hand to the weapon, few fingers might overlapping with the mesh (Like an AR is thinner, yet a shotgun is thicker). So we procedurally bend the fingers to match the weapon mesh.
+
+How much should we blend them? Well here we bind function `SetLeftHandPoseOverrideWeight` to the node, that will be called everytime this node updates. It's not rocket science, basically just read a few variables set from the instance, who did it? Shotgun.
+
+![SetLeftHandPoseOverrideWeight](SetLeftHandPoseOverrideWeight.png){: width="800"}
+
+![Shotgun Anim Layer](shotgun_anim_layer.png){: width="800"}
+
+### Upper/Lower Body Blend
+Now that we have the locomotion base part out of the way, next step is to blend the upper and lower body together. The idea behind it is, there would be tons of `montages` gets played, they are exotic, often one shot that comes with gameplay abilities, etc. Problem is, we don't want a montage to hijack our lower body animation, if we are running while shooting, we definitely want to keep running than sliding on the ground because an "Idle Shooting" montage is being played.
+
+This is done by a `LayeredBlendPerBone` node as well, which allows us to blend different animation layers together based on the bone hierarchy. The `LayeredBlendPerBone` node takes in two poses, the upper body pose and the lower body pose, and blends them together based on the bone hierarchy.
+
+![Upper Lower Body](upper_lower_body_blend.png){: width="800"}
+
+There're two types of `Montage`, additive and regular. Stuff like shooting are usually `Additive` (Full body additive), our locomotion would modify the whole body already, and upon whatever pose we have, we are just gonna add another shooting motion to it. In Lyra, firing is a `FullBodyAdditivePreAim` slot montage
+
+And the other type is regular, just like fancy dance, it doesn't really care where the player is looing at, as it will take over the skeleton. Emote dancing montage is at slot `UpperBody`
+
+Reloading and throwing grenade is a bit special, the montage have both `UpperBody` and `UpperBodyAddtive` slots.
+
+#### Additive Blend
+With, first we took the cached `Locomotion` pose, and `ApplyAdditive` it with the slot `UpperBodyAdditive`. This is basically saying: "Hey, add whatever `montage` is being played on the upper body to the current locomotion pose". Note we passed an `AdditiveIdentityPose` node in the slot, it just means if we don't have anything to add, output the `locomotion` as it is, An `identity pose` will not change the pose it's adding to.
+
+But how much should they be blended, well, it's controlled by the `UpperbodyDynamicAdditiveWeight` variable, and here's the update logic:
+
+![Upperbody Dynamic Additive Weight](upperbody_dynamic_additive_weight.png){: width="800"}
+
+Basically, when we are playing any `Montage` on ground, the `Montage` would just be fully applied, otherwise, if we are jumping in air, then we will have a nice transition over to `locomotion` pose.
+
+#### Regular Blend
+For dancing animation, they are not additive, so we would just use a `Slot` node for `Montages`
+
+As mentioned before, reloading has both `UpperBody` and `UpperBodyAddtive` slots
+
+![Reload Montage Slots](reload_montage_slots.png)
+
+The `UpperBody` slot is used to play the reloading animation, while the `UpperBodyAdditive` slot is used to play the additive animation. However, if we look at the `LayeredBlendPerBone` node, we can see that the blend weight for the `UpperBody` slot is set to `1`, so technically, the `UpperBodyAdditive` slot is not being used at all？Then what's the whole point of having them there? The answer is, the blend weight here does not mean that every bone is using `blend pose 0`, becuase we also have a thing called `Blend Profile`, which is a profile that defines how the blend weight is applied to each bone in the hierarchy. This allows us to have different blend weights for different bones, so we can have more control over how the animation is blended.
+
+#### Blend Profile
+As can be seen from the image, there's a nice transition from `Spine1` all the way up to the `Arm` bones, the weight gradually climbs up to `1`, so for those bones that doesn't have full weights, they will still blend with the `Additive` pose.
+
+![Blend Profile](blend_profile.png){: width="800"}
+
+#### FullBodyAdditivePreAim
+We have split `UpperBody` slot out, blend back with `Locomotion` pose, then Lyra sent everything to another slot `FullBodyAdditivePreAim`. This is for all the firing animations, as well as weapon recoil, etc. This is done by having an `AnimNotify` along with the firing animation, and players another `Montage` on top of the `FullBodyAdditivePreAim` slot.
+
+![FullBodyAdditivePreAim](FullBodyAdditivePreAim.png)
+
+#### Caching UpperBodyLowerBodySplit
+Finally, this gets cached to `UpperBodyLowerBodySplit` node.
+
+Although we did mentioned firing, but from the above image we know that this part is mostly dealing with `Grenade` and `Reloading`, as these are the only montages using `UpperBody` related slots.
+
+### Aiming, Fullbody Additive and Fullbody Montage
+Only a few things left! Now we need to deal with `Aiming`. It's quite easy to realize that `Aiming` is going to be different for different weapons (Imaging aiming a Desert Eagle like a sniper rifle, we've just created some goofy concepts...) Anything bind to specific type of weapon should go to `AnimLinkedLayer`, and this is exactly what happens here - an `ALI` hook.
+
+Next we have `Fullbody Additive`, which is another `LinkedLayer`, this is for jump recovery animations, like holding a pistol would have different jump recovery animation than holding a shotgun.
+
+![fullbody additive](fullbody_additive.png)
+
+![aiming_fullbody_additive](aiming_fullbody_additive.png){: width="800"}
+
+Finally we have `FullBody` Montage slot. That's for the dashing ability, where the player can dash to any direction.
+
+### Inertialization and Turn In Place
+Almost there! Next we have `Inertialization`, a per bone blend node to smooth two different poses transition, it's a common practice to use after processed all the animation data, so here we put it at the end of the graph (sort of).
+
+Turn in place is another common practice to solve foot sliding. Here's the comment left by Epic:
+
+<div class="box-info" markdown="1">
+<div class="title"> TurnInPlace #1 (also see ABP_ItemAnimLayersBase)</div>
+When the Pawn owner rotates, the mesh component rotates with it, which causes the feet to slide.
+Here we counter the character's rotation to keep the feet planted.
+</div>
+
+![Inertialization Turn In Place](inertialization_turn_in_place.png)
+
+### Procedural Fixup
+Same old, we are calling an `AnimLinkedLayer` to deal with per weapon IK fixup for hand, because different weapons might have different IK alpha for hands.
+
+For feet IK, we calls into control rig to mainly fix the knee from intersecting with the torso, when we are crouching at a slope. Aaaaand done! This is a sneak peak of the mere "Animation Framework" (I know, crazy)
+
+![Procedural Fixup](procedural_fixup.png)
+
+## ULyraAnimInstance
+Just from the header file, we can notice a few things:
+- A `IsDataValid` function is being overridden. This is a function that is called by the editor to validate the data in the asset. This is useful for ensuring that the asset is set up correctly and that all required data is present.
+- Normal `NativeInitializeAnimation` and `NativeUpdateAnimation` functions are overridden. These are the standard functions that are called when the animation is initialized and updated.
+- A `InitializeWithAbilitySystem` function is defined. We will go through it later
+- `GameplayTagPropertyMap` and `GroundDistance` are defined as properties. The `GameplayTagPropertyMap` is a map of gameplay tags to blueprint variables, which allows for easy access to gameplay tags in blueprints. The `GroundDistance` property is used to store the distance from the character to the ground.
 
 ```cpp
 UCLASS(Config = Game)
 class ULyraAnimInstance : public UAnimInstance
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	ULyraAnimInstance(const FObjectInitializer& ObjectInitializer);
+    ULyraAnimInstance(const FObjectInitializer& ObjectInitializer);
 
-	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* ASC);
+    virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* ASC);
 
 protected:
 
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+    virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif // WITH_EDITOR
 
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+    virtual void NativeInitializeAnimation() override;
+    virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
 
-	// Gameplay tags that can be mapped to blueprint variables. The variables will automatically update as the tags are added or removed.
-	// These should be used instead of manually querying for the gameplay tags.
-	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
-	FGameplayTagBlueprintPropertyMap GameplayTagPropertyMap;
+    // Gameplay tags that can be mapped to blueprint variables. The variables will automatically update as the tags are added or removed.
+    // These should be used instead of manually querying for the gameplay tags.
+    UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+    FGameplayTagBlueprintPropertyMap GameplayTagPropertyMap;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Character State Data")
-	float GroundDistance = -1.0f;
+    UPROPERTY(BlueprintReadOnly, Category = "Character State Data")
+    float GroundDistance = -1.0f;
 };
 ```
 
-## Locomotion State Machine
+### GameplayTagPropertyMap
+To understand what this class does, let's take a look at the implementation: The starting logic is quite simple, during initialization, we get `ASC` from the owning actor and call `InitializeWithAbilitySystem` to initialize the `GameplayTagPropertyMap`. This will form a mapping between `FGameplayTag` and a `FProperty`, one actual property on this class. And everytime when the tags has been changed with a new valule, it will be set to the corresponding property as well. Pretty much the same like we write a `OnTagChanged` callback, and then set data to a property.
+
+```cpp
+void ULyraAnimInstance::NativeInitializeAnimation()
+{
+    Super::NativeInitializeAnimation();
+
+    if (AActor* OwningActor = GetOwningActor())
+    {
+        if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor))
+        {
+            InitializeWithAbilitySystem(ASC);
+        }
+    }
+}
+
+// ...
+
+void ULyraAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC)
+{
+    check(ASC);
+
+    GameplayTagPropertyMap.Initialize(this, ASC);
+}
+```
+
+![Tag Property Mapping](tag_property_mapping.png){: width="700"}
+
+What really makes me interested is the `PropertyToEdit` here, how do we get a drop down of a dynamically created blueprint property? The answer is in the `FGameplayTagBlueprintPropertyMapping` struct:
+
+- `TFieldPath<FProperty>` is a type of property that allows us to reference a property on a class by its name
+
+```cpp
+/**
+ * Struct used to update a blueprint property with a gameplay tag count.
+ * The property is automatically updated as the gameplay tag count changes.
+ * It only supports boolean, integer, and float properties.
+ */
+USTRUCT()
+struct GAMEPLAYABILITIES_API FGameplayTagBlueprintPropertyMapping
+{
+    GENERATED_BODY()
+
+public:
+    // ...
+    /** Property to update with the gameplay tag count. */
+    UPROPERTY(VisibleAnywhere, Category = GameplayTagBlueprintProperty)
+    TFieldPath<FProperty> PropertyToEdit;
+    // ...
+};
+```
+
+"By it's name?!" I hear you scream. Yes, I know what you're thinking. A simple rename of the property will break the mapping here. Although it's not a very big problem. Even we are using a some sort of reference to the property, we can still delete it and cause a null reference here. What's really important is that we are notified about this error. This is where validation would kick in.
+
+Everytime the blueprint saves or we manually called validation on the data. The `IsDataValid` function will be called. This is where we can check if the property is valid or not. If it's not, we can return an error message to the user.
+
+```cpp
+#if WITH_EDITOR
+EDataValidationResult ULyraAnimInstance::IsDataValid(FDataValidationContext& Context) const
+{
+    Super::IsDataValid(Context);
+
+    GameplayTagPropertyMap.IsDataValid(this, Context);
+
+    return ((Context.GetNumErrors() > 0) ? EDataValidationResult::Invalid : EDataValidationResult::Valid);
+}
+#endif // WITH_EDITOR
+```
+
+With `IsDataValid` we are essentially calling the underlying `IsDataValid` function on the `FGameplayTagBlueprintPropertyMapping` struct. This will check if all the propertes are valid. It will fail to compile, and an error will be logged.
+
+![Invalid Mapping](invalid_mapping.png){: width="700"}
+
+![Invalid Mapping Error](invalid_mapping_error.png){: width="700"}
+
+### GroundDistance
+Only one thing left for this class, the `GroundDistance` property. This is a simple float value that stores the distance from the character to the ground. This is used to determine if the character is on the ground or not so we can transition from jump to land state. The value is updated every frame in `NativeUpdateAnimation`.
+
+```cpp
+void ULyraAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+    Super::NativeUpdateAnimation(DeltaSeconds);
+
+    const ALyraCharacter* Character = Cast<ALyraCharacter>(GetOwningActor());
+    if (!Character)
+    {
+        return;
+    }
+
+    ULyraCharacterMovementComponent* CharMoveComp = CastChecked<ULyraCharacterMovementComponent>(Character->GetCharacterMovement());
+    const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
+    GroundDistance = GroundInfo.GroundDistance;
+}
+```
 
 ## BlueprintThreadsafeUpdateAnimation
 
@@ -85,15 +314,6 @@ A caveat with Threadsafe functions is that we can't directly access data from ga
 Here's an example where we access the Pawn owner's location (search for "Property Access" from the context menu).
 </div>
 
-## Animation Graph Structure
-
-<div class="box-info" markdown="1">
-<div class="title"> AnimBP Tour #3</div>
-This Anim Graph does not reference any animations directly. It instead provides entry points for Montages and Linked Animation Layers to play poses at certain points in the graph. This graph's main purpose is to blend those entry points together (e.g. blending upper and lower body poses together).
-This approach allows us to only load animations when they're needed. For example, a weapon will hold references to the required Montages and Linked Animation Layers, so that data will only be loaded when the weapon is loaded.
-E.g. B_WeaponInstance_Shotgun holds references to Montages and Linked Animation Layers. That data will only be loaded when B_WeaponInstance_Shotgun is loaded.
-B_WeaponInstance_Base is responsible for linking animation layers for weapons.
-</div>
 
 ## Locomotion State Machine
 
@@ -158,12 +378,6 @@ The Animation Warping plugin is required to have access to these nodes.
 ## Turn In Place
 
 <div class="box-info" markdown="1">
-<div class="title"> TurnInPlace #1 (also see ABP_ItemAnimLayersBase)</div>
-When the Pawn owner rotates, the mesh component rotates with it, which causes the feet to slide.
-Here we counter the character's rotation to keep the feet planted.
-</div>
-
-<div class="box-info" markdown="1">
 <div class="title"> TurnInPlace #2</div>
 This function handles updating the yaw offset depending on the current state of the Pawn owner.
 </div>
@@ -192,3 +406,7 @@ When the yaw offset gets big enough, we trigger a TurnInPlace animation to reduc
 TurnInPlace animations often end with some settling motion when the rotation is finished. During this time, we move to the TurnInPlaceRecovery state, which can transition back to the TurnInPlaceRotation state if the offset gets big again.
 This way we can keep playing the rotation part of the TurnInPlace animations if the Pawn owner keeps rotating, without waiting for the settle to finish.
 </div>
+
+[Animation Optimization]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-optimization-in-unreal-engine#aniamtionfastpath
+[Animations In Lyra]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-in-lyra-sample-game-in-unreal-engine?application_version=5.0
+[Animation Linked Layer]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-blueprint-linking-in-unreal-engine
