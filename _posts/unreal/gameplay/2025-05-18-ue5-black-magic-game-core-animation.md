@@ -2,12 +2,12 @@
 layout: post
 title: "Lyra Breakdown - Game Core Animation"
 description:
-  Sword? Slash. Hammer? Smash. Gun? Shoot. Bow? Draw. Staff? Cast. Shield? Block. Fist? Punch. Foot? Kick. Intuitive and simple, what's the problem? Well we need to program it, no, not 7 if-swtiches in Character class, we don't do that anymore.
+  Sword? Slash. Hammer? Smash. Gun? Shoot. Bow? Draw. Staff? Cast. Shield? Block. Fist? Punch. Foot? Kick. Intuitive and simple, what's the problem? Well we need to program it, no, not 7 if-switches in Character class, we don't do that anymore.
 date: 2025-05-18 19:05 +0800
 categories: [Unreal, Gameplay]
 published: false
 tags: [Unreal, Gameplay]
-media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-game-core-audio/
+media_subpath: /assets/img/post-data/unreal/gameplay/ue5-black-magic-game-core-animation/
 lang: en
 ---
 
@@ -18,9 +18,54 @@ lang: en
 > This is a series of notes about what I've learned from Epic's Lyra project. Which claim to be the best practices under current unreal engine framework. Some I don't know about, some I already know but I thought it would still be good noting down.
 {: .prompt-info }
 
-## Animation System Stcture
+## Animation System Structure
+The whole structure of audio system in Lyra can be summarized as:
+- The Character BP referencing the Animation Blueprint to drive the character skeleton.
+- The Animation Blueprint is a framework that only contains the logic and transitions between different animation states. No actual animation assets are referenced here.
+- The actual animation assets are being dynamically injected into the Animation Blueprint as an Animation Linked Layer. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used.
 
-## Anim Graph
+## Animation Blueprint
+From the reference chain we can see that this part is still the same as before, we have character BP, on which we would have some skeleton meshes, and then we references an anim bp as AnimInstance. So far so good.
+
+![Animation BP Reference](animbp_reference.png){: width="700"}
+
+Inspect the asset, the first thing we see is this is not a normal anim instance, but a class derived from `LyraAnimInstance`.
+![AnimBP Class](animbp_type.png)
+
+What does it do? There's only one way to find out.
+
+```cpp
+UCLASS(Config = Game)
+class ULyraAnimInstance : public UAnimInstance
+{
+	GENERATED_BODY()
+
+public:
+
+	ULyraAnimInstance(const FObjectInitializer& ObjectInitializer);
+
+	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* ASC);
+
+protected:
+
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#endif // WITH_EDITOR
+
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+protected:
+
+	// Gameplay tags that can be mapped to blueprint variables. The variables will automatically update as the tags are added or removed.
+	// These should be used instead of manually querying for the gameplay tags.
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTagBlueprintPropertyMap GameplayTagPropertyMap;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character State Data")
+	float GroundDistance = -1.0f;
+};
+```
 
 ## Locomotion State Machine
 
@@ -69,7 +114,7 @@ Also, this animbp can access data from AnimBP_Mannequin_Base using Property Acce
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #6</div>
 This animbp was authored to handle the logic for common weapon types, like Rifles and Pistols. If custom logic is needed (e.g. for a weapon like a bow), a different animbp could be authored that implements the ALI_ItemAnimLayers interface.
-Rather than referencing animation assets directly, this animbp has a set of variables that can be overriden by Child Animation Blueprints. These variables can be found in the "Anim Set - X" categories in the My Blueprint tab.
+Rather than referencing animation assets directly, this animbp has a set of variables that can be overridden by Child Animation Blueprints. These variables can be found in the "Anim Set - X" categories in the My Blueprint tab.
 This allows us to reuse the same logic for multiple weapons without referencing (and thus loading) the animation content for each weapon in one animbp.
 See ABP_RifleAnimLayers for an example of a Child Animation Blueprint that provides values for each "Anim Set" variable.
 </div>

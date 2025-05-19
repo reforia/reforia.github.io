@@ -90,7 +90,7 @@ Existing `MetaSound Patch` in Lyra:
 - `mx_PlayAmbientChord`
   - Calls two `mx_PlayAmbientElement` and add them together. (Yes, add them together, makes the ambient louder or softer based on their phase)
 - `mx_Stingers`
-  - It's quite a brutal force implementaion to me, when the trigger `OnStingerPositive` is fired in music system, the `mx_Stingers` will try to fire 5 sound clips and mix them together, each representing a type:
+  - It's quite a brutal force implementation to me, when the trigger `OnStingerPositive` is fired in music system, the `mx_Stingers` will try to fire 5 sound clips and mix them together, each representing a type:
     - bass
     - perc-deep
     - perc-light
@@ -98,13 +98,13 @@ Existing `MetaSound Patch` in Lyra:
     - wet-lead
 - `sfx_BaseLayer_Interactable_Pad_nl_meta`
   - It's a wrapper of `sfx_Random_nl_meta`, and that's it. Why not just make `sfx_Random_nl_meta` a metasound patch you might ask? I've no idea, ask Epic.
-  - `sfx_Random_nl_meta` plays a random sound in given array. With a configurable weight and gain befor output
+  - `sfx_Random_nl_meta` plays a random sound in given array. With a configurable weight and gain before output
   - Any graph calling this node will result in a code assert indicating the lib is broken, so... this one doesn't look like a best practice to me.
 
 ## Mixing
 Now we have all the sound sources out of the way. It's time to mix them. Mixing essentially is just "mix" multiple playing sounds together to one output. But there's a bit more on that, say we have audio A and B, the mixing is not just `MixAB = A + B`, instead `MixAB = f(A) + f(B)`. It also include the process to modify the raw audio signal, like make dry sound to a wet sound, envelop a sound, add EQ, LPF, HPF, and other effects to produce the `f(x)`, then combine them together in a harmonic way, that's why this part can get very time consuming and complex.
 
-A lot of the mixings can already been done in metasound DSP graph alone. But there's a few more systems to help
+A lot of the mixing can already been done in metasound DSP graph alone. But there's a few more systems to help
 
 ### Sound Class
 As mentioned before, this is a UE4 legacy feature, normally a sound source will be assigned to one sound class, like Music Class, SFX Class, etc. It was mainly used with Sound Mix in UE4 to do passive ducking (ducking is a process to lower the volume of channel A based on channel B, like ducking down music channel when sfx channel is playing) In UE5, it can still be used this way, yet we also have two new powerful features:
@@ -125,7 +125,7 @@ This unintuitive behavior could potentially lead to problems, so normally we mig
 
 ![submix_mute_dry](submix_mute_dry.png){: .width="700"}
 
-As mentioned before, we can send a portion of the original dry sound to submix, like 0.2 means we took 20% of the orignal wave signal amplitude, and apply a submix effect like EQ to them, and then they are mixed together when playback.
+As mentioned before, we can send a portion of the original dry sound to submix, like 0.2 means we took 20% of the original wave signal amplitude, and apply a submix effect like EQ to them, and then they are mixed together when playback.
 
 ![Submix Details](submix_details.png){: .width="700"}
 
@@ -238,7 +238,7 @@ The default policy is `Farthest then Oldest`, which means the sound will be cut 
 Lyra has a few built in effects, these are types of `SubmixEffect`, which are used for `SubmixEffectChain` in `Submix`. They are used to process the audio signal in a certain way, such as adding `reverb`, `delay`, or `distortion`. The effects can be used to create a certain mood or atmosphere in the game, such as making the sound more immersive or realistic.
 
 #### Convolution Reverb
-`Convolution Reverb` is an advanced reverb effect using a `IR (Impulse Response)` asset, which is created from a wav file, it bascially captures the spatial representation, include material, early reflection, energy air absorption, etc through analysis of the recorded pop sound wave. To guide the input sound source how to behave as if it was in that space.
+`Convolution Reverb` is an advanced reverb effect using a `IR (Impulse Response)` asset, which is created from a wav file, it basically captures the spatial representation, include material, early reflection, energy air absorption, etc through analysis of the recorded pop sound wave. To guide the input sound source how to behave as if it was in that space.
 
 Official Documentation: [Convolution Reverb]
 
@@ -277,15 +277,15 @@ In Lyra, the `SubmixEffectTapDelay` and `SubmixEffectFilter` are all used in the
 
 ![Early Reflection](submix_effect_chain_in_submix.png){: width="800" }
 
-The two filter has prameter configured to:
+The two filter has parameter configured to:
 - HPF cutoff frequency = 300hz
 - LPF cutoff frequency = 10000hz
 
-So that's equivalanet to clamp the sound between `300hz` and `10khz`, which is the human voice range.
+So that's equivalent to clamp the sound between `300hz` and `10khz`, which is the human voice range.
 ![Early Reflections](early_reflection_submix.png){: width="800" }
 
 #### Multiband Compressor
-There's also a `low multiband compressor` exist but not being refererenced, it is used to compress the audio signal based on a certain frequency range. The `multiband compressor` has 4 bands ranging from `2.5khz` to `20khz`, and each band has its own `threshold`, `ratio`, `attack`, and `release time`.
+There's also a `low multiband compressor` exist but not being referenced, it is used to compress the audio signal based on a certain frequency range. The `multiband compressor` has 4 bands ranging from `2.5khz` to `20khz`, and each band has its own `threshold`, `ratio`, `attack`, and `release time`.
 
 ![multiband compressor](multiband_compressor.png)
 
@@ -409,7 +409,7 @@ Current available settings in Lyra are:
 ## Applications
 We've gone through the audio system far enough, now there's only a few scattered system left.
 
-> Nothing is better than the auther of these systems to explain how they work here. [Lyra Audio System]
+> Nothing is better than the author of these systems to explain how they work here. [Lyra Audio System]
 {: .prompt-info }
 
 ### Music Manager Component
@@ -426,13 +426,13 @@ Since game feature is loading components to target object at runtime, it's a nat
 Also explained in [Lyra Audio System], the wind system is a bit more complex, it has a few more features:
 
 - Raycast to determine the shape
-  - Wind system will raycast around to determin the shape of the environment and modulate the sound based on the shape
+  - Wind system will raycast around to determine the shape of the environment and modulate the sound based on the shape
   - WInd system will also modulate the volume based on the player current `velocity`, if the player runs faster, the wind sound will be louder
 
 ### Whizby System
 Also explained in [Lyra Audio System], whizby system is used to tell the player that they are being shot at, it calculates a perpendicular vector to the player and the bullet trajectory, and then it will play a sound based on the angle and distance of the bullet. The sound will be louder if the bullet is closer to the player, and it will be softer if the bullet is further away. We've already seen this in the `lib_Whizby` metasound patch. 
 
-Whizby is a global blueprint function, and will be called in `OnBurst` in each weapon fire event, it will determin a place to spawn a whizby metasound, and eventually calling `lib_Whizby` to play the sound.
+Whizby is a global blueprint function, and will be called in `OnBurst` in each weapon fire event, it will determine a place to spawn a whizby metasound, and eventually calling `lib_Whizby` to play the sound.
 
 [Convolution Reverb]: https://dev.epicgames.com/documentation/en-us/unreal-engine/convolution-reverb-in-unreal-engine
 [Lyra Audio System]: https://disasterpeace.com/blog/epic-games.lyra
