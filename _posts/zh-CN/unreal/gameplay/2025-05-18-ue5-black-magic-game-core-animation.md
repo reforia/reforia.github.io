@@ -35,7 +35,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 ## 动画蓝图（Animation Blueprint）
 从引用链来看，这部分和 `UE4` 还是一样的：我们有一个 `Character BP`，其上会有 `Skeletal Mesh`，然后引用一个 `AnimBP` 作为 `AnimInstance`。一切正常。
 
-![Animation BP Reference](animbp_reference.png){: width="700"}
+![Animation BP Reference](animbp_reference.png){: width="800"}
 
 检查这个资源时我们会发现它不是一个普通的 `AnimInstance`，而是继承自 `LyraAnimInstance` 的类。这个我们之后会详细讲。
 
@@ -69,11 +69,11 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 ### 移动与左手覆盖（Locomotion And Left Hand Override）
 第一部分是 `locomotion`，一个负责角色基本移动的状态机。一旦输出出一个姿势，它就会进入 `LeftHandPose_OverrideState` 并被缓存，供后续使用。
 
-![Locomotion](locomotion.png){: width="700"}
+![Locomotion](locomotion.png){: width="800"}
 
 `LeftHandPose_OverrideState` 是一个 `AnimationLinkedInterface`，如前所述，它定义了主动画蓝图和 `linked animation layers` 之间的通用协议。可以把它看作一个钩子，我们可以在这里插入其他动画资源，而主逻辑只负责接受传入的姿势。详细信息可参考官方文档 [Animation Linked Layer]。
 
-![left hand pose override](left_hand_pose_override.png){: width="700"}
+![left hand pose override](left_hand_pose_override.png){: width="800"}
 
 > 注意节点上的 `闪电` 图标？这是一个 `Fast Path` 节点，在 [Animation Optimization] 中有详细解释。
 {: .prompt-info }
@@ -201,7 +201,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 #### 武器缩放（Scaling Down Weapon）
 最后一个部分是 `ScalingDownWeapon`，这是一条在装备动画中使用的曲线。在玩家抽出武器时，实际上是把武器从缩放为 0 的状态放大到正常大小。我不太确定这是不是最佳实践，但至少它能实现目标……
 
-![Scaling Down Weapon](scaling_down_weapon.png){: width="700"}
+![Scaling Down Weapon](scaling_down_weapon.png){: width="800"}
 
 #### 程序修正：膝盖（Procedural Fixup - Knee）
 我们还调用了 `Control Rig`，主要是为了在角色下蹲并站在斜坡时防止膝盖穿进躯干里。终于讲完了！这还只是“动画框架”的冰山一角（毕竟 AAA 游戏的复杂程度真不是开玩笑的）。
@@ -689,7 +689,7 @@ void ULyraAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC
 ```
 
 
-![Tag Property Mapping](tag_property_mapping.png){: width="700"}
+![Tag Property Mapping](tag_property_mapping.png){: width="800"}
 
 比较有意思的一点是这个 `PropertyToEdit` 字段 —— 它是如何实现下拉菜单动态列出蓝图变量的呢？答案是在 `FGameplayTagBlueprintPropertyMapping` 结构体中定义的：
 
@@ -734,9 +734,9 @@ EDataValidationResult ULyraAnimInstance::IsDataValid(FDataValidationContext& Con
 
 这个机制确保了：哪怕字段失效了，编译时也能及时报错，不会悄悄出 Bug。
 
-![Invalid Mapping](invalid_mapping.png){: width="700"}
+![Invalid Mapping](invalid_mapping.png){: width="800"}
 
-![Invalid Mapping Error](invalid_mapping_error.png){: width="700"}
+![Invalid Mapping Error](invalid_mapping_error.png){: width="800"}
 
 ### GroundDistance
 这个类中还剩下一个属性：`GroundDistance`。它是一个简单的 float，表示角色当前离地的垂直距离。这个值用于判断角色是否“在地面上”，从而决定是否要从跳跃状态过渡到落地状态。它会在每一帧的 `NativeUpdateAnimation` 中更新：

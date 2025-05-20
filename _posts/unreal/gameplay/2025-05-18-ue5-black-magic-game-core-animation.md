@@ -35,7 +35,7 @@ Sounds complicated but once you get the hang of it, it's actually quite simple. 
 ## Animation Blueprint
 From the reference chain we can see that this part is still the same as UE4, we have character BP, on which we would have some skeleton meshes, and then we references an anim bp as `AnimInstance`. So far so good.
 
-![Animation BP Reference](animbp_reference.png){: width="700"}
+![Animation BP Reference](animbp_reference.png){: width="800"}
 
 Inspecting the asset, the first thing we see is this is not a normal anim instance, but a class derived from `LyraAnimInstance`. We will cover what does it do later.
 ![AnimBP Class](animbp_type.png){: width="600"}
@@ -67,11 +67,11 @@ If the reader was used to UE4 animation system, be ready, there're quite some di
 ### Locomotion And Left Hand Override
 The first part is `locomotion`, a state machine that handles the basic movement of the character, once we output a pose, it went into `LeftHandPose_OverrideState` and being cached for future usage.
 
-![Locomotion](locomotion.png){: width="700"}
+![Locomotion](locomotion.png){: width="800"}
 
 The `LeftHandPose_OverrideState` is an `AnimationLinkedInterface`, as mentioned before, it defines a shared protocol for the main animation blueprint and the `linked animation layers`, think of it as a hook, where we can plug in other animation assets, and the main logic will just take whatever is being plugged in. For more information about this, please refer to the official document [Animation Linked Layer]
 
-![left hand pose override](left_hand_pose_override.png){: width="700"}
+![left hand pose override](left_hand_pose_override.png){: width="800"}
 
 > Notice the `Flash` icon on the node? This is a `Fast Path` node, well explained in the [Animation Optimization]
 {: .prompt-info }
@@ -183,7 +183,7 @@ Then, we have `DisableLegIK`, this is a curve that used in the dash animations, 
 #### Scaling Down Weapon
 The final piece is `ScalingDownWeapon`, this is a curve that used in the equipment animation, where when the player unholstered the weapon, it's actually being scaling down to 0. I would doubt if this is a best practice, but it does the work so...
 
-![Scaling Down Weapon](scaling_down_weapon.png){: width="700"}
+![Scaling Down Weapon](scaling_down_weapon.png){: width="800"}
 
 #### Procedural Fixup - Knee
 We calls into control rig to mainly fix the knee from intersecting with the torso when we are crouching at a slope. Aaaaand done! This is a sneak peak of the mere "Animation Framework" (I know, AAA game has an insane amount of complexity)
@@ -651,7 +651,7 @@ void ULyraAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC
 }
 ```
 
-![Tag Property Mapping](tag_property_mapping.png){: width="700"}
+![Tag Property Mapping](tag_property_mapping.png){: width="800"}
 
 What really makes me interested is the `PropertyToEdit` here, how do we get a drop down of a dynamically created blueprint property? The answer is in the `FGameplayTagBlueprintPropertyMapping` struct:
 
@@ -696,9 +696,9 @@ EDataValidationResult ULyraAnimInstance::IsDataValid(FDataValidationContext& Con
 
 With `IsDataValid` we are essentially calling the underlying `IsDataValid` function on the `FGameplayTagBlueprintPropertyMapping` struct. This will check if all the properties are valid. It will fail to compile, and an error will be logged.
 
-![Invalid Mapping](invalid_mapping.png){: width="700"}
+![Invalid Mapping](invalid_mapping.png){: width="800"}
 
-![Invalid Mapping Error](invalid_mapping_error.png){: width="700"}
+![Invalid Mapping Error](invalid_mapping_error.png){: width="800"}
 
 ### GroundDistance
 Only one thing left for this class, the `GroundDistance` property. This is a simple float value that stores the distance from the character to the ground. This is used to determine if the character is on the ground or not so we can transition from jump to land state. The value is updated every frame in `NativeUpdateAnimation`.
