@@ -171,7 +171,7 @@ The second part is `DisableLHandIK`, and `DisableRHandIK`, these are usually use
 
 These values will be read from the curve, and then get's updated to `HandIKLeftAlpha` and `HandIKRightAlpha` variables. Eventually drive each side IK with `TwoBoneIK` node.
 
-![TwoBone IK](two_bone_ik.png) {: width="600"}
+![TwoBone IK](two_bone_ik.png){: width="600"}
 
 #### Foot Placement & DisableLegIK
 Next we need to resolve the foot placement, this is done by a `FootPlacement` node. This node will take in the current foot position and the ground normal, and then calculate the new foot position based on the ground normal. This is useful for when the character is walking on uneven terrain, as it will ensure that the feet are always planted on the ground.

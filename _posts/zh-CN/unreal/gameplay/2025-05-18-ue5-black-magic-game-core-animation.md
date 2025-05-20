@@ -189,7 +189,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 这些值会从曲线中读取，并分别更新为 `HandIKLeftAlpha` 和 `HandIKRightAlpha` 变量，最终驱动 `TwoBoneIK` 节点来控制 IK。
 
-![TwoBone IK](two_bone_ik.png) {: width="600"}
+![TwoBone IK](two_bone_ik.png){: width="600"}
 
 #### 脚步贴地 & 禁用腿 IK（Foot Placement & DisableLegIK）
 接下来处理脚的贴地问题。这是通过一个 `FootPlacement` 节点实现的。该节点会获取当前脚的位置与地面法线，然后根据地形计算新的脚部位置。这样角色在走不平的地面时，脚部依然能正确贴地。
