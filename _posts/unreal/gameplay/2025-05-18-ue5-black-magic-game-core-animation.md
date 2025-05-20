@@ -24,10 +24,10 @@ Epic has already released an official document about [Animations In Lyra]. The w
 - The `Animation Blueprint` is a framework that only contains the logic and transitions between different animation states. No actual animation assets are referenced here.
 - The actual animation assets are being dynamically injected into the Animation Blueprint as an `Animation Linked Layer`. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used.
 
-In short, there are 4 main conuterparts in the animation system:
+In short, there are 4 main counterparts in the animation system:
 - `Animation Linked Interface` - A shared protocol for the animation blueprints involved, it defines a common contract, for each `ALI` function, we can input something (Or usually nothing), and return out an animation pose
-- `Animation Blueprint` - The main logic that determins what state should we be in, and get one interface function from the `ALI` to presume that the animation needed here will be injected some time in the future. This class constructed a logic framework and connects animations with a virtual hook point. It only cares about what arbitrary animation should be played at what time, without caring about the actual animation assets.
-- `Animation Linked Layer Base` - The base class that actually implements each `ALI` interface, but still doesn't contain any animation assets, instead, all animation assets are variables. This class contructed a data binding flow, that binds the virtual hook point, to virtual animation assets. It only cares about what animation assets should be used per interface function, without caring about who would use it.
+- `Animation Blueprint` - The main logic that determines what state should we be in, and get one interface function from the `ALI` to presume that the animation needed here will be injected some time in the future. This class constructed a logic framework and connects animations with a virtual hook point. It only cares about what arbitrary animation should be played at what time, without caring about the actual animation assets.
+- `Animation Linked Layer Base` - The base class that actually implements each `ALI` interface, but still doesn't contain any animation assets, instead, all animation assets are variables. This class constructed a data binding flow, that binds the virtual hook point, to virtual animation assets. It only cares about what animation assets should be used per interface function, without caring about who would use it.
 - `Animation Linked Layer` - The actual animation assets that are being injected into the `Animation Linked Layer Base`. Since it inherits from the `Animation Linked Layer Base`, there's no need to implement any further logics, so think of it as a data container. This class provides all the data that the `AnimLLB` needs, hence `AnimLLB` would dynamically output an animation pose for `AnimBP` through `ALI`, eventually feed back to the `AnimBP` and finally output to the skeleton mesh.
 
 Sounds complicated but once you get the hang of it, it's actually quite simple. The benefit of this approach is very obvious, want to add 20 types of weapons without letting an animation blueprint to load all the assets? Not felling like duplicating the same logic over and over again? Hate to debug animation and write error prone logic? Want multiple teammates to work together? Well this is the savior.
@@ -94,9 +94,9 @@ This is done by a `LayeredBlendPerBone` node as well, which allows us to blend d
 
 There're two types of `Montage`, additive and regular. Stuff like shooting are usually `Additive` (Full body additive), our locomotion would modify the whole body already, and upon whatever pose we have, we are just gonna add another shooting motion to it. In Lyra, firing is a `FullBodyAdditivePreAim` slot montage
 
-And the other type is regular, just like fancy dance, it doesn't really care where the player is looing at, as it will take over the skeleton. Emote dancing montage is at slot `UpperBody`
+And the other type is regular, just like fancy dance, it doesn't really care where the player is looking at, as it will take over the skeleton. Emote dancing montage is at slot `UpperBody`
 
-Reloading and throwing grenade is a bit special, the montage have both `UpperBody` and `UpperBodyAddtive` slots.
+Reloading and throwing grenade is a bit special, the montage have both `UpperBody` and `UpperBodyAdditive` slots.
 
 #### Additive Blend
 With, first we took the cached `Locomotion` pose, and `ApplyAdditive` it with the slot `UpperBodyAdditive`. This is basically saying: "Hey, add whatever `montage` is being played on the upper body to the current locomotion pose". Note we passed an `AdditiveIdentityPose` node in the slot, it just means if we don't have anything to add, output the `locomotion` as it is, An `identity pose` will not change the pose it's adding to.
@@ -110,11 +110,11 @@ Basically, when we are playing any `Montage` on ground, the `Montage` would just
 #### Regular Blend
 For dancing animation, they are not additive, so we would just use a `Slot` node for `Montages`
 
-As mentioned before, reloading has both `UpperBody` and `UpperBodyAddtive` slots
+As mentioned before, reloading has both `UpperBody` and `UpperBodyAdditive` slots
 
 ![Reload Montage Slots](reload_montage_slots.png)
 
-The `UpperBody` slot is used to play the reloading animation, while the `UpperBodyAdditive` slot is used to play the additive animation. However, if we look at the `LayeredBlendPerBone` node, we can see that the blend weight for the `UpperBody` slot is set to `1`, so technically, the `UpperBodyAdditive` slot is not being used at all？Then what's the whole point of having them there? The answer is, the blend weight here does not mean that every bone is using `blend pose 0`, becuase we also have a thing called `Blend Profile`, which is a profile that defines how the blend weight is applied to each bone in the hierarchy. This allows us to have different blend weights for different bones, so we can have more control over how the animation is blended.
+The `UpperBody` slot is used to play the reloading animation, while the `UpperBodyAdditive` slot is used to play the additive animation. However, if we look at the `LayeredBlendPerBone` node, we can see that the blend weight for the `UpperBody` slot is set to `1`, so technically, the `UpperBodyAdditive` slot is not being used at all？Then what's the whole point of having them there? The answer is, the blend weight here does not mean that every bone is using `blend pose 0`, because we also have a thing called `Blend Profile`, which is a profile that defines how the blend weight is applied to each bone in the hierarchy. This allows us to have different blend weights for different bones, so we can have more control over how the animation is blended.
 
 #### Blend Profile
 As can be seen from the image, there's a nice transition from `Spine1` all the way up to the `Arm` bones, the weight gradually climbs up to `1`, so for those bones that doesn't have full weights, they will still blend with the `Additive` pose.
@@ -155,12 +155,37 @@ Here we counter the character's rotation to keep the feet planted.
 
 ![Inertialization Turn In Place](inertialization_turn_in_place.png)
 
-### Procedural Fixup
-Same old, we are calling an `AnimLinkedLayer` to deal with per weapon IK fixup for hand, because different weapons might have different IK alpha for hands.
+### Procedural Fixup - Hand Leg and Foot
+Same old, we are calling an `AnimLinkedLayer` to deal with per weapon IK fixup for hand, because different weapons might have different IK alpha for hands. We also need to place our foot on the ground, so two parts here:
 
-For feet IK, we calls into control rig to mainly fix the knee from intersecting with the torso, when we are crouching at a slope. Aaaaand done! This is a sneak peak of the mere "Animation Framework" (I know, crazy)
+#### DisableHandIKRetargeting
+First part is `DisableHandIKRetargeting`, it's a curve that allow temporary disable both hand IKs, although I didn't find any montage using this, it could be useful to override the hand IK at a global level.
 
-![Procedural Fixup](procedural_fixup.png)
+#### DisableLHandIK and DisableRHandIK
+The second part is `DisableLHandIK`, and `DisableRHandIK`, these are usually used for equipment and unequipment animations. It can also be used in pistol melee animation, where the character would just smash the enemy with one hand holding the gun.
+
+![Disable L Hand IK](disable_l_hand_ik.png){: width="800"}
+
+These values will be read from the curve, and then get's updated to `HandIKLeftAlpha` and `HandIKRightAlpha` variables. Eventually drive each side IK with `TwoBoneIK` node.
+
+![TwoBone IK](two_bone_ik.png) {: width="600"}
+
+#### Foot Placement & DisableLegIK
+Next we need to resolve the foot placement, this is done by a `FootPlacement` node. This node will take in the current foot position and the ground normal, and then calculate the new foot position based on the ground normal. This is useful for when the character is walking on uneven terrain, as it will ensure that the feet are always planted on the ground.
+
+Then, we have `DisableLegIK`, this is a curve that used in the dash animations, where the player will dashing in air, hence we don't want to apply any leg IKs.
+
+![Foot Placement](foot-placement.png){: width="600"}
+
+#### Scaling Down Weapon
+The final piece is `ScalingDownWeapon`, this is a curve that used in the equipment animation, where when the player unholstered the weapon, it's actually being scaling down to 0. I would doubt if this is a best practice, but it does the work so...
+
+![Scaling Down Weapon](scaling_down_weapon.png){: width="700"}
+
+#### Procedural Fixup - Knee
+We calls into control rig to mainly fix the knee from intersecting with the torso when we are crouching at a slope. Aaaaand done! This is a sneak peak of the mere "Animation Framework" (I know, AAA game has an insane amount of complexity)
+
+![Procedural Fixup](procedural_fixup.png){: width="800"}
 
 ## ULyraAnimInstance
 Just from the header file, we can notice a few things:
@@ -203,7 +228,7 @@ protected:
 ```
 
 ### GameplayTagPropertyMap
-To understand what this class does, let's take a look at the implementation: The starting logic is quite simple, during initialization, we get `ASC` from the owning actor and call `InitializeWithAbilitySystem` to initialize the `GameplayTagPropertyMap`. This will form a mapping between `FGameplayTag` and a `FProperty`, one actual property on this class. And everytime when the tags has been changed with a new valule, it will be set to the corresponding property as well. Pretty much the same like we write a `OnTagChanged` callback, and then set data to a property.
+To understand what this class does, let's take a look at the implementation: The starting logic is quite simple, during initialization, we get `ASC` from the owning actor and call `InitializeWithAbilitySystem` to initialize the `GameplayTagPropertyMap`. This will form a mapping between `FGameplayTag` and a `FProperty`, one actual property on this class. And everytime when the tags has been changed with a new value, it will be set to the corresponding property as well. Pretty much the same like we write a `OnTagChanged` callback, and then set data to a property.
 
 ```cpp
 void ULyraAnimInstance::NativeInitializeAnimation()
@@ -272,7 +297,7 @@ EDataValidationResult ULyraAnimInstance::IsDataValid(FDataValidationContext& Con
 #endif // WITH_EDITOR
 ```
 
-With `IsDataValid` we are essentially calling the underlying `IsDataValid` function on the `FGameplayTagBlueprintPropertyMapping` struct. This will check if all the propertes are valid. It will fail to compile, and an error will be logged.
+With `IsDataValid` we are essentially calling the underlying `IsDataValid` function on the `FGameplayTagBlueprintPropertyMapping` struct. This will check if all the properties are valid. It will fail to compile, and an error will be logged.
 
 ![Invalid Mapping](invalid_mapping.png){: width="700"}
 
@@ -406,6 +431,10 @@ When the yaw offset gets big enough, we trigger a TurnInPlace animation to reduc
 TurnInPlace animations often end with some settling motion when the rotation is finished. During this time, we move to the TurnInPlaceRecovery state, which can transition back to the TurnInPlaceRotation state if the offset gets big again.
 This way we can keep playing the rotation part of the TurnInPlace animations if the Pawn owner keeps rotating, without waiting for the settle to finish.
 </div>
+
+## Animation Modifier
+
+## AnimNotify
 
 [Animation Optimization]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-optimization-in-unreal-engine#aniamtionfastpath
 [Animations In Lyra]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-in-lyra-sample-game-in-unreal-engine?application_version=5.0
