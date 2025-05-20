@@ -178,7 +178,7 @@ Next we need to resolve the foot placement, this is done by a `FootPlacement` no
 
 Then, we have `DisableLegIK`, this is a curve that used in the dash animations, where the player will dashing in air, hence we don't want to apply any leg IKs.
 
-![Foot Placement](foot-placement.png){: width="600"}
+![Foot Placement](foot_placement.png){: width="600"}
 
 #### Scaling Down Weapon
 The final piece is `ScalingDownWeapon`, this is a curve that used in the equipment animation, where when the player unholstered the weapon, it's actually being scaling down to 0. I would doubt if this is a best practice, but it does the work so...
@@ -216,7 +216,7 @@ Feed `ALI_ItemAnimLayers - FullBody_IdleState` while calls `UpdateIdleState` on 
 #### Idle -> Start
 - `Idle`
     - Enter `Start` state
-        - If `HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`
+        - If `HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`
 
 `Idle` will transit to `Start` state if we have acceleration or if we are meleeing and has velocity.
 
@@ -235,9 +235,9 @@ We applied a `Lean` animation, so that the character will lean to one side to ac
         - If `Abs(RootYawOffset)` > 60 (Priority 1)
         - Or `LinkedLayerChanged` (Priority 1)
         - Or `AutomaticRule` (Priority 2)
-        - Or `(StartDirection != LocalVelocityDirection)` || `CrouchStateChange` || `ADSStateChanged` || `(CurrentStateTime(LocomotionSM) > 0.15 && DisplacementSpeed < 10.0)`
+        - Or `(StartDirection != LocalVelocityDirection)` OR `CrouchStateChange` OR `ADSStateChanged` OR `(CurrentStateTime(LocomotionSM) > 0.15 AND DisplacementSpeed < 10.0)`
     - Enter `Stop` state (Priority 3)
-        - If !(`HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`)
+        - If !(`HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`)
 
 `Start` can transit to `Cycle` or `Stop` state, notice that we have different priorities here, for each transition condition, we can have granular control over how the transition should be made, for example, change the transition duration or blend logic.
 
@@ -253,7 +253,7 @@ Applies `BS_MM_Rifle_Jog_Leans` with `AdditiveLeanAngle` as addtive pose to `ALI
 #### Cycle -> Stop
 - `Cycle`
     - Enter `Stop` state
-        - If !(`HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`)
+        - If !(`HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`)
 
 Nothing fancy here, reused the shared condition from `Start` to `Stop`.
 
@@ -268,7 +268,7 @@ Feed `ALI_ItemAnimLayers - FullBody_StopState` while calls `UpdateStopState` on 
         - If `HasAcceleration`
     - Enter `Idle` state
         - Or `LinkedLayerChanged` (Priority 1)
-        - Or `CrouchStateChange` || `ADSStateChanged` (Priority 2)
+        - Or `CrouchStateChange` OR `ADSStateChanged` (Priority 2)
         - Or `AutomaticRule` (Priority 3)
 
 Same as before, the `AutomaticeRule` is here to ensure we won't stuck in the stop state. So far, we have modeled the basic locomotion in a structure if Idle -> Start -> Cycle -> Stop -> Idle, easy to understand.
@@ -276,7 +276,7 @@ Same as before, the `AutomaticeRule` is here to ensure we won't stuck in the sto
 #### PivotSources -> Pivot
 - `PivotSources`
     - Enter `Pivot` state
-        - If ((`LocalVelocity2D` dot `LocalAcceleration2D`) < 0.0) && !`IsRunningIntoWall`
+        - If ((`LocalVelocity2D` dot `LocalAcceleration2D`) < 0.0) AND !`IsRunningIntoWall`
 
 The `PivotSources` is a `State Alias`, it is just a representation of the `Start` and `Cycle` state.
 
@@ -289,87 +289,87 @@ Just a side note here, the way the editor dynamically querys all the user create
 ```cpp
 void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode& AliasNode, IDetailLayoutBuilder& DetailBuilder)
 {
-	ReferenceableStates.Reset();
-	GetReferenceableStates(AliasNode, ReferenceableStates);
+    ReferenceableStates.Reset();
+    GetReferenceableStates(AliasNode, ReferenceableStates);
 
-	if (ReferenceableStates.Num() > 0)
-	{
-		IDetailCategoryBuilder& CategoryBuilder = DetailBuilder.EditCategory(FName(TEXT("State Alias")));
-		CategoryBuilder.AddProperty(GET_MEMBER_NAME_CHECKED(UAnimStateAliasNode, bGlobalAlias));
+    if (ReferenceableStates.Num() > 0)
+    {
+        IDetailCategoryBuilder& CategoryBuilder = DetailBuilder.EditCategory(FName(TEXT("State Alias")));
+        CategoryBuilder.AddProperty(GET_MEMBER_NAME_CHECKED(UAnimStateAliasNode, bGlobalAlias));
 
-		FDetailWidgetRow& HeaderWidgetRow = CategoryBuilder.AddCustomRow(LOCTEXT("SelectAll", "Select All"));
+        FDetailWidgetRow& HeaderWidgetRow = CategoryBuilder.AddCustomRow(LOCTEXT("SelectAll", "Select All"));
 
-		HeaderWidgetRow.NameContent()
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("StateName", "Name"))
-				.Font(IDetailLayoutBuilder::GetDetailFontBold())
-			];
+        HeaderWidgetRow.NameContent()
+            [
+                SNew(STextBlock)
+                .Text(LOCTEXT("StateName", "Name"))
+                .Font(IDetailLayoutBuilder::GetDetailFontBold())
+            ];
 
-		HeaderWidgetRow.ValueContent()
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("SelectAllStatesPropertyValue", "Select All"))
-					.Font(IDetailLayoutBuilder::GetDetailFontBold())
-				]
-				+ SHorizontalBox::Slot()
-				.FillWidth(1.0f)
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Center)
-				[
-					SNew(SCheckBox)
-					.IsChecked(this, &FAnimStateAliasNodeDetails::AreAllStatesAliased)
-					.OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyAliasAllStatesCheckboxChanged)
-					.IsEnabled_Lambda([this]() -> bool 
-						{
-							return !IsGlobalAlias();
-						})
-				]
-			];
+        HeaderWidgetRow.ValueContent()
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .VAlign(VAlign_Center)
+                [
+                    SNew(STextBlock)
+                    .Text(LOCTEXT("SelectAllStatesPropertyValue", "Select All"))
+                    .Font(IDetailLayoutBuilder::GetDetailFontBold())
+                ]
+                + SHorizontalBox::Slot()
+                .FillWidth(1.0f)
+                .HAlign(HAlign_Right)
+                .VAlign(VAlign_Center)
+                [
+                    SNew(SCheckBox)
+                    .IsChecked(this, &FAnimStateAliasNodeDetails::AreAllStatesAliased)
+                    .OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyAliasAllStatesCheckboxChanged)
+                    .IsEnabled_Lambda([this]() -> bool 
+                        {
+                            return !IsGlobalAlias();
+                        })
+                ]
+            ];
 
-		for (auto StateIt = ReferenceableStates.CreateConstIterator(); StateIt; ++StateIt)
-		{
-			const TWeakObjectPtr<UAnimStateNodeBase>& StateNodeWeak = *StateIt;
-			if (const UAnimStateNodeBase* StateNode = StateNodeWeak.Get())
-			{
-				FString StateName = StateNode->GetStateName();
-				FText StateText = FText::FromString(StateName);
+        for (auto StateIt = ReferenceableStates.CreateConstIterator(); StateIt; ++StateIt)
+        {
+            const TWeakObjectPtr<UAnimStateNodeBase>& StateNodeWeak = *StateIt;
+            if (const UAnimStateNodeBase* StateNode = StateNodeWeak.Get())
+            {
+                FString StateName = StateNode->GetStateName();
+                FText StateText = FText::FromString(StateName);
 
-				FDetailWidgetRow& PropertyWidgetRow = CategoryBuilder.AddCustomRow(StateText);
+                FDetailWidgetRow& PropertyWidgetRow = CategoryBuilder.AddCustomRow(StateText);
 
-				PropertyWidgetRow.NameContent()
-					[
-						SNew(STextBlock)
-						.Text(StateText)
-						.ToolTipText(StateText)
-						.Font(IDetailLayoutBuilder::GetDetailFont())
-					];
+                PropertyWidgetRow.NameContent()
+                    [
+                        SNew(STextBlock)
+                        .Text(StateText)
+                        .ToolTipText(StateText)
+                        .Font(IDetailLayoutBuilder::GetDetailFont())
+                    ];
 
-				PropertyWidgetRow.ValueContent()
-					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.FillWidth(1.0f)
-						.HAlign(HAlign_Right)
-						.VAlign(VAlign_Center)
-						[
-							SNew(SCheckBox)
-							.IsChecked(this, &FAnimStateAliasNodeDetails::IsStateAliased, StateNodeWeak)
-							.OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyIsStateAliasedCheckboxChanged, StateNodeWeak)
-							.IsEnabled_Lambda([this]() -> bool 
-								{
-								return !IsGlobalAlias();
-								})
-						]
-					];
-			}
-		}
-	}
+                PropertyWidgetRow.ValueContent()
+                    [
+                        SNew(SHorizontalBox)
+                        + SHorizontalBox::Slot()
+                        .FillWidth(1.0f)
+                        .HAlign(HAlign_Right)
+                        .VAlign(VAlign_Center)
+                        [
+                            SNew(SCheckBox)
+                            .IsChecked(this, &FAnimStateAliasNodeDetails::IsStateAliased, StateNodeWeak)
+                            .OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyIsStateAliasedCheckboxChanged, StateNodeWeak)
+                            .IsEnabled_Lambda([this]() -> bool 
+                                {
+                                return !IsGlobalAlias();
+                                })
+                        ]
+                    ];
+            }
+        }
+    }
 }
 ```
 
@@ -383,7 +383,7 @@ Applies `BS_MM_Rifle_Jog_Leans` with `AdditiveLeanAngle` as addtive pose to `ALI
     - Enter `Cycle` state
         - If `LinkedLayerChanged` (Priority 1)
         - Or `WasAnimNotifyStateActiveInSourceState(TransitionToLocomotion)` (Priority 2)
-        - Or `CrouchStateChange` || `ADSStateChanged` || (`IsMovingPerpendicularToInitialPivor` && (`LastPivotTime <= 0.0`)) (Priority 3)
+        - Or `CrouchStateChange` OR `ADSStateChanged` OR (`IsMovingPerpendicularToInitialPivor` AND (`LastPivotTime <= 0.0`)) (Priority 3)
     - Enter `Stop` state
         - If !`HasAcceleration`
 

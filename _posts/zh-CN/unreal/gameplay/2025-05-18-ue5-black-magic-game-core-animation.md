@@ -196,7 +196,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 然后是 `DisableLegIK`，这也是一条曲线，通常用于冲刺动画中。当玩家在空中冲刺时，我们不希望应用腿部 IK。
 
-![Foot Placement](foot-placement.png){: width="600"}
+![Foot Placement](foot_placement.png){: width="600"}
 
 #### 武器缩放（Scaling Down Weapon）
 最后一个部分是 `ScalingDownWeapon`，这是一条在装备动画中使用的曲线。在玩家抽出武器时，实际上是把武器从缩放为 0 的状态放大到正常大小。我不太确定这是不是最佳实践，但至少它能实现目标……
@@ -234,7 +234,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 #### Idle -> Start
 - `Idle`
     - 切换到 `Start` 状态：
-        - 如果 `HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`
+        - 如果 `HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`
 
 也就是说，只要玩家有加速，或是近战状态下有速度，就会从 `Idle` 切换到 `Start` 状态。
 
@@ -253,9 +253,9 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
         - 如果 `Abs(RootYawOffset)` > 60（优先级 1）
         - 或者 `LinkedLayerChanged`（优先级 1）
         - 或者 `AutomaticRule`（优先级 2）
-        - 或者 `(StartDirection != LocalVelocityDirection)` || `CrouchStateChange` || `ADSStateChanged` || `(CurrentStateTime(LocomotionSM) > 0.15 && DisplacementSpeed < 10.0)`
+        - 或者 `(StartDirection != LocalVelocityDirection)` OR `CrouchStateChange` OR `ADSStateChanged` OR `(CurrentStateTime(LocomotionSM) > 0.15 AND DisplacementSpeed < 10.0)`
     - 进入 `Stop` 状态（优先级 3）：
-        - 如果不是 (`HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`)
+        - 如果不是 (`HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`)
 
 从上面可以看到，`Start` 状态可以转向 `Cycle` 或 `Stop` 状态。注意我们为不同的切换条件设置了不同的优先级，这样可以精细地控制状态切换逻辑，比如指定过渡时间或混合方式。
 
@@ -271,7 +271,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 #### Cycle -> Stop
 - `Cycle`
     - 进入 `Stop` 状态：
-        - 如果不是 (`HasAcceleration` || `(GameplayTag_IsMelee && HasVelocity)`)
+        - 如果不是 (`HasAcceleration` OR `(GameplayTag_IsMelee AND HasVelocity)`)
 
 这里就比较简单了，和从 `Start` 到 `Stop` 的条件是共用的。
 
@@ -286,7 +286,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
         - 如果 `HasAcceleration`
     - 进入 `Idle` 状态：
         - 如果 `LinkedLayerChanged`（优先级 1）
-        - 或者 `CrouchStateChange` || `ADSStateChanged`（优先级 2）
+        - 或者 `CrouchStateChange` OR `ADSStateChanged`（优先级 2）
         - 或者 `AutomaticRule`（优先级 3）
 
 逻辑基本一致，同样通过 `AutomaticRule` 保证状态不会卡死。目前为止，我们已经形成一个非常清晰的循环结构：
@@ -296,7 +296,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 #### PivotSources -> Pivot
 - `PivotSources`
     - 切换到 `Pivot` 状态：
-        - 如果 ((`LocalVelocity2D` dot `LocalAcceleration2D`) < 0.0) && !`IsRunningIntoWall`
+        - 如果 ((`LocalVelocity2D` dot `LocalAcceleration2D`) < 0.0) AND !`IsRunningIntoWall`
 
 `PivotSources` 是一个 `State Alias`，表示可以从 `Start` 和 `Cycle` 状态切入。
 
@@ -309,87 +309,87 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 ```cpp
 void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode& AliasNode, IDetailLayoutBuilder& DetailBuilder)
 {
-	ReferenceableStates.Reset();
-	GetReferenceableStates(AliasNode, ReferenceableStates);
+    ReferenceableStates.Reset();
+    GetReferenceableStates(AliasNode, ReferenceableStates);
 
-	if (ReferenceableStates.Num() > 0)
-	{
-		IDetailCategoryBuilder& CategoryBuilder = DetailBuilder.EditCategory(FName(TEXT("State Alias")));
-		CategoryBuilder.AddProperty(GET_MEMBER_NAME_CHECKED(UAnimStateAliasNode, bGlobalAlias));
+    if (ReferenceableStates.Num() > 0)
+    {
+        IDetailCategoryBuilder& CategoryBuilder = DetailBuilder.EditCategory(FName(TEXT("State Alias")));
+        CategoryBuilder.AddProperty(GET_MEMBER_NAME_CHECKED(UAnimStateAliasNode, bGlobalAlias));
 
-		FDetailWidgetRow& HeaderWidgetRow = CategoryBuilder.AddCustomRow(LOCTEXT("SelectAll", "Select All"));
+        FDetailWidgetRow& HeaderWidgetRow = CategoryBuilder.AddCustomRow(LOCTEXT("SelectAll", "Select All"));
 
-		HeaderWidgetRow.NameContent()
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("StateName", "Name"))
-				.Font(IDetailLayoutBuilder::GetDetailFontBold())
-			];
+        HeaderWidgetRow.NameContent()
+            [
+                SNew(STextBlock)
+                .Text(LOCTEXT("StateName", "Name"))
+                .Font(IDetailLayoutBuilder::GetDetailFontBold())
+            ];
 
-		HeaderWidgetRow.ValueContent()
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("SelectAllStatesPropertyValue", "Select All"))
-					.Font(IDetailLayoutBuilder::GetDetailFontBold())
-				]
-				+ SHorizontalBox::Slot()
-				.FillWidth(1.0f)
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Center)
-				[
-					SNew(SCheckBox)
-					.IsChecked(this, &FAnimStateAliasNodeDetails::AreAllStatesAliased)
-					.OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyAliasAllStatesCheckboxChanged)
-					.IsEnabled_Lambda([this]() -> bool 
-						{
-							return !IsGlobalAlias();
-						})
-				]
-			];
+        HeaderWidgetRow.ValueContent()
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .VAlign(VAlign_Center)
+                [
+                    SNew(STextBlock)
+                    .Text(LOCTEXT("SelectAllStatesPropertyValue", "Select All"))
+                    .Font(IDetailLayoutBuilder::GetDetailFontBold())
+                ]
+                + SHorizontalBox::Slot()
+                .FillWidth(1.0f)
+                .HAlign(HAlign_Right)
+                .VAlign(VAlign_Center)
+                [
+                    SNew(SCheckBox)
+                    .IsChecked(this, &FAnimStateAliasNodeDetails::AreAllStatesAliased)
+                    .OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyAliasAllStatesCheckboxChanged)
+                    .IsEnabled_Lambda([this]() -> bool 
+                        {
+                            return !IsGlobalAlias();
+                        })
+                ]
+            ];
 
-		for (auto StateIt = ReferenceableStates.CreateConstIterator(); StateIt; ++StateIt)
-		{
-			const TWeakObjectPtr<UAnimStateNodeBase>& StateNodeWeak = *StateIt;
-			if (const UAnimStateNodeBase* StateNode = StateNodeWeak.Get())
-			{
-				FString StateName = StateNode->GetStateName();
-				FText StateText = FText::FromString(StateName);
+        for (auto StateIt = ReferenceableStates.CreateConstIterator(); StateIt; ++StateIt)
+        {
+            const TWeakObjectPtr<UAnimStateNodeBase>& StateNodeWeak = *StateIt;
+            if (const UAnimStateNodeBase* StateNode = StateNodeWeak.Get())
+            {
+                FString StateName = StateNode->GetStateName();
+                FText StateText = FText::FromString(StateName);
 
-				FDetailWidgetRow& PropertyWidgetRow = CategoryBuilder.AddCustomRow(StateText);
+                FDetailWidgetRow& PropertyWidgetRow = CategoryBuilder.AddCustomRow(StateText);
 
-				PropertyWidgetRow.NameContent()
-					[
-						SNew(STextBlock)
-						.Text(StateText)
-						.ToolTipText(StateText)
-						.Font(IDetailLayoutBuilder::GetDetailFont())
-					];
+                PropertyWidgetRow.NameContent()
+                    [
+                        SNew(STextBlock)
+                        .Text(StateText)
+                        .ToolTipText(StateText)
+                        .Font(IDetailLayoutBuilder::GetDetailFont())
+                    ];
 
-				PropertyWidgetRow.ValueContent()
-					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.FillWidth(1.0f)
-						.HAlign(HAlign_Right)
-						.VAlign(VAlign_Center)
-						[
-							SNew(SCheckBox)
-							.IsChecked(this, &FAnimStateAliasNodeDetails::IsStateAliased, StateNodeWeak)
-							.OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyIsStateAliasedCheckboxChanged, StateNodeWeak)
-							.IsEnabled_Lambda([this]() -> bool 
-								{
-								return !IsGlobalAlias();
-								})
-						]
-					];
-			}
-		}
-	}
+                PropertyWidgetRow.ValueContent()
+                    [
+                        SNew(SHorizontalBox)
+                        + SHorizontalBox::Slot()
+                        .FillWidth(1.0f)
+                        .HAlign(HAlign_Right)
+                        .VAlign(VAlign_Center)
+                        [
+                            SNew(SCheckBox)
+                            .IsChecked(this, &FAnimStateAliasNodeDetails::IsStateAliased, StateNodeWeak)
+                            .OnCheckStateChanged(this, &FAnimStateAliasNodeDetails::OnPropertyIsStateAliasedCheckboxChanged, StateNodeWeak)
+                            .IsEnabled_Lambda([this]() -> bool 
+                                {
+                                return !IsGlobalAlias();
+                                })
+                        ]
+                    ];
+            }
+        }
+    }
 }
 ```
 
@@ -403,7 +403,7 @@ void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode&
     - 进入 `Cycle` 状态：
         - 如果 `LinkedLayerChanged`（优先级 1）
         - 或者 `WasAnimNotifyStateActiveInSourceState(TransitionToLocomotion)`（优先级 2）
-        - 或者 `CrouchStateChange` || `ADSStateChanged` || (`IsMovingPerpendicularToInitialPivor` && (`LastPivotTime <= 0.0)`))（优先级 3）
+        - 或者 `CrouchStateChange` OR `ADSStateChanged` OR (`IsMovingPerpendicularToInitialPivor` AND (`LastPivotTime <= 0.0)`))（优先级 3）
     - 进入 `Stop` 状态：
         - 如果不是 `HasAcceleration`
 
