@@ -28,7 +28,7 @@ In short, there are 4 main counterparts in the animation system:
 - `Animation Linked Interface` - A shared protocol for the animation blueprints involved, it defines a common contract, for each `ALI` function, we can input something (Or usually nothing), and return out an animation pose
 - `Animation Blueprint` - The main logic that determines what state should we be in, and get one interface function from the `ALI` to presume that the animation needed here will be injected some time in the future. This class constructed a logic framework and connects animations with a virtual hook point. It only cares about what arbitrary animation should be played at what time, without caring about the actual animation assets.
 - `Animation Linked Layer Base` - The base class that actually implements each `ALI` interface, but still doesn't contain any animation assets, instead, all animation assets are variables. This class constructed a data binding flow, that binds the virtual hook point, to virtual animation assets. It only cares about what animation assets should be used per interface function, without caring about who would use it.
-- `Animation Linked Layer` - The actual animation assets that are being injected into the `Animation Linked Layer Base`. Since it inherits from the `Animation Linked Layer Base`, there's no need to implement any further logics, so think of it as a data container. This class provides all the data that the `AnimLLB` needs, hence `AnimLLB` would dynamically output an animation pose for `AnimBP` through `ALI`, eventually feed back to the `AnimBP` and finally output to the skeleton mesh.
+- `Animation Linked Layer` - The actual animation assets that are being injected into the character used `Animation Blueprint`. Since it inherits from the `Animation Linked Layer Base`, there's no need to implement any further logics, so think of it as a data container. This class provides all the data that the `AnimLLB` needs, hence `AnimLLB` would dynamically output an animation pose for `AnimBP` through `ALI`, eventually feed back to the `AnimBP` and finally output to the skeleton mesh.
 
 Sounds complicated but once you get the hang of it, it's actually quite simple. The benefit of this approach is very obvious, want to add 20 types of weapons without letting an animation blueprint to load all the assets? Not felling like duplicating the same logic over and over again? Hate to debug animation and write error prone logic? Want multiple teammates to work together? Well this is the savior.
 
@@ -49,7 +49,7 @@ In order to have all these decisions (when to play what) to be made, we are cons
 
 Ultimately, we are trying to decide which pose should we playing now (in `Anim Graph`), based on the data we have (in `Event Graph` and/or `functions`).
 
-To echo with the first section, we have mentioned that this class is merely a framework, it doesn't contain any animation assets. The actual animation assets are being dynamically injected into the `Animation Blueprint` as an `Animation Linked Layer`. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used. In fact, here's the comment left by Epic:
+To echo with the first section, we have mentioned that this class is merely a framework, it doesn't contain any animation assets. The actual animation assets are being dynamically injected into the character used `Animation Blueprint` as an `Animation Linked Layer`. This allows for a modular approach to animation, where different layers can be swapped in and out depending on the character's state or the weapon being used. In fact, here's the comment left by Epic:
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #3</div>
@@ -80,7 +80,9 @@ In the implementation, we can see that the pose from `locomotion` state machine 
 
 ![Left Fingers Blend Mask](left_fingers_blend_mask.png){: width="600"}
 
-To this point, we kinda know what is actually happening here, some weapons might have a different grip, that when we snap our left hand to the weapon, few fingers might overlapping with the mesh (Like an AR is thinner, yet a shotgun is thicker). So we procedurally bend the fingers to match the weapon mesh.
+To this point, we kinda know what is actually happening here, some weapons might have a different grip attachments, that when we snap our left hand to the weapon, few fingers might overlapping with the mesh (Like a Vertical Grip, Angled Forward Grip, etc). So we procedurally bend the fingers to match the weapon (attachment) mesh.
+
+![Left Hand Pose Override](left_hand_pose_override_2.png){: width="800"}
 
 How much should we blend them? Well here we bind function `SetLeftHandPoseOverrideWeight` to the node, that will be called everytime this node updates. It's not rocket science, basically just read a few variables set from the instance, who did it? Shotgun.
 
@@ -97,7 +99,7 @@ This is done by a `LayeredBlendPerBone` node as well, which allows us to blend d
 
 There're two types of `Montage`, additive and regular. Stuff like shooting are usually `Additive` (Full body additive), our locomotion would modify the whole body already, and upon whatever pose we have, we are just gonna add another shooting motion to it. In Lyra, firing is a `FullBodyAdditivePreAim` slot montage
 
-And the other type is regular, just like fancy dance, it doesn't really care where the player is looking at, as it will take over the skeleton. Emote dancing montage is at slot `UpperBody`
+And the other type is regular, just like fancy dance, it doesn't really care where the player is looking at, as it will take over the skeleton. Emote dancing montage is at slot `FullBody`
 
 Reloading and throwing grenade is a bit special, the montage have both `UpperBody` and `UpperBodyAdditive` slots.
 
@@ -577,7 +579,7 @@ After the yaw offset is too large, a correction animation will be played to rese
 
 <div class="box-info" markdown="1">
 <div class="title"> TurnInPlace #5</div>
-When the yaw offset gets too big, we trigger TurnInPlace animations to rotate the character back. E.g. if the camera is rotated 90 degrees to the right, it will be facing the character's right shoulder. If we play an animation that rotates the character 90 degrees to the left, the character will once again be facing away from the camera.
+When the yaw offset gets too big, we trigger `TurnInPlace` animations to rotate the character back. E.g. if the camera is rotated 90 degrees to the right, it will be facing the character's right shoulder. If we play an animation that rotates the character 90 degrees to the left, the character will once again be facing away from the camera.
 We use the "`TurnYawAnimModifier`" animation modifier to generate the necessary curves on each `TurnInPlace` animation.
 See `ABP_ItemAnimLayersBase` for examples of triggering `TurnInPlace` animations.
 </div>

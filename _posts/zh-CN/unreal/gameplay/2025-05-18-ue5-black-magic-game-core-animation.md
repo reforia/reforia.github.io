@@ -28,7 +28,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 - `Animation Linked Interface` - 各个动画蓝图之间共享的协议，定义了一套统一的接口。对于每个 `ALI` 函数，我们可以传入某些参数（通常为空），并返回一个动画姿势（Pose）；
 - `Animation Blueprint` - 决定我们当前处于哪个状态，并调用某个 `ALI` 接口函数以假设未来某一时刻将注入一个姿势。这个类构建的是逻辑框架，通过虚拟钩子连接动画，仅关注“何时该播放什么样的动画”，而不关心实际动画资源是什么；
 - `Animation Linked Layer Base` - 实现每个 `ALI` 接口的基础类，仍不包含动画资源，所有动画都只是变量。它构建的是数据绑定流程，将虚拟钩子点绑定到虚拟动画资源，只负责“该用什么动画资源”，而不管“谁使用这些动画”；
-- `Animation Linked Layer` - 真正的动画资源所在，被注入到 `Animation Linked Layer Base` 中。因为继承自 `LLB`，不需要再实现任何逻辑，可以看作一个纯数据容器。它提供了所有 `AnimLLB` 需要的数据，`AnimLLB` 会通过 `ALI` 动态输出姿势给 `AnimBP`，最终驱动骨骼网格。
+- `Animation Linked Layer` - 真正的动画资源所在，被注入到角色使用的 `Animation Blueprint` 中。因为继承自 `LLB`，不需要再实现任何逻辑，可以看作一个纯数据容器。它提供了所有 `AnimLLB` 需要的数据，`AnimLLB` 会通过 `ALI` 动态输出姿势给 `AnimBP`，最终驱动骨骼网格。
 
 听上去有些复杂，但熟悉后其实很清楚。这种做法的优势非常明显：想支持 20 种武器又不想一个 `AnimBP` 加载所有资源？不想重复写相同逻辑？动画调试容易出错？想让多个队友并行工作？这就是解决方案。
 
@@ -82,7 +82,9 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 ![Left Fingers Blend Mask](left_fingers_blend_mask.png){: width="600"}
 
-到这里，我们大致明白了这一段在做什么：不同武器可能有不同的握持方式，比如 AR 比较窄，Shotgun 比较厚。当左手吸附到武器上时，手指可能会穿模。所以我们通过程序对手指进行微调，使它们贴合武器模型。
+到这里，我们大致明白了这一段在做什么：不同武器可能有不同的握持方式，比如下挂握把，垂直握把，三角握把。当左手吸附到武器上时，如果握持方式不正确，手指可能会穿模。所以我们通过程序对手指进行微调，使它们贴合武器模型。
+
+![Left Hand Pose Override](left_hand_pose_override_2.png){: width="800"}
 
 那该混合多少？这里我们绑定了一个函数 `SetLeftHandPoseOverrideWeight`，每次该节点更新时都会调用它。逻辑不复杂，就是读取几个变量，这些变量是谁设置的？Shotgun。
 
@@ -103,7 +105,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 在 Lyra 中，射击使用的是 `FullBodyAdditivePreAim` 的 slot。
 
-另一类就是 Regular，比如跳舞的动作，它们不会考虑角色当前朝向，而是完全接管整个骨骼。比如 Emote 的跳舞动作会使用 `UpperBody` 这个 slot。
+另一类就是 Regular，比如跳舞的动作，它们不会考虑角色当前朝向，而是完全接管整个骨骼。比如 Emote 的跳舞动作会使用 `FullBody` 这个 slot。
 
 而像换弹或投掷手雷这类稍复杂的动作，则会同时使用 `UpperBody` 和 `UpperBodyAdditive` 两个 slot。
 
@@ -239,7 +241,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 也就是说，只要玩家有加速，或是近战状态下有速度，就会从 `Idle` 切换到 `Start` 状态。
 
 #### Start 状态
-会将 `BS_MM_Rifle_Jog_Leans` 动画（带有 `AdditiveLeanAngle`）作为叠加姿势应用到 `ALI_ItemAnimLayers - FullBody_StartState`，进入状态时调用 `SetUpStartState`，更新时调用 `UpdateStartState`。
+会将 `BS_MM_Rifle_Jog_Leans` 动画（由 `AdditiveLeanAngle` 驱动）作为叠加姿势应用到 `ALI_ItemAnimLayers - FullBody_StartState`，进入状态时调用 `SetUpStartState`，更新时调用 `UpdateStartState`。
 
 这个状态代表角色起步跑动，`BecomeRelevant` 类似于 “进入状态时”，而 `OnInitialUpdate` 更像是 “刚刚进入状态前的一帧”。
 
@@ -609,7 +611,7 @@ void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode&
 
 <div class="box-info" markdown="1">
 <div class="title"> TurnInPlace #5</div>
-当 yaw 偏移过大时，我们会触发 TurnInPlace 动画，让角色转回来。例如，摄像机向右转了 90 度，会让角色正对摄像机的右肩。如果我们播放一个向左转 90 度的动画，角色又会回到面对镜头的方向。
+当 `yaw` 偏移过大时，我们会触发 `TurnInPlace` 动画，让角色转回来。例如，摄像机逆时针旋转了 90 度，会让摄像机正对角色的右肩。如果我们播放一个向左转 90 度的动画，角色又会回到背对镜头的方向。
 我们使用 "`TurnYawAnimModifier`" 这个动画修饰器，在每个 `TurnInPlace` 动画中生成所需的曲线。
 具体触发逻辑可以参考 `ABP_ItemAnimLayersBase`。
 </div>
