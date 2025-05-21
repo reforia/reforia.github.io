@@ -282,7 +282,7 @@ Same as before, the `AutomaticeRule` is here to ensure we won't stuck in the sto
 
 The `PivotSources` is a `State Alias`, it is just a representation of the `Start` and `Cycle` state.
 
-![Pivot Sources](pivot_sources.png){: width="800"}
+![Pivot Sources](pivot_sources.png){: width="600"}
 
 This is used to blend a drastic change in direction (Opposite direction).
 

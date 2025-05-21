@@ -302,7 +302,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 `PivotSources` 是一个 `State Alias`，表示可以从 `Start` 和 `Cycle` 状态切入。
 
-![Pivot Sources](pivot_sources.png){: width="800"}
+![Pivot Sources](pivot_sources.png){: width="600"}
 
 这个状态用于处理“反向加速”的场景，即朝当前移动方向的反方向加速，适用于急转身动作。
 
