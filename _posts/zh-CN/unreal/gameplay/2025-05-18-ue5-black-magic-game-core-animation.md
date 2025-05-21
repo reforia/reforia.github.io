@@ -44,7 +44,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 ## 动画蓝图结构（Animation Blueprint Structure）
 这个类初看起来可能有些压迫感，的确内容不少。但我们不要被吓到，还是按照步骤慢慢拆解。
 
-首先我们要明确一点，一个 `Animation Blueprint` 的根本职责其实很简单：告诉当前帧骨骼要做什么。每一帧，它只是在输出一个姿势（Pose）。这个姿势背后当然有一大堆逻辑，比如 IK、姿态切换、程序控制等等，但本质上它的任务没变——一个 `AnimGraph` 通常包括一个 `locomotion` 状态机，再经过一些预处理、后处理、混合、叠加等步骤，最后输出最终的姿势。
+首先我们要明确一点，一个 `Animation Blueprint` 的根本职责其实很简单：告诉当前帧骨骼要做什么。每一帧，它只是在输出一个姿势（`Pose`）。这个姿势背后当然有一大堆逻辑，比如 IK、姿态切换、程序控制等等，但本质上它的任务没变——一个 `AnimGraph` 通常包括一个 `locomotion` 状态机，再经过一些预处理、后处理、混合、叠加等步骤，最后输出最终的姿势。
 
 为了做出“播放哪个动画”的决策，我们会不断从角色身上，甚至是从整个游戏中拉取数据。
 
@@ -101,18 +101,18 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 ![Upper Lower Body](upper_lower_body_blend.png){: width="800"}
 
-在 Lyra 中，Montage 分为两种：Additive（叠加） 和 Regular（非叠加）。像射击这种通常属于 `Additive`（全身叠加），因为我们的 locomotion 已经控制了整个身体，所以我们只是在已有的姿势上添加一个射击动作。
+在 Lyra 中，`Montage` 分为两种：`Additive`（叠加） 和 `Regular`（非叠加）。像射击这种通常属于 `Additive`（全身叠加），因为我们的 `locomotion` 已经控制了整个身体，所以我们只是在已有的姿势上添加一个射击动作。
 
 在 Lyra 中，射击使用的是 `FullBodyAdditivePreAim` 的 slot。
 
-另一类就是 Regular，比如跳舞的动作，它们不会考虑角色当前朝向，而是完全接管整个骨骼。比如 Emote 的跳舞动作会使用 `FullBody` 这个 slot。
+另一类就是 `Regular`，比如跳舞的动作，它们不会考虑角色当前朝向，而是完全接管整个骨骼。比如 Emote 的跳舞动作会使用 `FullBody` 这个 slot。
 
 而像换弹或投掷手雷这类稍复杂的动作，则会同时使用 `UpperBody` 和 `UpperBodyAdditive` 两个 slot。
 
 #### Additive Blend
-首先我们使用缓存下来的 `Locomotion` 姿势，然后通过 `ApplyAdditive` 节点将其与 `UpperBodyAdditive` slot 的 Montage 叠加。这相当于说：“在当前 locomotion 姿势上，加上当前播放在上半身的 montage。”
+首先我们使用缓存下来的 `Locomotion` 姿势，然后通过 `ApplyAdditive` 节点将其与 `UpperBodyAdditive` slot 的 `Montage` 叠加。这相当于说：“在当前 locomotion 姿势上，加上当前播放在上半身的 montage。”
 
-注意我们在 slot 中传入了一个 `AdditiveIdentityPose` 节点，这个节点的作用是：当没有动画需要叠加时，保持原姿势不变。也就是说，identity pose 不会对目标姿势造成任何改动。
+注意我们在 slot 中传入了一个 `AdditiveIdentityPose` 节点，这个节点的作用是：当没有动画需要叠加时，保持原姿势不变。也就是说，`identity pose` 不会对目标姿势造成任何改动。
 
 那这个叠加量是多少呢？是通过变量 `UpperbodyDynamicAdditiveWeight` 控制的，下面是它的更新逻辑：
 
@@ -141,7 +141,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 #### FullBodyAdditivePreAim
 我们已经将 `UpperBody` slot 分离出来，并与 `Locomotion` 姿势进行混合，接着 Lyra 会把一切再送入另一个 slot —— `FullBodyAdditivePreAim`。这个 slot 用于处理所有的射击动画、后坐力等效果。
 
-这部分是通过在射击动画中添加一个 `AnimNotify` 来触发的，同时播放另一个 Montage 到 `FullBodyAdditivePreAim` slot 上。
+这部分是通过在射击动画中添加一个 `AnimNotify` 来触发的，同时播放另一个 `Montage` 到 `FullBodyAdditivePreAim` slot 上。
 
 ![FullBodyAdditivePreAim](FullBodyAdditivePreAim.png)
 
@@ -306,7 +306,7 @@ Epic 也写了一篇文档 [Animations In Lyra] 以供阅读. 总的来说，整
 
 这个状态用于处理“反向加速”的场景，即朝当前移动方向的反方向加速，适用于急转身动作。
 
-顺带一提，编辑器中可以在 Details 面板中列出所有状态别名（State Alias），这些是通过自定义的 Editor Slate 实现的。
+顺带一提，编辑器中可以在 `Details` 面板中列出所有状态别名（`State Alias`），这些是通过自定义的 `Editor Slate` 实现的。
 
 ```cpp
 void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode& AliasNode, IDetailLayoutBuilder& DetailBuilder)
@@ -598,7 +598,7 @@ void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode&
 
 <div class="box-info" markdown="1">
 <div class="title"> TurnInPlace #3</div>
-我们对 yaw 偏移做了限制，因为当偏移角度过大时，角色必须把武器瞄得很靠后，会导致脊椎过度扭曲。虽然原地转向动画通常能跟得上偏移，但这个限制依然会导致快速旋转摄像机时脚步滑动。
+我们对 `yaw` 偏移做了限制，因为当角色把武器瞄得很靠后,偏移角度过大时，，会导致脊椎过度扭曲。虽然原地转向动画通常能跟得上偏移，但这个限制依然会导致快速旋转摄像机时脚步滑动。
 如果愿意，这个限制也可以替换成更大角度的瞄准动画，或者更频繁地触发转身动画。
 </div>
 
@@ -664,7 +664,7 @@ protected:
 
 要理解这个类的意义，我们需要先看看它的初始化流程：在 `NativeInitializeAnimation` 中，我们从角色中获取 `ASC`（Ability System Component），并调用 `InitializeWithAbilitySystem` 来初始化 `GameplayTagPropertyMap`。
 
-这会创建一个 `FGameplayTag` 到类内变量的映射，每当 Tag 状态发生变化时，系统就会自动同步对应的属性值。这就像我们平常写的 `OnTagChanged` 回调，只不过这里是自动处理的。
+这会创建一个 `FGameplayTag` 到类内变量的映射，每当 `Tag` 状态发生变化时，系统就会自动同步对应的属性值。这就像我们平常写的 `OnTagChanged` 回调，只不过这里是自动处理的。
 
 ```cpp
 void ULyraAnimInstance::NativeInitializeAnimation()
@@ -791,7 +791,7 @@ void ULyraAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 在 IK 修正的章节中已经分析过，此处不再重复。
 
 #### FullBodyAdditives
-这里有三个状态机，`Identity` 和 `AirIdentity` 状态中是空的，正如其名，它们代表“无动作”，也就是 Identity Pose，加到任何姿势上都不会产生变化。
+这里有三个状态机，`Identity` 和 `AirIdentity` 状态中是空的，正如其名，它们代表“无动作”，也就是 `Identity Pose`，加到任何姿势上都不会产生变化。
 
 ![Full Body Additives SM](full_body_addtives_sm.png){: width="800"}
 
@@ -859,8 +859,8 @@ Epic 对这部分也有解释：
 <div class="box-info" markdown="1">
 <div class="title"> TurnInPlace #6 (also see AnimBP_Mannequin_Base)</div>
 当 yaw 偏移足够大时，我们会触发一个 TurnInPlace 动画将角色转回来。
-这些动画通常在转身结束时还会有一个收尾动作。此时我们会切换到 TurnInPlaceRecovery 状态。
-如果此时角色又继续转动摄像机，我们会直接回到 TurnInPlace 状态，避免必须等收尾动作播完。
+这些动画通常在转身结束时还会有一个收尾动作。此时我们会切换到 `TurnInPlaceRecovery` 状态。
+如果此时角色又继续转动摄像机，我们会直接回到 `TurnInPlace` 状态，避免必须等收尾动作播完。
 </div>
 
 #### FullBody_StartState
@@ -869,9 +869,9 @@ Epic 对这部分也有解释：
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #8</div>
-这是一个使用 Anim Node Functions 的示例。
-Anim Node Functions 可以在动画节点中运行，并且只在节点激活时执行，这样可以将逻辑局部化到特定节点或状态。
-在这个例子中，一个 Anim Node Function 会在节点变为有效时选择要播放的动画，另一个用于控制播放速率。
+这是一个使用 `Anim Node Functions` 的示例。
+`Anim Node Functions` 可以在动画节点中运行，并且只在节点激活时执行，这样可以将逻辑局部化到特定节点或状态。
+在这个例子中，一个 `Anim Node Function` 会在节点变为有效时选择要播放的动画，另一个用于控制播放速率。
 </div>
 
 这一点我们已经在前面多个状态中看到过了，现在应该已经不陌生了。
@@ -885,9 +885,9 @@ Anim Node Functions 可以在动画节点中运行，并且只在节点激活时
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #9</div>
-这是使用 Distance Matching 的一个示例，它可以确保起步动画中移动的距离和角色实际移动距离一致。这种做法可以让动画和运动模型保持同步，从而消除脚部滑动。
-这实际上等于通过动画播放速度的控制来匹配运动。虽然我们对播放速度做了限制，但如果速度还是不对，就用 Stride Warping 来进一步修正。
-要使用这些函数需要启用 Animation Locomotion Library 插件。
+这是使用 `Distance Matching` 的一个示例，它可以确保起步动画中移动的距离和角色实际移动距离一致。这种做法可以让动画和运动模型保持同步，从而消除脚部滑动。
+这实际上等于通过动画播放速度的控制来匹配运动。虽然我们对播放速度做了限制，但如果速度还是不对，就用 `Stride Warping` 来进一步修正。
+要使用这些函数需要启用 `Animation Locomotion Library` 插件。
 </div>
 
 幸运的是，Epic 已经将这些复杂功能封装成了两个节点：`Orientation Warping` 和 `Stride Warping`。
@@ -899,19 +899,19 @@ Anim Node Functions 可以在动画节点中运行，并且只在节点激活时
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #10</div>
 这是一个对角色动画姿势进行 Warp 的示例，确保角色动画方向与实际运动方向一致。
-Orientation Warping 会旋转角色下半身，使其朝向和实际移动方向一致。我们只需要提供前/后/左/右四个基础方向，其余通过 Warping 插值完成。
+`Orientation Warping` 会旋转角色下半身，使其朝向和实际移动方向一致。我们只需要提供前/后/左/右四个基础方向，其余通过 Warping 插值完成。
 它还会重新对齐角色上半身，保证角色依然面朝摄像机方向。
-Stride Warping 用于调整步伐长度，当动画的预设速度和角色真实速度不一致时尤为重要。
-这些功能需要启用 Animation Warping 插件。
+`Stride Warping` 用于调整步伐长度，当动画的预设速度和角色真实速度不一致时尤为重要。
+这些功能需要启用 `Animation Warping` 插件。
 </div>
 
 #### FullBody_CycleState
 
-在 UE4 中，我们可能会用一个 2D Blendspace 来处理角色奔跑动画。但在 Lyra 中，这个状态处理得更精细。
+在 UE4 中，我们可能会用一个 `2D Blendspace` 来处理角色奔跑动画。但在 Lyra 中，这个状态处理得更精细。
 
 除了继续使用 `Stride Warping` 和 `Orientation Warping` 外，动画资源的选择是通过一个叫 `UpdateCycleAnim` 的函数完成的，它会根据当前计算出的 `CardinalDirection`（方向象限）来选择动画。
 
-同时也会调用 `SetPlayrateToMatchSpeed`，通过动态调整播放速度来匹配移动速度（与传统 Blendspace 的思路类似）。
+同时也会调用 `SetPlayrateToMatchSpeed`，通过动态调整播放速度来匹配移动速度（与传统 `Blendspace` 的思路类似）。
 
 ![Set Playrate](set_cycle_anim_playrate.png)
 
@@ -993,9 +993,9 @@ Stride Warping 用于调整步伐长度，当动画的预设速度和角色真�
 
 ### 总结（Takeaways）
 
-呼——终于讲完了！虽然过程挺硬核的，但能看到 Epic 是怎么实现这样一个完整动画系统的，确实非常让人受益。
+呼——终于讲完了！虽然过程挺硬核的，但能看到 `Epic` 是怎么实现这样一个完整动画系统的，确实非常让人受益。
 
-虽然这些技术在 AAA 项目中可能很常见，但对于独立开发者来说，显然远远超出了实际所需的复杂度。
+虽然这些技术在 `AAA` 项目中可能很常见，但对于独立开发者来说，显然远远超出了实际所需的复杂度。
 
 所以如果你在做一个个人或小团队的项目，建议是**学习这个架构背后的工程思维**，而不是照搬这套系统本身。比如：
 

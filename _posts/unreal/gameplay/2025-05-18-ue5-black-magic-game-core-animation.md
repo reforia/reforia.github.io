@@ -97,9 +97,9 @@ This is done by a `LayeredBlendPerBone` node as well, which allows us to blend d
 
 ![Upper Lower Body](upper_lower_body_blend.png){: width="800"}
 
-There're two types of `Montage`, additive and regular. Stuff like shooting are usually `Additive` (Full body additive), our locomotion would modify the whole body already, and upon whatever pose we have, we are just gonna add another shooting motion to it. In Lyra, firing is a `FullBodyAdditivePreAim` slot montage
+There're two types of `Montage`, `additive` and `regular`. Stuff like shooting are usually `Additive` (`Full body additive`), our locomotion would modify the whole body already, and upon whatever pose we have, we are just gonna add another shooting motion to it. In Lyra, firing is a `FullBodyAdditivePreAim` slot montage
 
-And the other type is regular, just like fancy dance, it doesn't really care where the player is looking at, as it will take over the skeleton. Emote dancing montage is at slot `FullBody`
+And the other type is `regular`, just like fancy dance, it doesn't really care where the player is looking at, as it will take over the skeleton. Emote dancing montage is at slot `FullBody`
 
 Reloading and throwing grenade is a bit special, the montage have both `UpperBody` and `UpperBodyAdditive` slots.
 
@@ -286,7 +286,7 @@ The `PivotSources` is a `State Alias`, it is just a representation of the `Start
 
 This is used to blend a drastic change in direction (Opposite direction).
 
-Just a side note here, the way the editor dynamically querys all the user created states and showing it in details panel is not a common variable, but a customized editor slate.
+Just a side note here, the way the editor dynamically querys all the user created states and showing it in details panel is not a common variable, but a `customized editor slate`.
 
 ```cpp
 void FAnimStateAliasNodeDetails::GenerateStatePickerDetails(UAnimStateAliasNode& AliasNode, IDetailLayoutBuilder& DetailBuilder)
@@ -824,9 +824,9 @@ In this state, Epic left two comments:
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #8</div>
-This is an example use case of Anim Node Functions.
-Anim Node Functions can be run on animation nodes. They will only run when the node is active, which allows us to localize logic to specific nodes or states.
-In this case, an Anim Node Function selects an animation to play when the node become relevant. Another Anim Node Function manages the play rate of the animation.
+This is an example use case of `Anim Node Functions`.
+`Anim Node Functions` can be run on animation nodes. They will only run when the node is active, which allows us to localize logic to specific nodes or states.
+In this case, an `Anim Node Function` selects an animation to play when the node become relevant. Another `Anim Node Function` manages the play rate of the animation.
 </div>
 
 At this point we've already seen this `Anim Node Functions` for a million times. So it's no longer a mystery to us.
@@ -837,10 +837,10 @@ Next we have two distance matching functions, one is `DistanceMatching`, the oth
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #9</div>
-This is an example of using Distance Matching to ensure that the distance traveled by the Start animation matches the distance traveled by the Pawn owner. This prevents foot sliding by keeping the animation and the motion model in sync.
+This is an example of using `Distance Matching` to ensure that the distance traveled by the `Start animation` matches the distance traveled by the `Pawn` owner. This prevents foot sliding by keeping the animation and the motion model in sync.
 This effectively controls the play rate of the Start animation. We clamp the effective play rate to prevent the animation from playing too slowly or too quickly.
 If the effective play rate is clamped, we will still see some sliding. To fix this, we use Stride Warping later to adjust the pose to correct for the remaining difference.
-The Animation Locomotion Library plugin is required to have access to Distance Matching functions.
+The `Animation Locomotion Library` plugin is required to have access to `Distance Matching` functions.
 </div>
 
 Luckily, Epic has wrapped these two giant functions into a single node - `Orientation Warping` and `Stride Warping`.
@@ -851,15 +851,18 @@ Luckily, Epic has wrapped these two giant functions into a single node - `Orient
 
 <div class="box-info" markdown="1">
 <div class="title"> AnimBP Tour #10</div>
-This is an example of warping the authored pose of the animation to match what the Pawn owner is actually doing.
-Orientation Warping will rotate the lower body of the pose to align to the direction the Pawn owner is moving. We only author Forward/Back/Left/Right directions and rely on warping to fill in the gaps.
-Orientation Warping will then realign the upper body so that the character continues to aim where the camera is looking.
+This is an example of warping the authored pose of the animation to match what the `Pawn` owner is actually doing.
+
+`Orientation Warping` will rotate the lower body of the pose to align to the direction the `Pawn` owner is moving. We only author `Forward/Back/Left/Right` directions and rely on warping to fill in the gaps.
+
+`Orientation Warping` will then realign the upper body so that the character continues to aim where the camera is looking.
+
 Stride Warping will shorten or lengthen the stride of the legs when the authored speed of the animation doesn't match the actual speed of the Pawn owner.
-The Animation Warping plugin is required to have access to these nodes.
+The `Animation Warping` plugin is required to have access to these nodes.
 </div>
 
 #### FullBody_CycleState
-In `UE4`, we might just cover the `locomotion` part in a 2d blendspace, but this is not the case in `Lyra`, for this state, aside from the still active `Stride Warping` and `Orientation Warping`, the actual animations are being picked from `UpdateCycleAnim` function based on current `CardinalDirection` we've calculated.
+In `UE4`, we might just cover the `locomotion` part in a `2d blendspace`, but this is not the case in `Lyra`, for this state, aside from the still active `Stride Warping` and `Orientation Warping`, the actual animations are being picked from `UpdateCycleAnim` function based on current `CardinalDirection` we've calculated.
 
 We also called `SetPlayrateToMatchSpeed` here (Very much alike what a blendspace does).
 
@@ -929,7 +932,7 @@ The logic here is really not that complex, comparing with the one in `ABP_Manneq
     - Based on `DisableLHandIK` and `DisableRHandIK` to update the `HandIKLeftAlpha` and `HandIKRightAlpha`
 
 ### Takeaways
-Phew, that was tough, but we made it! It's really nice to see how Epic implemented such system, while a lot of these things are pretty common for AAA games, it's way way way more complex than an indie game needs, so if the reader is thinking about using this system in their next solo or 3 persons project. I would recommend just learn the engineering process behind it than actually use it.
+Phew, that was tough, but we made it! It's really nice to see how Epic implemented such system, while a lot of these things are pretty common for `AAA` games, it's way way way more complex than an indie game needs, so if the reader is thinking about using this system in their next solo or 3 persons project. I would recommend just learn the engineering process behind it than actually use it.
 
 [Animation Optimization]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-optimization-in-unreal-engine#aniamtionfastpath
 [Animations In Lyra]: https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-in-lyra-sample-game-in-unreal-engine?application_version=5.0
