@@ -41,7 +41,7 @@ lang: zh-CN
 ## 下载 TeamCity
 前往 [TeamCity 官网](https://www.jetbrains.com/teamcity/download/)，下载最新版本。`TeamCity` 提供了 `SaaS` 付费版本，但我们完全可以用它提供的**免费本地授权**来构建我们的独立开发流程。安装步骤很简单，可以在本机或者独立服务器上运行。
 
-![Download TeamCity](download_teamcity.png){: width="600"}
+![Download TeamCity](download_teamcity.png){: width="800"}
 
 ## 配置 Build Agent
 下载安装程序后运行，安装向导会一步步引导你完成配置。中途会弹出一个窗口来配置 `Build Agent`，我们这里直接把本机用作 `Build Agent`。
@@ -49,33 +49,33 @@ lang: zh-CN
 > 本文使用工作站作为 `Build Agent` 只是为了教程演示，在正式环境中，我会使用 `NAS` 存储所有数据与 `P4`，并配置一台独立 `Build` 机来运行 `TeamCity Server` 和 `Build Agent`。它们之间通过局域网通信，我的工作站可以专注开发与测试。
 {: .prompt-info }
 
-![Install TeamCity](install_teamcity_1.png){: width="600"}
+![Install TeamCity](install_teamcity_1.png){: width="800"}
 
 ## 安装 PostgreSQL
 接下来 `TeamCity` 会要求设置数据库。它支持多种数据库，我们这里选择免费的 `PostgreSQL`。只要版本大于 6.0 都可以，我使用的是最新稳定版（17.5）。
 
-![Setup Database](setup_database_1.png){: width="600"}
+![Setup Database](setup_database_1.png){: width="800"}
 
 首先需要安装 `JDBC Driver`，点击即可。
 
 从 [PostgreSQL 官网](https://www.postgresql.org/download/) 下载，保持默认配置，记住设置的密码，后续会用到。
 
-![Setup Database](setup_database_2.png){: width="600"}
+![Setup Database](setup_database_2.png){: width="800"}
 
 安装完成后，你可以使用 `pgAdmin` 管理 `PostgreSQL` 数据库。
 
-![PGAdmin](pgadmin.png){: width="600"}
+![PGAdmin](pgadmin.png){: width="800"}
 
 
 展开 `Servers` 栏，会提示输入你之前设置的密码。登录后，右键 `Databases` > `Create > Database...`，输入名称，点击保存。
 
 同时需要创建一个用户供 `TeamCity` 访问数据库。右键 `Login/Group Roles` > `Create > Login/Group Role...`，设置账号、密码，勾选 `Can login?`。如果你像我一样懒得细配置，甚至可以直接设置为 `Superuser`。
 
-![BM User](pgadmin_user.png){: width="600"}
-![Super User](pgadmin_superuserconfig.png){: width="600"}
+![BM User](pgadmin_user.png){: width="800"}
+![Super User](pgadmin_superuserconfig.png){: width="800"}
 
 然后回到 `TeamCity` 安装向导，填入数据库信息。
-![Setup Database](setup_database_1.png){: width="600"}
+![Setup Database](setup_database_1.png){: width="800"}
 
 连接成功后，基本配置就完成了，`TeamCity` 的 Web 页面也会通过 `http://localhost:8111` 提供。
 
@@ -83,36 +83,36 @@ lang: zh-CN
 ## 创建项目
 进入网页后，它会让你登录，点击底部 `login as admin`。管理员账号登录需要一个安装时生成的认证 token，可以在 `teamcity-server.log` 里找到，复制后即可登录。
 
-![Authentication Token](authentication_token.png){: width="600"}
+![Authentication Token](authentication_token.png){: width="800"}
 
 第一步是创建一个新项目。点击 `Projects`，然后点击 `Create Project`，输入项目名并创建。
 
 ## 设置构建配置
 接下来点击 `Build Configurations` > `Create Build Configuration`，输入名称并确认。
 
-![Build Configuration](build_config.png){: width="600"}
+![Build Configuration](build_config.png){: width="800"}
 
 ## 设置触发器
 我们希望构建在检测到代码变更后自动执行，所以要配置 VCS Root。
 
 在项目中点击 `VCS Roots` > `Create VCS Root`，选择类型为 `Perforce`，填写 P4V 服务器地址和凭据，测试连接确保无误。
 
-![Build Trigger VCS Root](build_trigger.png){: width="600"}
+![Build Trigger VCS Root](build_trigger.png){: width="800"}
 
-![Build Trigger VCS P4](build_trigger_p4.png){: width="600"}
+![Build Trigger VCS P4](build_trigger_p4.png){: width="800"}
 
 然后回到 `Build Configuration`，点击 `Triggers` > `Add new trigger` > 选择 `VCS Trigger`，TeamCity 将在代码变化时自动触发构建。
 
 我还设置了在构建前清空工作区，以避免之前某些后处理脚本修改文件后残留，导致下次构建失败。
 
-![VCS Trigger](vcs_trigger.png){: width="600"}
+![VCS Trigger](vcs_trigger.png){: width="800"}
 
-![VCS Trigger Confirmed](vcs_trigger_2.png){: width="600"}
+![VCS Trigger Confirmed](vcs_trigger_2.png){: width="800"}
 
 ## 设置构建步骤
 现在我们需要定义构建步骤。构建步骤是指在构建过程中执行的单个操作，例如编译代码、运行测试或打包项目。点击 `Build Steps` 标签页，然后点击 `Add build step` 添加构建步骤。
 
-![Build Step](build_step.png){: width="600"}
+![Build Step](build_step.png){: width="800"}
 
 目前我们可以先输入以下命令来进行测试：
 
@@ -122,7 +122,7 @@ echo "Triggered By New Changelist!"
 
 在命令行中输入后点击 `Run`，它会在控制台中输出一条信息，表示构建步骤已成功执行。
 
-![Test Result](test_result.png){: width="600"}
+![Test Result](test_result.png){: width="800"}
 
 ## 提交另一个 CL 进行测试
 现在我们可以向 P4V 服务器提交另一个 `changelist（CL）`，`TeamCity` 会自动检测到变更并触发构建。你可以在 `Build Queue` 标签页中查看构建状态。
@@ -130,9 +130,9 @@ echo "Triggered By New Changelist!"
 这里我是在 `Mac` 上通过 `P4V` 正常提交 `changelist`。然后——没错，`TeamCity` 自动检测到了变更并触发了构建。
 
 
-![Pending CL](pending_cl.png){: width="600"}
+![Pending CL](pending_cl.png){: width="800"}
 
-![Auto Trigger](auto_trigger.png){: width="600"}
+![Auto Trigger](auto_trigger.png){: width="800"}
 
 ## 运行构建命令
 到目前为止，我们已经设置好了一个基础的构建配置，能在版本控制系统检测到更改时自动触发构建。但我们还需要定义 `Unreal Engine` 项目的实际构建步骤。
@@ -155,18 +155,18 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
   -archivedirectory="%teamcity.build.checkoutDir%\%project_name%\%output_dir%"
 ```
 
-![Build Script](build_script.png){: width="600"}
+![Build Script](build_script.png){: width="800"}
 
 我们尽量避免硬编码路径，因此会使用一些 `TeamCity` 参数来提升灵活性。你可以在构建配置的 `Parameters` 标签页中定义这些参数。
 
 > 更正：我改变了`output_dir`的值为`Artifacts`, 而在上部分的`-archivedirectory`参数中也相应修改了。这样可以确保构建产物存放在`BuildAgent`本地`Checkout`目录的 `Artifacts` 目录下，便于后续管理和访问。
 {: .prompt-info }
 
-![Parameters](parameters.png){: width="600"}
+![Parameters](parameters.png){: width="800"}
 
 点击 `Run` 进行一次试运行，你应该能看到构建流程启动。`TeamCity` 会执行 `UBT` 命令，编译项目、`Cook` 资源并打包游戏。你可以在 `Build Log` 标签中监控整个过程。（`CPU` 直接拉满，所以建议使用一台专门的高性能构建机）
 
-![Cooking Package](cooking_package.png){: width="600"}
+![Cooking Package](cooking_package.png){: width="800"}
 
 最后，设置构建产物的存储路径。点击 `General Settings`（常规设置）标签页，向下滚动到 `Artifact Paths`（产物路径）部分。在这里，你可以指定构建产物的存放位置。例如，你可以设置为：
 
@@ -174,34 +174,34 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 \%project_name%\%output_dir%\%platform%\
 ```
 
-![Artifact Path](artifact_path.png){: width="600"}
+![Artifact Path](artifact_path.png){: width="800"}
 
 ## 自动通知机制
 构建完成后，你可以在指定的输出目录中找到打包好的游戏文件。同时，`TeamCity` 也会在 `Artifacts` 标签页中保存构建产物，供你下载或部署使用。
 
 在结束前，还有一些进阶功能可以加入。例如，使用 `Unreal` 的自动化测试框架 `Gauntlet`。它支持命令行执行，因此可以轻松集成到构建流程中，形成完整的自动构建+测试流水线。测试结果可以导出为 `XML` 格式，而 `TeamCity` 则能解析这些 `XML` 并以图形方式展示测试结果。
 
-![Parse XML](parse_xml.png){: width="600"}
+![Parse XML](parse_xml.png){: width="800"}
 
 在报告设置窗口中，选择报告类型为 `Ant JUnit`，并设置报告路径，例如 `+:%output_dir%/TestReports/*.xml`
 
-![Report Config](report_config.png){: width="600"}
+![Report Config](report_config.png){: width="800"}
 
 接下来，我们为用户配置通知触发器。首先，创建一个用户：
 
-![Create User](create_user.png){: width="600"}
+![Create User](create_user.png){: width="800"}
 
 打开 `Users` 标签页，点击 `Notification Rules`。可以看到系统已经继承了一些全局规则，例如当构建失败且包含了我的更改，或我是调查人时，会通过邮件通知我。作为独立开发者，我希望尽早发现问题，因此会为自己添加一条更频繁的通知规则。
 
-![Existing Notification Rule](existing_notification_rule.png){: width="600"}
+![Existing Notification Rule](existing_notification_rule.png){: width="800"}
 
 我希望在任何构建开始、成功或失败时都收到通知。点击 `Add new rule`，勾选所有相关字段，并关联特定构建配置。
 
-![Create Notification Rule](create_new_notification_rule.png){: width="600"}
+![Create Notification Rule](create_new_notification_rule.png){: width="800"}
 
 最后，设置 `Email Notifier`，在配置窗口填写你的 `SMTP` 邮箱服务器地址与端口，然后点击 `Test Connection` 测试连接。测试邮件应很快就能收到。一旦配置完成，你将可以即时收到构建通知。
 
-![Email Notifier](email_notifier.png){: width="600"}
+![Email Notifier](email_notifier.png){: width="800"}
 
 ## 结果
 等我把这一套流程都搭建完，已经很晚了，早前提交的测试 CL 也忘得一干二净，直接倒头就睡。第二天早上醒来，邮箱里收到了绿色构建通过的通知，这才反应过来：“哦对，我昨天刚搭了 CI/CD 流水线！”看到一切都按预期运行，真的非常有成就感。
