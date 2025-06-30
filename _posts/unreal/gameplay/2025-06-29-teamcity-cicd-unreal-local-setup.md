@@ -164,6 +164,14 @@ Hit `Run` for a test drive, and you should see the build process starting. `Team
 
 ![Cooking Package](cooking_package.png){: width="600"}
 
+Finally, setup the artifact path to store the packaged game. Click on the `General Settings` tab, and scroll down to the `Artifact Paths` section. Here, you can specify where the build artifacts should be stored. For example, you can set it to:
+
+```bash
+\%project_name%\%output_dir%\%platform%\
+```
+
+![Artifact Path](artifact_path.png){: width="600"}
+
 ## Auto Notification
 Once the build is complete, you can find the packaged game in the specified output directory. `TeamCity` will also store the build artifacts, which you can access from the `Artifacts` tab.
 

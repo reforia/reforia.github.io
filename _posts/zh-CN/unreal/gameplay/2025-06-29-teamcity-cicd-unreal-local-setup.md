@@ -168,6 +168,14 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 
 ![Cooking Package](cooking_package.png){: width="600"}
 
+最后，设置构建产物的存储路径。点击 `General Settings`（常规设置）标签页，向下滚动到 `Artifact Paths`（产物路径）部分。在这里，你可以指定构建产物的存放位置。例如，你可以设置为：
+
+```bash
+\%project_name%\%output_dir%\%platform%\
+```
+
+![Artifact Path](artifact_path.png){: width="600"}
+
 ## 自动通知机制
 构建完成后，你可以在指定的输出目录中找到打包好的游戏文件。同时，`TeamCity` 也会在 `Artifacts` 标签页中保存构建产物，供你下载或部署使用。
 
