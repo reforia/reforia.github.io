@@ -44,7 +44,7 @@ Head over to [TeamCity's official website](https://www.jetbrains.com/teamcity/do
 ## Configure Build Agent
 After downloading, run the installer. The installation wizard will guide you through the process. A window would pop up to configure `Build Agent`. We will just use our local machine as the build agent in this case.
 
-> Using my workstation as `build agent` is just for the tutorial purpose, in real production, I would host a local NAS for all the data storage & P4, and a standalone build machine that will run TeamCity Server and `Build Agent` which will communicate with my `NAS` and do the building process. This way, I can keep my workstation free for development and testing.
+> Using my workstation as `build agent` is just for the tutorial purpose, in real production, I would host a local NAS for all the data storage & P4, and a standalone build machine that will run `TeamCity Server` and `Build Agent` which will communicate with my `NAS` and do the building process. This way, I can keep my workstation free for development and testing.
 {: .prompt-info }
 
 ![Install TeamCity](install_teamcity_1.png){: width="600"}
@@ -64,20 +64,20 @@ After the installation, you can use `pgAdmin` to manage your `PostgreSQL` databa
 
 ![PGAdmin](pgadmin.png){: width="600"}
 
-Expanding the `Servers` category, we will be prompted to enter the password we set earlier. After that, we can create a new database for TeamCity. Right click on `Databases` and just select `Create > Database...`, name it with your project and click `Save`.
+Expanding the `Servers` category, we will be prompted to enter the password we set earlier. After that, we can create a new database for `TeamCity`. Right click on `Databases` and just select `Create > Database...`, name it with your project and click `Save`.
 
-We also need to create a user for TeamCity to access the database. Right click on `Login/Group Roles` and select `Create > Login/Group Role...`. Fill in the details, set a password, and make sure to check the `Can login?` option. (For BM, I was actually making it a super user)
+We also need to create a user for `TeamCity` to access the database. Right click on `Login/Group Roles` and select `Create > Login/Group Role...`. Fill in the details, set a password, and make sure to check the `Can login?` option. (For BM, I was actually making it a super user)
 
 ![BM User](pgadmin_user.png){: width="600"}
 ![Super User](pgadmin_superuserconfig.png){: width="600"}
 
-Now go back to the TeamCity installation wizard, and enter the database connection details.
+Now go back to the `TeamCity` installation wizard, and enter the database connection details.
 ![Setup Database](setup_database_1.png){: width="600"}
 
 Once confirmed, the wizard will test the connection and if everything is set up correctly, The basic setup is done, and a web interface will be available at `http://localhost:8111` by default.
 
 ## Setup Project
-It will ask us to login, however, we want to login as admin, so we just click the `login as admin` link at the bottom. Once prompted, admin account can only be logged in with a authentication token, which is generated during the installation process. You can find it in the `log` folder of your TeamCity installation directory, in a file named `teamcity-server.log`. Open that file and copy the token. We should be able to login now.
+It will ask us to login, however, we want to login as admin, so we just click the `login as admin` link at the bottom. Once prompted, admin account can only be logged in with a authentication token, which is generated during the installation process. You can find it in the `log` folder of your `TeamCity` installation directory, in a file named `teamcity-server.log`. Open that file and copy the token. We should be able to login now.
 
 ![Authentication Token](authentication_token.png){: width="600"}
 
@@ -89,7 +89,7 @@ Now we need to create a build configuration. A build configuration defines how a
 ![Build Configuration](build_config.png){: width="600"}
 
 ## Setup Trigger
-Next we need to set up a build trigger. A build trigger is an event that initiates a build process. In this case, we will set up a trigger that starts the build process whenever changes are detected in our version control system (e.g., P4V).
+Next we need to set up a build trigger. A build trigger is an event that initiates a build process. In this case, we will set up a trigger that starts the build process whenever changes are detected in our version control system (e.g., `P4V`).
 
 Open the project we just created, and click the `VCS Roots` tab. Click on `Create VCS Root`, and select `Perforce` as the type. Fill in the details for your Perforce server, including the server address, port, and credentials. Make sure to test the connection to ensure everything is set up correctly.
 
@@ -97,7 +97,7 @@ Open the project we just created, and click the `VCS Roots` tab. Click on `Creat
 
 ![Build Trigger VCS P4](build_trigger_p4.png){: width="600"}
 
-That's not done yet, we just told TeamCity where to find the source code, now we need to tell it when to trigger the build. Go back to the `Build Configuration` tab, and click on `Triggers`. Click on `Add new trigger`, and select `VCS Trigger`. This will automatically start a build whenever changes are detected in the specified VCS root.
+That's not done yet, we just told `TeamCity` where to find the source code, now we need to tell it when to trigger the build. Go back to the `Build Configuration` tab, and click on `Triggers`. Click on `Add new trigger`, and select `VCS Trigger`. This will automatically start a build whenever changes are detected in the specified VCS root.
 
 I also customized it a bit to delete local checked out files before the build starts, this could happen if we let BM to run some post-fetch scripts that modify the files, they could be left behind and cause issues in the next build. So I just set it to delete all files in the workspace before the build starts.
 
@@ -121,9 +121,9 @@ at the command line, and click `Run`. This will just print a message to the cons
 ![Test Result](test_result.png){: width="600"}
 
 ## Push another CL for testing
-Now we can push another CL to our P4V server, and TeamCity will automatically detect the changes and trigger a build. You can check the build status in the `Build Queue` tab.
+Now we can push another CL to our `P4V` server, and `TeamCity` will automatically detect the changes and trigger a build. You can check the build status in the `Build Queue` tab.
 
-Here I'm using my Mac to submit a changelist through P4V normally. And whola, TeamCity detected the change and triggered a build automatically.
+Here I'm using my Mac to submit a changelist through `P4V` normally. And whola, `TeamCity` detected the change and triggered a build automatically.
 
 ![Pending CL](pending_cl.png){: width="600"}
 
@@ -152,18 +152,18 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 
 ![Build Script](build_script.png){: width="600"}
 
-We try not to hardcode the paths, so we will use some TeamCity parameters to make it more flexible. We can define these parameters in the `Parameters` tab of the build configuration.
+We try not to hardcode the paths, so we will use some `TeamCity` parameters to make it more flexible. We can define these parameters in the `Parameters` tab of the build configuration.
 
 ![Parameters](parameters.png){: width="600"}
 
-Hit `Run` for a test drive, and you should see the build process starting. TeamCity will execute the UBT command, compile the project, cook the assets, and package the game. You can monitor the progress in the `Build Log` tab. (CPU is melting, so definitely having a separate build machine with powerful CPU is a good idea)
+Hit `Run` for a test drive, and you should see the build process starting. `TeamCity` will execute the `UBT` command, compile the project, cook the assets, and package the game. You can monitor the progress in the `Build Log` tab. (`CPU` is melting, so definitely having a separate build machine with powerful `CPU` is a good idea)
 
 ![Cooking Package](cooking_package.png){: width="600"}
 
 ## Auto Notification
-Once the build is complete, you can find the packaged game in the specified output directory. TeamCity will also store the build artifacts, which you can access from the `Artifacts` tab.
+Once the build is complete, you can find the packaged game in the specified output directory. `TeamCity` will also store the build artifacts, which you can access from the `Artifacts` tab.
 
-Before we wrap up, here're some more stuff we could potentially do. A very practical follow up would be utilizing Unreal Autotest framework Gauntlet, they all support CLI execution, so add them into the build step would essentially give us a full automated build and test pipeline. The results could be exported as XML, and TeamCity can parse the XML and display the test results in a user-friendly format. 
+Before we wrap up, here're some more stuff we could potentially do. A very practical follow up would be utilizing Unreal Autotest framework `Gauntlet`, they all support `CLI` execution, so add them into the build step would essentially give us a full automated build and test pipeline. The results could be exported as `XML`, and `TeamCity` can parse the `XML` and display the test results in a user-friendly format. 
 
 ![Parse XML](parse_xml.png){: width="600"}
 
@@ -183,7 +183,11 @@ I want to be notified when any build starts, succeeds, or fails, so I will add a
 
 ![Create Notification Rule](create_notification_rule.png){: width="600"}
 
-Last, just setup the Email Notifier, config the related fields with your email SMTP server and port, then click `Test Connection` to make sure everything is working. You should receive a test email shortly. Once everything is set up, you can start receiving notifications about your builds.
+Last, just setup the `Email Notifier`, config the related fields with your email `SMTP` server and port, then click `Test Connection` to make sure everything is working. You should receive a test email shortly. Once everything is set up, you can start receiving notifications about your builds.
 
 ![Email Notifier](email_notifier.png){: width="600"}
 
+## Result
+It was pretty late when I finished this whole setup, so I forgot the test CL I submitted earlier and directly went to bed. The next morning, I woke up to a green build notification in my inbox, and I was like "Oh, right, I set up a `CI/CD` pipeline yesterday!" It was a great feeling to see that everything worked as expected.
+
+![Final Result](final_result.png){: width="600"}

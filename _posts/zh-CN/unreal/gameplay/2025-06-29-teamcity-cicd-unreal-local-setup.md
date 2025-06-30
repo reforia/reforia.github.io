@@ -69,15 +69,15 @@ lang: zh-CN
 
 展开 `Servers` 栏，会提示输入你之前设置的密码。登录后，右键 `Databases` > `Create > Database...`，输入名称，点击保存。
 
-同时需要创建一个用户供 TeamCity 访问数据库。右键 `Login/Group Roles` > `Create > Login/Group Role...`，设置账号、密码，勾选 `Can login?`。如果你像我一样懒得细配置，甚至可以直接设置为 Superuser。
+同时需要创建一个用户供 `TeamCity` 访问数据库。右键 `Login/Group Roles` > `Create > Login/Group Role...`，设置账号、密码，勾选 `Can login?`。如果你像我一样懒得细配置，甚至可以直接设置为 `Superuser`。
 
 ![BM User](pgadmin_user.png){: width="600"}
 ![Super User](pgadmin_superuserconfig.png){: width="600"}
 
-然后回到 TeamCity 安装向导，填入数据库信息。
+然后回到 `TeamCity` 安装向导，填入数据库信息。
 ![Setup Database](setup_database_1.png){: width="600"}
 
-连接成功后，基本配置就完成了，TeamCity 的 Web 页面也会通过 `http://localhost:8111` 提供。
+连接成功后，基本配置就完成了，`TeamCity` 的 Web 页面也会通过 `http://localhost:8111` 提供。
 
 
 ## 创建项目
@@ -120,14 +120,14 @@ lang: zh-CN
 echo "Triggered By New Changelist!"
 ```
 
-在命令行中输入后点击 Run，它会在控制台中输出一条信息，表示构建步骤已成功执行。
+在命令行中输入后点击 `Run`，它会在控制台中输出一条信息，表示构建步骤已成功执行。
 
 ![Test Result](test_result.png){: width="600"}
 
 ## 提交另一个 CL 进行测试
-现在我们可以向 P4V 服务器提交另一个 changelist（CL），TeamCity 会自动检测到变更并触发构建。你可以在 `Build Queue` 标签页中查看构建状态。
+现在我们可以向 P4V 服务器提交另一个 `changelist（CL）`，`TeamCity` 会自动检测到变更并触发构建。你可以在 `Build Queue` 标签页中查看构建状态。
 
-这里我是在 Mac 上通过 P4V 正常提交 changelist。然后——没错，TeamCity 自动检测到了变更并触发了构建。
+这里我是在 `Mac` 上通过 `P4V` 正常提交 `changelist`。然后——没错，`TeamCity` 自动检测到了变更并触发了构建。
 
 
 ![Pending CL](pending_cl.png){: width="600"}
@@ -135,9 +135,9 @@ echo "Triggered By New Changelist!"
 ![Auto Trigger](auto_trigger.png){: width="600"}
 
 ## 运行构建命令
-到目前为止，我们已经设置好了一个基础的构建配置，能在版本控制系统检测到更改时自动触发构建。但我们还需要定义 Unreal Engine 项目的实际构建步骤。
+到目前为止，我们已经设置好了一个基础的构建配置，能在版本控制系统检测到更改时自动触发构建。但我们还需要定义 `Unreal Engine` 项目的实际构建步骤。
 
-为此，我们将添加一个运行 Unreal Build Tool（UBT）来编译项目的构建步骤。点击 `Build Steps` 标签页，然后点击 `Add build step`。在 Runner 类型中选择 `Command Line`，然后输入：
+为此，我们将添加一个运行 `Unreal Build Tool（UBT）`来编译项目的构建步骤。点击 `Build Steps` 标签页，然后点击 `Add build step`。在 `Runner` 类型中选择 `Command Line`，然后输入：
 
 ```bash
 CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
@@ -157,18 +157,18 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 
 ![Build Script](build_script.png){: width="600"}
 
-我们尽量避免硬编码路径，因此会使用一些 TeamCity 参数来提升灵活性。你可以在构建配置的 `Parameters` 标签页中定义这些参数。
+我们尽量避免硬编码路径，因此会使用一些 `TeamCity` 参数来提升灵活性。你可以在构建配置的 `Parameters` 标签页中定义这些参数。
 
 ![Parameters](parameters.png){: width="600"}
 
-点击 `Run` 进行一次试运行，你应该能看到构建流程启动。TeamCity 会执行 UBT 命令，编译项目、Cook 资源并打包游戏。你可以在 `Build Log` 标签中监控整个过程。（CPU 直接拉满，所以建议使用一台专门的高性能构建机）
+点击 `Run` 进行一次试运行，你应该能看到构建流程启动。`TeamCity` 会执行 `UBT` 命令，编译项目、`Cook` 资源并打包游戏。你可以在 `Build Log` 标签中监控整个过程。（`CPU` 直接拉满，所以建议使用一台专门的高性能构建机）
 
 ![Cooking Package](cooking_package.png){: width="600"}
 
 ## 自动通知机制
-构建完成后，你可以在指定的输出目录中找到打包好的游戏文件。同时，TeamCity 也会在 `Artifacts` 标签页中保存构建产物，供你下载或部署使用。
+构建完成后，你可以在指定的输出目录中找到打包好的游戏文件。同时，`TeamCity` 也会在 `Artifacts` 标签页中保存构建产物，供你下载或部署使用。
 
-在结束前，还有一些进阶功能可以加入。例如，使用 Unreal 的自动化测试框架 Gauntlet。它支持命令行执行，因此可以轻松集成到构建流程中，形成完整的自动构建+测试流水线。测试结果可以导出为 XML 格式，而 TeamCity 则能解析这些 XML 并以图形方式展示测试结果。
+在结束前，还有一些进阶功能可以加入。例如，使用 `Unreal` 的自动化测试框架 `Gauntlet`。它支持命令行执行，因此可以轻松集成到构建流程中，形成完整的自动构建+测试流水线。测试结果可以导出为 `XML` 格式，而 `TeamCity` 则能解析这些 `XML` 并以图形方式展示测试结果。
 
 ![Parse XML](parse_xml.png){: width="600"}
 
@@ -188,7 +188,11 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 
 ![Create Notification Rule](create_notification_rule.png){: width="600"}
 
-最后，设置 Email Notifier，在配置窗口填写你的 SMTP 邮箱服务器地址与端口，然后点击 `Test Connection` 测试连接。测试邮件应很快就能收到。一旦配置完成，你将可以即时收到构建通知。
+最后，设置 `Email Notifier`，在配置窗口填写你的 `SMTP` 邮箱服务器地址与端口，然后点击 `Test Connection` 测试连接。测试邮件应很快就能收到。一旦配置完成，你将可以即时收到构建通知。
 
 ![Email Notifier](email_notifier.png){: width="600"}
 
+## 结果
+等我把这一套流程都搭建完，已经很晚了，早前提交的测试 CL 也忘得一干二净，直接倒头就睡。第二天早上醒来，邮箱里收到了绿色构建通过的通知，这才反应过来：“哦对，我昨天刚搭了 CI/CD 流水线！”看到一切都按预期运行，真的非常有成就感。
+
+![Final Result](final_result.png){: width="600"} 
