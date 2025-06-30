@@ -197,7 +197,7 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 
 我希望在任何构建开始、成功或失败时都收到通知。点击 `Add new rule`，勾选所有相关字段，并关联特定构建配置。
 
-![Create Notification Rule](create_notification_rule.png){: width="600"}
+![Create Notification Rule](create_new_notification_rule.png){: width="600"}
 
 最后，设置 `Email Notifier`，在配置窗口填写你的 `SMTP` 邮箱服务器地址与端口，然后点击 `Test Connection` 测试连接。测试邮件应很快就能收到。一旦配置完成，你将可以即时收到构建通知。
 
@@ -206,4 +206,4 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
 ## 结果
 等我把这一套流程都搭建完，已经很晚了，早前提交的测试 CL 也忘得一干二净，直接倒头就睡。第二天早上醒来，邮箱里收到了绿色构建通过的通知，这才反应过来：“哦对，我昨天刚搭了 CI/CD 流水线！”看到一切都按预期运行，真的非常有成就感。
 
-![Final Result](final_result.png){: width="600"} 
+![Final Result](final_result.png){: width="500"} 
