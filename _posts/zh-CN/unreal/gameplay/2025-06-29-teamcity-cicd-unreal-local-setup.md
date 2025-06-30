@@ -152,12 +152,15 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
   -pak ^
   -stage ^
   -archive ^
-  -archivedirectory="%output_dir%"
+  -archivedirectory="%teamcity.build.checkoutDir%\%project_name%\%output_dir%"
 ```
 
 ![Build Script](build_script.png){: width="600"}
 
 我们尽量避免硬编码路径，因此会使用一些 `TeamCity` 参数来提升灵活性。你可以在构建配置的 `Parameters` 标签页中定义这些参数。
+
+> 更正：我改变了`output_dir`的值为`Artifacts`, 而在上部分的`-archivedirectory`参数中也相应修改了。这样可以确保构建产物存放在`BuildAgent`本地`Checkout`目录的 `Artifacts` 目录下，便于后续管理和访问。
+{: .prompt-info }
 
 ![Parameters](parameters.png){: width="600"}
 

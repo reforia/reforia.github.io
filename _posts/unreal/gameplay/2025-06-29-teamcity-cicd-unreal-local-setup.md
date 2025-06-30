@@ -147,12 +147,16 @@ CALL "%ue_root%\Engine\Build\BatchFiles\RunUAT.bat" ^
   -pak ^
   -stage ^
   -archive ^
-  -archivedirectory="%output_dir%"
+  -archivedirectory="%teamcity.build.checkoutDir%\%project_name%\%output_dir%"
 ```
 
 ![Build Script](build_script.png){: width="600"}
 
 We try not to hardcode the paths, so we will use some `TeamCity` parameters to make it more flexible. We can define these parameters in the `Parameters` tab of the build configuration.
+
+
+> Correction: I changed the value of `output_dir` to `Artifacts`, and also updated the `-archivedirectory` parameter above accordingly. This ensures that the build artifacts are stored in the `Artifacts` directory under the local `Checkout` folder of the BuildAgent, making them easier to manage and access.
+{: .prompt-info }
 
 ![Parameters](parameters.png){: width="600"}
 
