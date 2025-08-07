@@ -1,0 +1,81 @@
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  {% if page.layout == "post" %}
+  "@type": "Article",
+  "headline": "{{ page.title | escape }}",
+  "description": "{{ page.description | default: site.description[site.active_lang] | escape }}",
+  "image": {
+    "@type": "ImageObject",
+    {% if page.image %}
+      {% assign src = page.image.path | default: page.image %}
+      {% unless src contains '://' %}
+        "url": "{{ site.url }}{% include media-url.html src=src subpath=page.media_subpath absolute=true %}"
+      {% else %}
+        "url": "{{ src }}"
+      {% endunless %}
+    {% elsif site.social_preview_image %}
+      "url": "{{ site.url }}{{ site.social_preview_image }}"
+    {% else %}
+      "url": "{{ site.url }}/assets/img/favicons/android-chrome-512x512.png"
+    {% endif %}
+  },
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.social.name }}",
+    "url": "{{ site.social.links[0] }}"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "{{ site.social.name }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ site.url }}{{ site.avatar }}"
+    }
+  },
+  "datePublished": "{{ page.date | date_to_xmlschema }}",
+  "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.url | absolute_url }}"
+  },
+  "url": "{{ page.url | absolute_url }}",
+  "articleSection": "{{ page.categories | join: ', ' }}",
+  "keywords": "{{ page.tags | join: ', ' }}"
+  {% elsif page.layout == "page" or page.layout == "home" %}
+  "@type": "WebSite",
+  "name": "{{ site.title }}",
+  "description": "{{ site.description[site.active_lang] | escape }}",
+  "url": "{{ site.url }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.social.name }}",
+    "url": "{{ site.social.links[0] }}"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "{{ site.social.name }}"
+  }
+  {% else %}
+  "@type": "WebPage",
+  "name": "{{ page.title | default: site.title }}",
+  "description": "{{ page.description | default: site.description[site.active_lang] | escape }}",
+  "url": "{{ page.url | absolute_url }}"
+  {% endif %}
+}
+</script>
+
+<!-- Organization Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "{{ site.social.name }}",
+  "url": "{{ site.url }}",
+  "sameAs": {{ site.social.links | jsonify }},
+  "jobTitle": "Game Developer",
+  "description": "{{ site.description[site.active_lang] | escape }}",
+  "image": "{{ site.url }}{{ site.avatar }}"
+}
+</script>

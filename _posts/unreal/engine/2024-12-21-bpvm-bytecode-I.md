@@ -18,7 +18,7 @@ lang: en
 ## Preface
 Unreal Engine is renowned for its powerful visual scripting system—Blueprint (formerly `Kismet`). There are countless tutorials and guides available on how to use Blueprint, but fewer resources explain how it actually works behind the scenes. When we drag and drop nodes in the visual graph, hit the compile button, and see the “Good to go” message, it’s easy to think everything’s just ready to run. But what's really happening under the hood? How does the Blueprint Virtual Machine (`BPVM`) interpret and execute the graph? This series of posts will dig into these questions. So, buckle up and let’s dive in.
 
-![Compile, Save and Good to go](bytecode_hitcompile.png){: width="500" }
+![Blueprint Editor compile button showing 'Good to go' status after successful compilation](bytecode_hitcompile.png){: width="500" }
 
 ## Previous Researches
 Epic has published a [document] that offers a brief overview of how the Blueprint compilation process works, but it only scratches the surface and doesn’t dive into the details. Fortunately, the community has contributed some great research as well. For BPVM, there’s the [Blueprint VM], and for Blueprint Compilation, there are [Blueprint I], [Blueprint II], and [Blueprint III].
@@ -32,10 +32,10 @@ When people talk about a "well-written Blueprint," they’re typically referring
 
 To put it simply, creating a Blueprint Asset in the Content Browser starts with selecting a parent class and defining a new subclass through the Blueprint system. The Blueprint Editor lets us add functions and logic within `UEdGraph` instances and set up various properties. When we click the compile button in the editor, it triggers the compilation process, processing the content in the `UEdGraph` and encapsulating it into a reusable `UBlueprintGeneratedClass`. This class contains bytecode that the engine executes during runtime, ensuring that the behaviors and logic we’ve defined are integrated into the game.
 
-![Blueprint System Overview](bytecode_blueprintflow.png)
+![Diagram showing Blueprint system workflow from UEdGraph through compilation to UBlueprintGeneratedClass](bytecode_blueprintflow.png)
 _Blueprint System Overview_
 
-![Blueprint Structure](bytecode_blueprintstructure.png)
+![Architectural diagram of Blueprint structure showing relationships between UBlueprint, UEdGraph, and generated classes](bytecode_blueprintstructure.png)
 _Blueprint Structure (Source: [1])_ 
 
 ### UBlueprint

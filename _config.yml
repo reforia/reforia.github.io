@@ -24,6 +24,10 @@ description: # used by seo meta and the atom feed
   en: A place to share my thoughts and learnings on game development, programming, and more.
   zh-CN: 一个分享我在游戏开发、编程等方面的想法和学习的地方。
 
+keywords: # SEO keywords
+  en: game development, unreal engine, blueprint, programming, c++, level design, rendering, AI, Jayden Zhang
+  zh-CN: 游戏开发, 虚幻引擎, 蓝图, 编程, C++, 关卡设计, 渲染, 人工智能
+
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
 url: "https://www.jaydengames.com"
@@ -74,7 +78,7 @@ webmaster_verifications:
 # Web Analytics Settings
 analytics:
   google:
-    id: # fill in your Google Analytics ID
+    id: G-6TSC7S5WZF # fill in your Google Analytics ID
   goatcounter:
     id: reforia # fill in your GoatCounter ID
   umami:
@@ -117,7 +121,7 @@ avatar: /assets/img/favicons/favicon-96x96.png
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
-social_preview_image: # string, local or CORS resources
+social_preview_image: /assets/img/favicons/android-chrome-512x512.png # string, local or CORS resources
 
 # boolean type, the global switch for TOC in posts.
 toc: true
