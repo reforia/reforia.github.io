@@ -27,6 +27,16 @@
 
   <meta name="description" content="{{ page.description | default: site.description[site.active_lang] }}">
   <meta name="keywords" content="{{ page.keywords | default: site.keywords[site.active_lang] }}">
+  
+  <!-- Enhanced meta tags for better indexing -->
+  <meta name="author" content="{{ site.social.name }}">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  {% if page.date %}
+  <meta name="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+  {% endif %}
+  {% if page.modified_date %}
+  <meta name="article:modified_time" content="{{ page.modified_date | date_to_xmlschema }}">
+  {% endif %}
 
   <!-- Setup Open Graph image -->
 
@@ -64,6 +74,13 @@
   {% endif %}
 
   {{ seo_tags }}
+  
+  <!-- Canonical URL -->
+  {% if page.canonical_url %}
+    <link rel="canonical" href="{{ page.canonical_url }}" />
+  {% else %}
+    <link rel="canonical" href="{{ page.url | prepend: site.url }}" />
+  {% endif %}
 
   <title>
     {%- unless page.layout == 'home' -%}
