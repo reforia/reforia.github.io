@@ -42,19 +42,18 @@ lang: zh-CN
 
 **`FStateMachineBuilder`**：允许可读性状态机定义的流式建造者类：
 ```cpp
+auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
 return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
     .Initial(STATE_TYPE(SetupShopAndEvents))
     .From(STATE_TYPE(SetupShopAndEvents))
         .To(STATE_TYPE(SelectIdentities))
-        .When([](const UVFStateMachineBase* SM) { 
-            return Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState())->AreEventCardsInitialized() &&
-                   Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState())->AreShopItemsInitialized();
-        })
+            .When(SetupComplete)
     .From(STATE_TYPE(SelectIdentities))
         .To(STATE_TYPE(SelectCharacters))
-        .When([](const UVFStateMachineBase* SM) {
-            return Cast<UVFSelectIdentitiesState>(SM->GetCurrentState())->AreIdentitiesAssigned();
-        });
+            .When(IdentitiesSelected);
+    .Build();
 ```
 
 **宏系统**：为状态机集成提供声明式语法。

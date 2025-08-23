@@ -42,19 +42,18 @@ The system is built around four main components:
 
 **`FStateMachineBuilder`**: A fluent builder class that allows readable state machine definitions:
 ```cpp
+auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
 return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
     .Initial(STATE_TYPE(SetupShopAndEvents))
     .From(STATE_TYPE(SetupShopAndEvents))
         .To(STATE_TYPE(SelectIdentities))
-        .When([](const UVFStateMachineBase* SM) { 
-            return Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState())->AreEventCardsInitialized() &&
-                   Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState())->AreShopItemsInitialized();
-        })
+            .When(SetupComplete)
     .From(STATE_TYPE(SelectIdentities))
         .To(STATE_TYPE(SelectCharacters))
-        .When([](const UVFStateMachineBase* SM) {
-            return Cast<UVFSelectIdentitiesState>(SM->GetCurrentState())->AreIdentitiesAssigned();
-        });
+            .When(IdentitiesSelected);
+    .Build();
 ```
 
 **Macro System**: Provides declarative syntax for state machine integration.
