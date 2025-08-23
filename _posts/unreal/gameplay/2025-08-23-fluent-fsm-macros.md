@@ -149,6 +149,25 @@ protected:
 };
 ```
 
+The State Machine is the class, while the fluent syntax is essentially creating a descriptor of the underlying state machine class, so we need a "meta" class for it
+
+```cpp
+// StateTransitionTable.h
+struct FVFStateTransition
+{
+	TSubclassOf<UVFStateBase> FromState;
+	TSubclassOf<UVFStateBase> ToState;
+	TFunction<bool(const UVFStateMachineBase*)> Condition = nullptr;
+};
+
+struct FVFStateMachineDefinition
+{
+	TSubclassOf<UVFStateMachineBase> StateMachineClass;
+	TSubclassOf<UVFStateBase> InitialState;
+	TArray<FVFStateTransition> Transitions;
+};
+```
+
 ### The Macro Magic
 
 The framework uses several macros to eliminate boilerplate and provide clean integration:

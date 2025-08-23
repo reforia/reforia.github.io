@@ -149,6 +149,25 @@ protected:
 };
 ```
 
+状态机类实际上是真正的实例，而我们用流式语法定义的实际上是状态机的描述文件，因此我们需要创造对应的“描述类”
+
+```cpp
+// StateTransitionTable.h
+struct FVFStateTransition
+{
+	TSubclassOf<UVFStateBase> FromState;
+	TSubclassOf<UVFStateBase> ToState;
+	TFunction<bool(const UVFStateMachineBase*)> Condition = nullptr;
+};
+
+struct FVFStateMachineDefinition
+{
+	TSubclassOf<UVFStateMachineBase> StateMachineClass;
+	TSubclassOf<UVFStateBase> InitialState;
+	TArray<FVFStateTransition> Transitions;
+};
+```
+
 ### 宏的魔法
 
 该框架使用几个宏来消除样板代码并提供干净的集成：
