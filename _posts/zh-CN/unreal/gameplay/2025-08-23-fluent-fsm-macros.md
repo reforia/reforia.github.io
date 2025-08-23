@@ -2,7 +2,7 @@
 layout: post
 title: "流式状态机 - 优雅的状态管理框架"
 description:
-  深入探讨如何为虚幻引擎创建一个流式风格的状态机框架，使用强大的宏语法处理嵌套复制并提供优雅的建造者模式。
+  深入探讨如何为虚幻引擎创建一个流式风格的状态机框架，使用强大的宏语法处理嵌套同步并提供优雅的建造者模式。
 date: 2025-08-23 15:30 +0800
 categories: [Unreal, Gameplay]
 published: true
@@ -37,7 +37,7 @@ lang: zh-CN
 **`UVFStateMachineBase`**：状态机控制器，负责：
 - 管理当前状态和转换
 - 处理自动时钟更新
-- 提供网络复制支持
+- 提供网络同步支持
 - 实现转换验证和条件
 
 **`FStateMachineBuilder`**：允许可读性状态机定义的流式建造者类：
@@ -60,7 +60,7 @@ return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
 **宏系统**：为状态机集成提供声明式语法。
 
 ## StateMachineBase and StateBase
-状态机是一个`FTickableGameObject`，这样我们可以共享一个全局的Ticking线程(`UWorld:Tick()` in `LevelTick.cpp`)，而不是创建我们自己的Update委托。这解耦了从所有者或外部系统手动调用tick的需要。SM将自动处理底层状态的更新。
+状态机是一个`FTickableGameObject`，这样我们可以共享一个全局的`Ticking`线程(`UWorld:Tick()` in `LevelTick.cpp`)，而不是创建我们自己的`Update`委托。这解耦了从所有者或外部系统手动调用tick的需要。SM将自动处理底层状态的更新。
 
 ```cpp
 UCLASS()
@@ -219,8 +219,15 @@ UVF##StateMachineName##StateMachine::StaticClass()
 这些提供对状态和状态机类的类型安全引用。
 
 ### 为什么要手动声明UPROPERTY？
+在实现`UVFStateMachineBase`时，我们手动创建了`CurrentState`并标记为`UPROPERTY(Replicated)`
 
-你可能会想为什么`DECLARE_STATE_MACHINE`宏不自动生成`UPROPERTY(Replicated)`成员变量。原因是UHT（虚幻头文件工具）宏展开的限制：
+```cpp
+private:
+	UPROPERTY(Replicated)
+	TObjectPtr<UVFStateBase> CurrentState;
+```
+
+你可能会想为什么`DECLARE_STATE_MACHINE`宏不自动生成`UPROPERTY(Replicated)`成员变量，而是要我们手动再次创建一次，这不是多此一举么？答案是UHT（虚幻头文件工具）宏展开的限制：
 
 ```cpp
 // 这样做会有问题：
@@ -229,7 +236,7 @@ UPROPERTY(Replicated) \
 TObjectPtr<UVF##MachineName##StateMachine> MachineName##StateMachine;
 ```
 
-IDE通常不会在UHT解析之前正确展开宏，导致UHT无法生成正确的反射代码。当使用`DOREPLIFETIME()`进行复制时，`FindField()`断言将失败，因为宏展开的属性名在反射生成期间没有被正确识别。
+UHT通常不会在IDE正确展开宏之后解析，导致UHT无法生成正确的反射代码。当使用`DOREPLIFETIME()`进行网络同步时，`FindField()`断言将失败，因为宏展开的属性名在反射生成期间没有被正确识别。
 
 > 这是使用UHT时的常见陷阱 - 始终确保属性名对头文件工具明确可见。
 {: .prompt-warning }
@@ -241,26 +248,22 @@ IDE通常不会在UHT解析之前正确展开宏，导致UHT无法生成正确�
 ```cpp
 FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
 {
+	// Transition conditions - check state completion via state objects and game data
+	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
     return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
         .Initial(STATE_TYPE(SetupShopAndEvents))
         .From(STATE_TYPE(SetupShopAndEvents))
             .To(STATE_TYPE(SelectIdentities))
-            .When([](const UVFStateMachineBase* SM) { 
-                const auto* SetupState = Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState());
-                return SetupState && SetupState->AreEventCardsInitialized() && SetupState->AreShopItemsInitialized();
-            })
+                .When(SetupComplete)
         .From(STATE_TYPE(SelectIdentities))
             .To(STATE_TYPE(SelectCharacters))
-            .When([](const UVFStateMachineBase* SM) {
-                const auto* IdentityState = Cast<UVFSelectIdentitiesState>(SM->GetCurrentState());
-                return IdentityState && IdentityState->AreIdentitiesAssigned();
-            })
+                .When(IdentitiesSelected)
         .From(STATE_TYPE(SelectCharacters))
             .To(STATE_TYPE(PreRound))
-            .When([](const UVFStateMachineBase* SM) {
-                const auto* CharacterState = Cast<UVFSelectCharactersState>(SM->GetCurrentState());
-                return CharacterState && CharacterState->AreCharactersSelected() && CharacterState->AreInitiativesRolled();
-            })
+                .When(CharactersSelected)
         .Build();
 }
 ```
@@ -459,25 +462,25 @@ void AMyGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 ## 网络支持（可选）
 
-系统使用虚幻的内置复制与自定义扩展：
+系统使用虚幻的内置同步与自定义扩展：
 
-1. **状态机复制**：当前状态被标记为`UPROPERTY(Replicated)`并利用Subobject复制
-2. **状态数据复制**：各个状态处理自己的复制需求，并通过状态机嵌套子对象复制路由回所有者角色复制通道
+1. **状态机同步**：当前状态被标记为`UPROPERTY(Replicated)`并利用Subobject同步
+2. **状态数据同步**：各个状态处理自己的同步需求，并通过状态机嵌套子对象同步路由回所有者同步通道
 
-### 嵌套子对象复制
-如果读者可能对什么是嵌套子对象复制感到困惑，这里有一个简要说明：
+### 嵌套子对象同步
+如果读者可能对什么是嵌套子对象同步感到困惑，这里有一个简要说明：
 
-在虚幻引擎中，嵌套子对象复制是指在另一个UObject或Actor中复制本身是UObjects（子对象）的UObject属性的能力。这对于状态机可能包含多个状态的复杂数据结构特别重要，每个状态都有自己需要在网络上同步的数据。默认情况下，虚幻只复制POD类型或USTRUCT，但USTRUCT不支持适当的多态性。因此，如果我们想要适当的多态性（如我们的状态）但我们也想要复制它们，我们需要使用嵌套子对象复制。
+在虚幻引擎中，嵌套子对象同步是指在另一个`UObject`或`Actor`中同步本身是`UObjects`（子对象）的成员的能力。这对于状态机可能包含多个状态的复杂数据结构特别重要，每个状态都有自己需要在网络上同步的数据。默认情况下，虚幻只同步POD类型或`USTRUCT`，但`USTRUCT`不支持适当的多态性。因此，如果我们想要适当的多态性（如我们的状态）但我们也想要同步它们，我们需要使用嵌套子对象同步。
 
-该框架的一个关键特性是正确处理嵌套子对象复制。状态机通常包含需要跨客户端同步的复杂数据。
+该框架的一个关键特性是正确处理嵌套子对象同步。状态机通常包含需要跨客户端同步的复杂数据。
 
-> 有关虚幻引擎中UObject复制的详细信息，请参阅[官方文档](https://dev.epicgames.com/documentation/en-us/unreal-engine/replicating-uobjects-in-unreal-engine)。
+> 有关虚幻引擎中UObject同步的详细信息，请参阅[官方文档](https://dev.epicgames.com/documentation/en-us/unreal-engine/replicating-uobjects-in-unreal-engine)。
 {: .prompt-warning }
 
-复制基本上包含3个步骤：
-- 将子对象标记为复制属性
-- 在拥有角色的GetLifetimeReplicatedProps中注册
-- 添加到拥有角色的复制列表中
+同步基本上包含3个步骤：
+- 将子对象标记为同步属性
+- 在拥有角色的`GetLifetimeReplicatedProps`中注册
+- 添加到拥有角色的同步列表中
 
 我们已经在前面的部分中将状态机标记为`UPROPERTY(Replicated)`。接下来，我们需要在拥有角色的`GetLifetimeReplicatedProps`中注册它：
 ```cpp
@@ -491,7 +494,7 @@ void AMyGameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 }
 ```
 
-接下来，我们将属性添加到复制子对象列表中。这里我们关心的唯一函数是`AddReplicatedSubObject`和`RemoveReplicatedSubObject`，它们由`AActor`基类提供。我们将分别在`BeginPlay`和`EndPlay`中调用这些：
+接下来，我们将属性添加到同步子对象列表中。这里我们关心的唯一函数是`AddReplicatedSubObject`和`RemoveReplicatedSubObject`，它们由`AActor`基类提供。我们将分别在`BeginPlay`和`EndPlay`中调用这些：
 ```cpp
 void AVFGameState::BeginPlay()
 {
@@ -521,14 +524,14 @@ void AVFGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 ```
 
-请注意，在上述实现中，为了更好的可读性，我们注释掉了对`GamePhaseStateMachine->RegisterReplicatedSubObjects(this);`和`GamePhaseStateMachine->UnregisterReplicatedSubObjects(this);`的调用。这些函数对于嵌套子对象复制至关重要，特别是当状态机包含也需要复制的复杂数据结构时。
+请注意，在上述实现中，为了更好的可读性，我们注释掉了对`GamePhaseStateMachine->RegisterReplicatedSubObjects(this);`和`GamePhaseStateMachine->UnregisterReplicatedSubObjects(this);`的调用。这些函数对于嵌套子对象同步至关重要，特别是当状态机包含也需要同步的复杂数据结构时。
 
 ```cpp
 virtual void RegisterReplicatedSubObjects(AActor* Owner) { };
 virtual void UnregisterReplicatedSubObjects(AActor* Owner) { };
 ```
 
-重写这些方法有效地将复制列表注册（和注销）级联到当前状态，确保所有嵌套子对象在复制过程中得到适当考虑：
+重写这些方法有效地将同步列表注册（和注销）级联到当前状态，确保所有嵌套子对象在同步过程中得到适当考虑：
 
 ```cpp
 void UVFGamePhaseStateMachine::RegisterReplicatedSubObjects(AActor* Owner)
@@ -551,7 +554,7 @@ void UVFGamePhaseStateMachine::UnregisterReplicatedSubObjects(AActor* Owner)
 }
 ```
 
-不要忘记在你的状态机中重写`GetLifetimeReplicatedProps`以复制状态：
+不要忘记在你的状态机中重写`GetLifetimeReplicatedProps`以同步状态：
 
 ```cpp
 void UVFStateMachineBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -561,10 +564,10 @@ void UVFStateMachineBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 }
 ```
 
-> 对于涉及嵌套复制的更复杂场景，请参考[UObject复制文档](https://dev.epicgames.com/documentation/en-us/unreal-engine/replicating-uobjects-in-unreal-engine)了解高级模式。
+> 对于涉及嵌套同步的更复杂场景，请参考[UObject同步文档](https://dev.epicgames.com/documentation/en-us/unreal-engine/replicating-uobjects-in-unreal-engine)了解高级模式。
 {: .prompt-info }
 
-现在，我们可以自动复制状态机及其包含的状态。这是一次性设置。
+现在，我们可以自动同步状态机及其包含的状态。这是一次性设置。
 
 ### 复杂游戏状态示例
 
@@ -577,7 +580,7 @@ class VESTIGESAGA_API UVFGamePhaseStateMachine : public UVFStateMachineBase
     GENERATED_BODY()
 
 public:
-    // 复杂的复制数据
+    // 复杂的同步数据
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated)
     TArray<FVFPlayerSelectionData> PlayerSelections;
 
@@ -605,7 +608,7 @@ public:
 
 **类型安全**：宏生成类型安全的访问器并防止常见错误。
 
-**网络就绪**：内置复制支持无缝处理多人场景。
+**网络就绪**：内置同步支持无缝处理多人场景。
 
 **可维护性**：集中化状态逻辑减少重复和错误。
 
@@ -627,7 +630,7 @@ public:
 
 - **领域特定语言**：宏可以在C++中创建可读的、领域特定的语法
 - **建造者模式**：方法链接创建直观的配置API
-- **网络架构**：适当的复制处理对于多人系统至关重要
+- **网络架构**：适当的同步处理对于多人系统至关重要
 - **代码生成**：宏可以在保持类型安全的同时消除样板
 - **UHT意识**：理解工具限制对于健壮的宏设计至关重要
 

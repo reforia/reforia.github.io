@@ -219,8 +219,15 @@ UVF##StateMachineName##StateMachine::StaticClass()
 These provide type-safe references to state and state machine classes.
 
 ### Why Manual UPROPERTY Declaration?
+In the implementation of the `UVFStateMachineBase` we marked the `CurrentState` as `UPROPERTY(Replicated)`
 
-You might wonder why the `DECLARE_STATE_MACHINE` macro doesn't automatically generate the `UPROPERTY(Replicated)` member variable. The reason is a limitation with UHT (Unreal Header Tool) macro expansion:
+```cpp
+private:
+	UPROPERTY(Replicated)
+	TObjectPtr<UVFStateBase> CurrentState;
+```
+
+You might wonder why the `DECLARE_STATE_MACHINE` macro doesn't automatically create the member variable since it already has the type info and name? The reason is a limitation with UHT (Unreal Header Tool) macro expansion:
 
 ```cpp
 // This would be problematic:
@@ -241,26 +248,22 @@ The builder pattern allows for natural language-like state machine definitions:
 ```cpp
 FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
 {
+	// Transition conditions - check state completion via state objects and game data
+	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
     return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
         .Initial(STATE_TYPE(SetupShopAndEvents))
         .From(STATE_TYPE(SetupShopAndEvents))
             .To(STATE_TYPE(SelectIdentities))
-            .When([](const UVFStateMachineBase* SM) { 
-                const auto* SetupState = Cast<UVFSetupShopAndEventsState>(SM->GetCurrentState());
-                return SetupState && SetupState->AreEventCardsInitialized() && SetupState->AreShopItemsInitialized();
-            })
+                .When(SetupComplete)
         .From(STATE_TYPE(SelectIdentities))
             .To(STATE_TYPE(SelectCharacters))
-            .When([](const UVFStateMachineBase* SM) {
-                const auto* IdentityState = Cast<UVFSelectIdentitiesState>(SM->GetCurrentState());
-                return IdentityState && IdentityState->AreIdentitiesAssigned();
-            })
+                .When(IdentitiesSelected)
         .From(STATE_TYPE(SelectCharacters))
             .To(STATE_TYPE(PreRound))
-            .When([](const UVFStateMachineBase* SM) {
-                const auto* CharacterState = Cast<UVFSelectCharactersState>(SM->GetCurrentState());
-                return CharacterState && CharacterState->AreCharactersSelected() && CharacterState->AreInitiativesRolled();
-            })
+                .When(CharactersSelected)
         .Build();
 }
 ```
