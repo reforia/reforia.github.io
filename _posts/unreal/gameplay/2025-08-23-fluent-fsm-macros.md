@@ -168,6 +168,82 @@ struct FVFStateMachineDefinition
 };
 ```
 
+## Fluent Builder Pattern
+
+The builder pattern allows for natural language-like state machine definitions:
+
+```cpp
+FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
+{
+	// Transition conditions - check state completion via state objects and game data
+	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
+    return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
+        .Initial(STATE_TYPE(SetupShopAndEvents))
+        .From(STATE_TYPE(SetupShopAndEvents))
+            .To(STATE_TYPE(SelectIdentities))
+                .When(SetupComplete)
+        .From(STATE_TYPE(SelectIdentities))
+            .To(STATE_TYPE(SelectCharacters))
+                .When(IdentitiesSelected)
+        .From(STATE_TYPE(SelectCharacters))
+            .To(STATE_TYPE(PreRound))
+                .When(CharactersSelected)
+        .Build();
+}
+```
+
+### Builder Implementation
+
+The builder maintains state between method calls and validates the configuration:
+
+```cpp
+class FStateMachineBuilder
+{
+public:
+    FStateMachineBuilder(TSubclassOf<UVFStateMachineBase> StateMachineClass)
+    {
+        Definition.StateMachineClass = StateMachineClass;
+    }
+
+    FStateMachineBuilder& Initial(TSubclassOf<UVFStateBase> State)
+    {
+        Definition.InitialState = State;
+        return *this;
+    }
+    
+    FStateMachineBuilder& From(TSubclassOf<UVFStateBase> State)
+    {
+        CurrentFrom = State;
+        return *this;
+    }
+    
+    FStateMachineBuilder& To(TSubclassOf<UVFStateBase> State)
+    {
+        checkf(CurrentFrom, TEXT("Cannot add transition without a 'From' state defined"));
+        Definition.Transitions.Add({CurrentFrom, State});
+        return *this;
+    }
+    
+    FStateMachineBuilder& When(const TFunction<bool(const UVFStateMachineBase*)>& Condition)
+    {
+        if (Definition.Transitions.Num() > 0)
+        {
+            Definition.Transitions.Last().Condition = Condition;
+        }
+        return *this;
+    }
+    
+    FVFStateMachineDefinition Build() { return MoveTemp(Definition); }
+
+private:
+    FVFStateMachineDefinition Definition;
+    TSubclassOf<UVFStateBase> CurrentFrom = nullptr;
+};
+```
+
 ### The Macro Magic
 
 The framework uses several macros to eliminate boilerplate and provide clean integration:
@@ -258,82 +334,6 @@ IDEs often don't properly expand macros before UHT parsing, causing UHT to fail 
 
 > This is a common pitfall when working with UHT - always ensure property names are explicitly visible to the header tool.
 {: .prompt-warning }
-
-## Fluent Builder Pattern
-
-The builder pattern allows for natural language-like state machine definitions:
-
-```cpp
-FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
-{
-	// Transition conditions - check state completion via state objects and game data
-	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
-	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
-	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
-
-    return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
-        .Initial(STATE_TYPE(SetupShopAndEvents))
-        .From(STATE_TYPE(SetupShopAndEvents))
-            .To(STATE_TYPE(SelectIdentities))
-                .When(SetupComplete)
-        .From(STATE_TYPE(SelectIdentities))
-            .To(STATE_TYPE(SelectCharacters))
-                .When(IdentitiesSelected)
-        .From(STATE_TYPE(SelectCharacters))
-            .To(STATE_TYPE(PreRound))
-                .When(CharactersSelected)
-        .Build();
-}
-```
-
-### Builder Implementation
-
-The builder maintains state between method calls and validates the configuration:
-
-```cpp
-class FStateMachineBuilder
-{
-public:
-    FStateMachineBuilder(TSubclassOf<UVFStateMachineBase> StateMachineClass)
-    {
-        Definition.StateMachineClass = StateMachineClass;
-    }
-
-    FStateMachineBuilder& Initial(TSubclassOf<UVFStateBase> State)
-    {
-        Definition.InitialState = State;
-        return *this;
-    }
-    
-    FStateMachineBuilder& From(TSubclassOf<UVFStateBase> State)
-    {
-        CurrentFrom = State;
-        return *this;
-    }
-    
-    FStateMachineBuilder& To(TSubclassOf<UVFStateBase> State)
-    {
-        checkf(CurrentFrom, TEXT("Cannot add transition without a 'From' state defined"));
-        Definition.Transitions.Add({CurrentFrom, State});
-        return *this;
-    }
-    
-    FStateMachineBuilder& When(const TFunction<bool(const UVFStateMachineBase*)>& Condition)
-    {
-        if (Definition.Transitions.Num() > 0)
-        {
-            Definition.Transitions.Last().Condition = Condition;
-        }
-        return *this;
-    }
-    
-    FVFStateMachineDefinition Build() { return MoveTemp(Definition); }
-
-private:
-    FVFStateMachineDefinition Definition;
-    TSubclassOf<UVFStateBase> CurrentFrom = nullptr;
-};
-```
 
 ## Advanced Features
 

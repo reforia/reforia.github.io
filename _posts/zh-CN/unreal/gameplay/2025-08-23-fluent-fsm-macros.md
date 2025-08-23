@@ -168,6 +168,82 @@ struct FVFStateMachineDefinition
 };
 ```
 
+## 流式建造者模式
+
+建造者模式允许类似自然语言的状态机定义：
+
+```cpp
+FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
+{
+	// Transition conditions - check state completion via state objects and game data
+	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
+	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
+
+    return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
+        .Initial(STATE_TYPE(SetupShopAndEvents))
+        .From(STATE_TYPE(SetupShopAndEvents))
+            .To(STATE_TYPE(SelectIdentities))
+                .When(SetupComplete)
+        .From(STATE_TYPE(SelectIdentities))
+            .To(STATE_TYPE(SelectCharacters))
+                .When(IdentitiesSelected)
+        .From(STATE_TYPE(SelectCharacters))
+            .To(STATE_TYPE(PreRound))
+                .When(CharactersSelected)
+        .Build();
+}
+```
+
+### 建造者实现
+
+建造者在方法调用之间维护状态并验证配置：
+
+```cpp
+class FStateMachineBuilder
+{
+public:
+    FStateMachineBuilder(TSubclassOf<UVFStateMachineBase> StateMachineClass)
+    {
+        Definition.StateMachineClass = StateMachineClass;
+    }
+
+    FStateMachineBuilder& Initial(TSubclassOf<UVFStateBase> State)
+    {
+        Definition.InitialState = State;
+        return *this;
+    }
+    
+    FStateMachineBuilder& From(TSubclassOf<UVFStateBase> State)
+    {
+        CurrentFrom = State;
+        return *this;
+    }
+    
+    FStateMachineBuilder& To(TSubclassOf<UVFStateBase> State)
+    {
+        checkf(CurrentFrom, TEXT("Cannot add transition without a 'From' state defined"));
+        Definition.Transitions.Add({CurrentFrom, State});
+        return *this;
+    }
+    
+    FStateMachineBuilder& When(const TFunction<bool(const UVFStateMachineBase*)>& Condition)
+    {
+        if (Definition.Transitions.Num() > 0)
+        {
+            Definition.Transitions.Last().Condition = Condition;
+        }
+        return *this;
+    }
+    
+    FVFStateMachineDefinition Build() { return MoveTemp(Definition); }
+
+private:
+    FVFStateMachineDefinition Definition;
+    TSubclassOf<UVFStateBase> CurrentFrom = nullptr;
+};
+```
+
 ### 宏的魔法
 
 该框架使用几个宏来消除样板代码并提供干净的集成：
@@ -258,82 +334,6 @@ UHT通常不会在IDE正确展开宏之后解析，导致UHT无法生成正确�
 
 > 这是使用UHT时的常见陷阱 - 始终确保属性名对头文件工具明确可见。
 {: .prompt-warning }
-
-## 流式建造者模式
-
-建造者模式允许类似自然语言的状态机定义：
-
-```cpp
-FVFStateMachineDefinition AVFGameState::CreateGamePhaseFSM()
-{
-	// Transition conditions - check state completion via state objects and game data
-	auto SetupComplete = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
-	auto IdentitiesSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */};
-	auto CharactersSelected = [](const UVFStateMachineBase* StateMachine) -> bool { return true; /* Simplified for brevity */ };
-
-    return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
-        .Initial(STATE_TYPE(SetupShopAndEvents))
-        .From(STATE_TYPE(SetupShopAndEvents))
-            .To(STATE_TYPE(SelectIdentities))
-                .When(SetupComplete)
-        .From(STATE_TYPE(SelectIdentities))
-            .To(STATE_TYPE(SelectCharacters))
-                .When(IdentitiesSelected)
-        .From(STATE_TYPE(SelectCharacters))
-            .To(STATE_TYPE(PreRound))
-                .When(CharactersSelected)
-        .Build();
-}
-```
-
-### 建造者实现
-
-建造者在方法调用之间维护状态并验证配置：
-
-```cpp
-class FStateMachineBuilder
-{
-public:
-    FStateMachineBuilder(TSubclassOf<UVFStateMachineBase> StateMachineClass)
-    {
-        Definition.StateMachineClass = StateMachineClass;
-    }
-
-    FStateMachineBuilder& Initial(TSubclassOf<UVFStateBase> State)
-    {
-        Definition.InitialState = State;
-        return *this;
-    }
-    
-    FStateMachineBuilder& From(TSubclassOf<UVFStateBase> State)
-    {
-        CurrentFrom = State;
-        return *this;
-    }
-    
-    FStateMachineBuilder& To(TSubclassOf<UVFStateBase> State)
-    {
-        checkf(CurrentFrom, TEXT("Cannot add transition without a 'From' state defined"));
-        Definition.Transitions.Add({CurrentFrom, State});
-        return *this;
-    }
-    
-    FStateMachineBuilder& When(const TFunction<bool(const UVFStateMachineBase*)>& Condition)
-    {
-        if (Definition.Transitions.Num() > 0)
-        {
-            Definition.Transitions.Last().Condition = Condition;
-        }
-        return *this;
-    }
-    
-    FVFStateMachineDefinition Build() { return MoveTemp(Definition); }
-
-private:
-    FVFStateMachineDefinition Definition;
-    TSubclassOf<UVFStateBase> CurrentFrom = nullptr;
-};
-```
 
 ## 高级功能
 
