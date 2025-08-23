@@ -11,7 +11,7 @@ media_subpath: /assets/img/post-data/unreal/gameplay/fluent-fsm/
 lang: en
 ---
 
-{% include ue_version_disclaimer.html version="5.4.0" %}
+{% include ue_version_disclaimer.html version="5.6.0" %}
 
 {% include ue_engine_post_disclaimer.html %}
 
