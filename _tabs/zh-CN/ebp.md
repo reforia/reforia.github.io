@@ -17,4 +17,4 @@ lang: zh-CN
 
 [Resume]
 
-[Resume]: /assets/pdf/resume/Jayden_Zhang_Resume.pdf
+[Resume]: /assets/html/resume.html

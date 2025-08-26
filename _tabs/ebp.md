@@ -17,4 +17,4 @@ My passion is to bring vivid games to life with the power of technology and a de
 
 [Resume]
 
-[Resume]: /assets/resume/resume.html
+[Resume]: /assets/html/resume.html
