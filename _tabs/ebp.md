@@ -17,4 +17,4 @@ My passion is to bring vivid games to life with the power of technology and a de
 
 [Resume]
 
-[Resume]: /assets/pdf/resume/Jayden_Zhang_Resume.pdf
+[Resume]: /assets/resume/resume.html
