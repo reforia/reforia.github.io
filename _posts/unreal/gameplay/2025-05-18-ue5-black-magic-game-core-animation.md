@@ -480,7 +480,7 @@ Feed `ALI_ItemAnimLayers - FullBody_FallLandState` directly into output pose.
     - Enter `EndInAir` conduit
         - If `IsOnGround`
 
-When we are done with the landing animation, we will enter `EndInAir` conduitgv`
+When we are done with the landing animation, we will enter `EndInAir` conduit
 
 #### Jump Fall Interrupt Sources
 This is a `StateAlias` of all states in `Jumping` part, meaning any states can enter the jump state.

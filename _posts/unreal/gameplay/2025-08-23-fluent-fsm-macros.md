@@ -52,7 +52,7 @@ return FStateMachineBuilder(STATEMACHINE_TYPE(GamePhase))
             .When(SetupComplete)
     .From(STATE_TYPE(SelectIdentities))
         .To(STATE_TYPE(SelectCharacters))
-            .When(IdentitiesSelected);
+            .When(IdentitiesSelected)
     .Build();
 ```
 
