@@ -2,7 +2,7 @@
 layout: post
 title: "BPVM Snack Pack #5 - SuperStruct: Pointer-Based Inheritance"
 description: "Blueprint classes don't use C++ inheritance. They use a pointer-based system through SuperStruct. Here's why that design matters."
-date: 2025-10-28 10:00 +0800
+date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true
 tags: [Unreal, Engine, Blueprint, BPVM-Snack-Pack]

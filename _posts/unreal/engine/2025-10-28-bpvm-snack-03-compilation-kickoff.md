@@ -2,7 +2,7 @@
 layout: post
 title: "BPVM Snack Pack #3 - Compilation Kick-Off"
 description: "You hit 'Compile'. Behind that button is a 16-stage pipeline that handles dependencies, generates code, and updates live instances. Here's how it works."
-date: 2025-10-28 10:00 +0800
+date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true
 tags: [Unreal, Engine, Blueprint, BPVM-Snack-Pack]

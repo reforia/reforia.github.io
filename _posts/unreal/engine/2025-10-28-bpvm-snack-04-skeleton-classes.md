@@ -2,7 +2,7 @@
 layout: post
 title: "BPVM Snack Pack #4 - Skeleton Classes: The Hidden Hero"
 description: "How does Blueprint A reference Blueprint B when B isn't compiled yet? The skeleton class - Blueprint's version of forward declarations."
-date: 2025-10-28 10:00 +0800
+date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true
 tags: [Unreal, Engine, Blueprint, BPVM-Snack-Pack]

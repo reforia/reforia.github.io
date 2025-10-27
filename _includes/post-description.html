@@ -1,0 +1,5 @@
+{% if post.description %}
+  {{ post.description | strip_html | normalize_whitespace | truncate: include.max_length }}
+{% else %}
+  {{ post.excerpt | strip_html | normalize_whitespace | truncate: include.max_length }}
+{% endif %}
