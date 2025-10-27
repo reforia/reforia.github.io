@@ -16,7 +16,10 @@ lang: en
 {% include ue_engine_post_disclaimer.html %}
 
 ## Preface
-Unreal Engine is renowned for its powerful visual scripting system—Blueprint (formerly `Kismet`). There are countless tutorials and guides available on how to use Blueprint, but fewer resources explain how it actually works behind the scenes. When we drag and drop nodes in the visual graph, hit the compile button, and see the “Good to go” message, it’s easy to think everything’s just ready to run. But what's really happening under the hood? How does the Blueprint Virtual Machine (`BPVM`) interpret and execute the graph? This series of posts will dig into these questions. So, buckle up and let’s dive in.
+Unreal Engine is renowned for its powerful visual scripting system—Blueprint (formerly `Kismet`). There are countless tutorials and guides available on how to use Blueprint, but fewer resources explain how it actually works behind the scenes. When we drag and drop nodes in the visual graph, hit the compile button, and see the "Good to go" message, it's easy to think everything's just ready to run. But what's really happening under the hood? How does the Blueprint Virtual Machine (`BPVM`) interpret and execute the graph? This series of posts will dig into these questions. So, buckle up and let's dive in.
+
+> **🍿 Want a lighter read?** Check out the [BPVM Snack Pack series](/tags/bpvm-snack-pack/) - bite-sized 3-5 minute articles that break down these concepts with more examples and less code!
+{: .prompt-tip }
 
 ![Blueprint Editor compile button showing 'Good to go' status after successful compilation](bytecode_hitcompile.png){: width="500" }
 
@@ -535,6 +538,13 @@ Phew, that's a lot of information to digest. We've covered the basic structure o
 
 A secure chamber found and a bonfire lit, we've taken our first step into the dark castle of Blueprint. However, something seems to be hidden in the shadows.
 
+---
+
+## 🍿 BPVM Snack Pack - Bite-Sized Companions
+
+Want to digest these concepts in smaller pieces? Check out these quick reads:
+- [Snack #1: What is a Blueprint, Really?](/posts/bpvm-snack-01-what-is-blueprint/) - UBlueprint vs UBlueprintGeneratedClass
+- [Snack #2: The Graph System Decoded](/posts/bpvm-snack-02-graph-system/) - UEdGraph, nodes, and pins explained
 
 [1]: https://www.cnblogs.com/ghl_carmack/p/5998693.html
 
