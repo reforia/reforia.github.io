@@ -1,0 +1,68 @@
+<!-- Custom meta tags for enhanced game dev blog -->
+<meta name="theme-color" content="#1a1a1a">
+<meta name="msapplication-TileColor" content="#1a1a1a">
+
+<!-- Preload key fonts for better performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<style>
+  /* Loading animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Apply fade-in animation to main content */
+  main {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #0a0a0a, #1a1a1a);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d4af37, #1a1a1a);
+    border-radius: 6px;
+    border: 2px solid rgba(212, 175, 55, 0.2);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ffd700, #d4af37);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: rgba(212, 175, 55, 0.4);
+    color: #f5f5f5;
+  }
+
+  ::-moz-selection {
+    background-color: rgba(212, 175, 55, 0.4);
+    color: #f5f5f5;
+  }
+
+  /* Performance optimization */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+</style>

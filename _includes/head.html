@@ -155,7 +155,12 @@
   {% endfor %}
 
   {% include metadata-hook.html %}
-  
+
   <!-- Structured Data -->
   {% include structured-data.html %}
+
+  <!-- Custom head enhancements -->
+  {% if jekyll.environment == 'production' %}
+    {% include custom-head.html %}
+  {% endif %}
 </head>
