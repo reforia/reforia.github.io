@@ -16,7 +16,7 @@ timezone: Asia/Shanghai
 
 title: ebp # the main title
 
-tagline: 
+subtitle:
   en: mov ebp esp     ; From here, the heart beats. # it will display as the subtitle
   zh-CN: mov ebp esp     ; 一个世界在等待。
 
