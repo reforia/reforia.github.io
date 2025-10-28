@@ -1,5 +1,6 @@
+{% assign max_len = include.max_length | default: 200 %}
 {% if post.description %}
-  {{ post.description | strip_html | normalize_whitespace | truncate: include.max_length }}
+  {{ post.description | strip_html | normalize_whitespace | truncate: max_len }}
 {% else %}
-  {{ post.excerpt | strip_html | normalize_whitespace | truncate: include.max_length }}
+  {{ post.excerpt | strip_html | normalize_whitespace | truncate: max_len }}
 {% endif %}

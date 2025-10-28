@@ -7,7 +7,7 @@ layout: compress
 {
   "name": "{{ site.title }}",
   "short_name": "{{ site.title }}",
-  "description": "{{ site.description[site.active_lang] }}",
+  "description": "{{ site.site_description[site.active_lang] }}",
   "icons": [
     {
       "src": "{{ favicon_path }}/android-chrome-192x192.png",

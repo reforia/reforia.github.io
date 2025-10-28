@@ -5,7 +5,7 @@
   {% if page.layout == "post" %}
   "@type": "Article",
   "headline": "{{ page.title | escape }}",
-  "description": "{{ page.description | default: site.description[site.active_lang] | escape }}",
+  "description": "{{ page.description | default: site.site_description[site.active_lang] | escape }}",
   "image": {
     "@type": "ImageObject",
     {% if page.image %}
@@ -46,7 +46,7 @@
   {% elsif page.layout == "page" or page.layout == "home" %}
   "@type": "WebSite",
   "name": "{{ site.title }}",
-  "description": "{{ site.description[site.active_lang] | escape }}",
+  "description": "{{ site.site_description[site.active_lang] | escape }}",
   "url": "{{ site.url }}",
   "author": {
     "@type": "Person",
@@ -60,7 +60,7 @@
   {% else %}
   "@type": "WebPage",
   "name": "{{ page.title | default: site.title }}",
-  "description": "{{ page.description | default: site.description[site.active_lang] | escape }}",
+  "description": "{{ page.description | default: site.site_description[site.active_lang] | escape }}",
   "url": "{{ page.url | absolute_url }}"
   {% endif %}
 }
@@ -75,7 +75,7 @@
   "url": "{{ site.url }}",
   "sameAs": {{ site.social.links | jsonify }},
   "jobTitle": "Game Developer",
-  "description": "{{ site.description[site.active_lang] | escape }}",
+  "description": "{{ site.site_description[site.active_lang] | escape }}",
   "image": "{{ site.url }}{{ site.avatar }}"
 }
 </script>
