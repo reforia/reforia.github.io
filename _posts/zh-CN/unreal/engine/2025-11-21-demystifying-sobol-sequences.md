@@ -10,6 +10,9 @@ lang: zh-CN
 math: true
 ---
 
+> 在 Unreal 中，`Sobol.h` 中有一个 `FSobol` 类，实现了这种拟随机序列供我们直接使用，因此我们不必自己编写矩阵。它还支持格雷码顺序评估。
+{: .prompt-tip }
+
 ## 一切的起源
 
 我在一位优秀开发者的敌人生成器代码中看到了这段代码：[Skylake-Official Github]，代码如下：
