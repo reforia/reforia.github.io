@@ -859,7 +859,10 @@ You're standing on the shoulders of decades of mathematical research. The Matrix
 
 Use it with confidence - but also with respect for the sophistication behind those seemingly random numbers!
 
-## Part 14: The Mathematical Foundations (For the Rigorous)
+## Part 14: The Mathematical Foundations
+
+> Move beyond this point, my math knowledge is not enough to verify the following proof, it is drafted by AI so I strongly recommend take it with a grain of salt and verify it with proper mathematical sources. I still include it here for reference purpose in case future me gets the required math knowledge to verify it.
+{: .prompt-warning }
 
 If you want the **formal mathematical proof** behind why Van der Corput and Sobol sequences work so well, here's the foundation from discrepancy theory.
 
