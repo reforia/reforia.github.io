@@ -10,6 +10,9 @@ lang: en
 math: true
 ---
 
+> In Unreal, there's a `FSobol` class in `Sobol.h` that implements such quasi-random sequences for us to use directly, so we don't have to write the matrix ourselves. It also supports gray number order evaluation.
+{: .prompt-tip }
+
 ## The Problem That Started It All
 I came across this code in an enemy spawner from a talented developer: [Skylake-Official Github] Where the code reads:
 
@@ -169,32 +172,6 @@ Think of primitive polynomials as special mathematical formulas that generate "m
 Each "recipe" produces a different pattern of numbers that, when combined, create evenly-distributed points in multi-dimensional space.
 
 > **Want to understand HOW these recipes work?** See Part 11 for the full technical explanation of primitive polynomials and LFSRs. For now, just trust that they work!
-{: .prompt-tip }
-
-### Why Different Recipes? The Correlation Problem
-
-**The key question:** Why can't we use the same recipe for all dimensions?
-
-**Answer:** Using the same polynomial for multiple dimensions creates **catastrophic correlation**.
-
-**Visual example for 2D enemy spawning:**
-
-```
-Same recipe for X and Y:
-  X All enemies on diagonal line (Y = X)
-  X 1D line in 2D space - terrible!
-
-Different recipes for X and Y:
-  ✓ Enemies spread evenly across 2D plane
-  ✓ No correlation between X and Y
-  ✓ Perfect low-discrepancy distribution
-```
-
-**The intuition:**
-- **Same recipe:** All dimensions "march in lockstep" - when X goes up, Y goes up
-- **Different recipes:** Each dimension moves independently - true 2D coverage
-
-> **Want the detailed math?** Part 11 explains exactly how these polynomials generate different bit patterns and why they don't correlate.
 {: .prompt-tip }
 
 ## Part 5: Gray Code - The Missing Piece
@@ -358,7 +335,7 @@ The magic isn't in the individual pieces. It's in recognizing that:
 
 ### Implementation notes:
 
-**The Matrix values are constants:** They were pre-computed decades ago using primitive polynomials. You can copy them from reference implementations (like the code at the top).
+**The Matrix values are constants:** They were pre-computed decades ago using primitive polynomials. You can copy them from reference implementations (like the code at the top, or call `FSobol` in Unreal).
 
 **Dimension limit:** The hardcoded Matrix typically supports 8-10 dimensions. For more, you'd need to generate additional direction numbers.
 
@@ -749,7 +726,8 @@ Let's generate direction numbers for the primitive polynomial x³ + x + 1:
 **Setup:**
 
 - Degree `s = 3`
-- Binary representation: `a = 101` (the bits at x³, x¹, and x⁰)
+- Binary representation: `a = 1011` (bits for x³, x², x¹, x⁰)
+- Coefficients: a₂ = 0 (no x² term), a₁ = 1 (x¹ term present)
 
 **Step 1: Initialize**
 
@@ -770,12 +748,12 @@ m[4] = 2*1*m[3] ⊕ 4*0*m[2] ⊕ 8*m[1] ⊕ m[1]
      = 11
 ```
 
-Continue:
+Continue (note: a₂=0, so the `4*a₂*m[i-2]` term equals 0 and can be omitted):
 
 ```
-m[5] = 2*1*m[4] ⊕ 8*m[2] ⊕ m[2] = 22 ⊕ 8 ⊕ 1 = 31
-m[6] = 2*1*m[5] ⊕ 8*m[3] ⊕ m[3] = 62 ⊕ 8 ⊕ 1 = 55
-m[7] = 2*1*m[6] ⊕ 8*m[4] ⊕ m[4] = 110 ⊕ 88 ⊕ 11 = 109
+m[5] = 2*1*m[4] ⊕ 4*0*m[3] ⊕ 8*m[2] ⊕ m[2] = 22 ⊕ 0 ⊕ 8 ⊕ 1 = 31
+m[6] = 2*1*m[5] ⊕ 4*0*m[4] ⊕ 8*m[3] ⊕ m[3] = 62 ⊕ 0 ⊕ 8 ⊕ 1 = 55
+m[7] = 2*1*m[6] ⊕ 4*0*m[5] ⊕ 8*m[4] ⊕ m[4] = 110 ⊕ 0 ⊕ 88 ⊕ 11 = 61
 ...
 ```
 
