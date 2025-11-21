@@ -10,6 +10,10 @@ lang: zh-CN
 math: true
 ---
 
+{% include ue_version_disclaimer.html version="5.6.0" %}
+
+{% include ue_engine_post_disclaimer.html %}
+
 > 在 Unreal 中，`Sobol.h` 中有一个 `FSobol` 类，实现了这种拟随机序列供我们直接使用，因此我们不必自己编写矩阵。它还支持格雷码顺序评估。
 {: .prompt-tip }
 

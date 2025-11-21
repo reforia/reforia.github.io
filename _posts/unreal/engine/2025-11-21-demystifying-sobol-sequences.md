@@ -10,6 +10,10 @@ lang: en
 math: true
 ---
 
+{% include ue_version_disclaimer.html version="5.6.0" %}
+
+{% include ue_engine_post_disclaimer.html %}
+
 > In Unreal, there's a `FSobol` class in `Sobol.h` that implements such quasi-random sequences for us to use directly, so we don't have to write the matrix ourselves. It also supports gray number order evaluation.
 {: .prompt-tip }
 
