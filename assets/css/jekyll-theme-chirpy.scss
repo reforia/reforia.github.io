@@ -562,10 +562,30 @@ pre, code {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+// Enable horizontal scrolling for code blocks
+pre {
+  overflow-x: auto !important;
+  overflow-y: auto;
+  max-width: 100%;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+code {
+  white-space: pre;
+  word-wrap: normal;
+}
+
 .highlight {
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow-x: auto !important;
+  overflow-y: auto;
   position: relative;
+
+  pre {
+    margin-bottom: 0;
+    overflow-x: auto !important;
+  }
 
   &::before {
     content: '';
@@ -577,6 +597,7 @@ pre, code {
     background: linear-gradient(90deg, #d4af37, #ffd700, #d4af37);
     background-size: 200% 100%;
     animation: codeBorderGlow 3s linear infinite;
+    z-index: 1;
   }
 }
 
