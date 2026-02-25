@@ -3,8 +3,7 @@ layout: compress
 permalink: /feed.xml
 # Atom Feed, reference: https://validator.w3.org/feed/docs/atom.html
 ---
-
-{% capture source %}
+{%- capture source %}<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <id>{{ "/" | absolute_url }}</id>
   <title>{{ site.title }}</title>
@@ -19,8 +18,8 @@ permalink: /feed.xml
     href="{{ '/' | absolute_url }}"/>
   <generator uri="https://jekyllrb.com/" version="{{ jekyll.version }}">Jekyll</generator>
   <rights> © {{ 'now' | date: '%Y' }} {{ site.social.name }} </rights>
-  <icon>{{ site.baseurl }}/assets/img/favicons/favicon.ico</icon>
-  <logo>{{ site.baseurl }}/assets/img/favicons/favicon-96x96.png</logo>
+  <icon>{{ "/" | absolute_url }}assets/img/favicons/favicon.ico</icon>
+  <logo>{{ "/" | absolute_url }}assets/img/favicons/favicon-96x96.png</logo>
 
 {% for post in site.posts limit: 5 %}
   {% assign post_absolute_url = post.url | absolute_url %}
@@ -50,5 +49,5 @@ permalink: /feed.xml
   </entry>
 {% endfor %}
 </feed>
-{% endcapture %}
+{%- endcapture -%}
 {{ source | replace: '&', '&amp;' }}
