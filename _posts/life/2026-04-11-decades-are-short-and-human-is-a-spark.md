@@ -35,7 +35,7 @@ The spring for AI was late by 60 years. In 2012, AlexNet crushed the ImageNet co
 
 One of my best friends randomly told me, "Hey, you should play this game called Assassin's Creed II." I'd never heard of it. He was like, "You gotta play it, man." So I grabbed the pirated copy that Friday from a small stall, booted it up. That was the first AAA game I had ever played. The experience shocked me so much that I didn't even believe such a game could technically exist. In its opening scene, Ezio and his brother Federico stood atop the tower overlooking Florence, tender moonlight brushing across the rooftops and their shoulders: *"It is a good life we lead, brother." "The best. May it never change." "And may it never change us."* When I played that, I genuinely felt the devs who wrote that line meant it from the bottom of their hearts.
 
-I then played AC Brotherhood and Revelations, naturally, and to this day, I still clearly remember the numerous fade-in logos of global co-dev studios after the beach prologue. I had no idea who Ubisoft was, but I just felt that the company was so cool. At that time, Ubisoft meant rebel to me. They dared to create things that nobody thought possible. There was a special spirit there.
+It quickly became my favorite game. I went back to play AC1, then Brotherhood and Revelations. In just a few years, Ezio went from a dashing young nobleman to a grizzled old man, and to me, it felt like I truly walked through a lifetime with him — from Jerusalem, Masyaf, Venice, Rome, the French countryside, back to Damascus. In the library, Altair's and Ezio's footsteps overlapped, completing a cycle of legacy. To this day, I still clearly remember the numerous fade-in logos of global co-dev studios after the beach prologue. I had no idea who Ubisoft was, but I just felt that the company was so cool. At that time, Ubisoft meant rebel to me. They dared to create things that nobody thought possible. There was a special spirit there.
 
 The realm of fantasy spans endlessly. In spring, I was parkouring across the rooftops of Florence. Climbing up High Hrothgar and roaring at the peak of Skyrim. At the hottest summer, I was capturing Makarov as he escaped the tower by helicopter. When the leaves fell, we were done dealing with Deathwing, ready to cross the mist into Pandaria. At that time, the sky outside the window was all I knew about the real world. The walls of the school and the road home were where my feet would land. But the world inside that small, bulky 14-inch monitor — that's where I really lived.
 
@@ -49,7 +49,7 @@ As a third-year high school student, the tension rose. The countdown on the blac
 
 Until two things changed me.
 
-A regular afternoon, the latest biology monthly test result had just come out. I was last — if not second to last — in my class. During break, I was hanging out with my friends as usual. And one of them told me: "Man, the other classes are mandatory and boring, and you messed them up. And you *chose* this major out of three. And you're still messing it up. Man, that's so you." I laughed it off, but it actually stung.
+A regular afternoon, the latest biology monthly test result had just come out. I was last — if not second to last — in my class. During break, I was hanging out with my friends as usual. And one of them told me: "Man, the other classes are mandatory and boring, and you messed them up. And you *chose* this major out of three. And you're still messing it up. Man, that's so you." We all laughed, but that conversation planted a seed.
 
 And second, I went through a breakup — though really, I was just a douchebag back then. That was the first time I started to think: what about after graduation? And what do I actually want to do?
 
@@ -103,9 +103,9 @@ The rest is well known by now. Generative AI soon slid through every industry. A
 
 Almost six years have passed since graduation. Looking back, I am standing at an intersection of life. I can clearly see the 18-year-old me behind me, and he can't see me staring. There will be more intersections ahead. I peer into the fog the same way — not seeing anyone — yet the 40-year-old me will clearly see me tonight. And so on, and so forth.
 
-But what I hope, when we look back, is that we see that 18-year-old and say: "You did your dream. The rest is on us."
+But what I hope, when we look back, is that we see that 18-year-old and say: "Your job was to make an outlandish dream. The rest is on us."
 
-Has my thought changed since that question? Yes and no. I'm no longer the naive kid who believed games are pure art untouched by commerce. But I never bought into the grinding, cash-cow playbook. I still hold tight with the 18-year-old me on what matters. That thread didn't break for now. If I were to die tomorrow, I'd rather have a proudly present epitaph, than 10 grind cash printers everyone hates.
+Has my thought changed since that question? Yes and no. I'm no longer the naive kid who believed games are pure art untouched by commerce. But I never bought into the grinding, cash-cow playbook. I still hold tight with the 18-year-old me on what matters. That thread didn't break for now. If I were to die tomorrow, I'd rather have a *Proudly Presents* on my epitaph, than 10 grind cash printers everyone hates.
 
 I haven't let that kid down in the past 12 years. I lived every second to the best I could. Didn't force myself working on things I hate and waste the time.
 
