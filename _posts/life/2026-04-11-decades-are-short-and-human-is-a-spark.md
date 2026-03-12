@@ -39,7 +39,7 @@ I then played AC Brotherhood and Revelations, naturally, and to this day, I stil
 
 The realm of fantasy spans endlessly. In spring, I was parkouring across the rooftops of Florence. Climbing up High Hrothgar and roaring at the peak of Skyrim. At the hottest summer, I was capturing Makarov as he escaped the tower by helicopter. When the leaves fell, we were done dealing with Deathwing, ready to cross the mist into Pandaria. At that time, the sky outside the window was all I knew about the real world. The walls of the school and the road home were where my feet would land. But the world inside that small, bulky 14-inch monitor — that's where I really lived.
 
-Why do I have to study? Why do I have to take the test? What do these boring subjects do for me other than imprison me in a classroom? C'mon, games are so fun and life is so plain. I tried to imagine what my 30th birthday would look like, in a sub-second thought, but I just couldn't. And today is my 30th. Looking back, the seemingly "worst" times for 16-year-old me were indeed the best times of my life.
+Why do I have to study? Why do I have to take the test? What do these boring subjects do for me other than imprison me in a classroom? C'mon, games are so fun and life is so plain. I tried to imagine what my 30th birthday would look like, in a sub-second thought, but I just couldn't. And today is my 30th. Looking back, the seemingly "worst" times for 16-year-old me were indeed some of the best times of my life.
 
 ---
 
@@ -71,7 +71,7 @@ In the last summer of high school, the college entrance exam had ended. It was t
 
 The summer felt hollower than I thought.
 
-Making games and playing games quickly became my new norm. I tried Unreal Engine 3 (UDK), CryEngine, Unity, RPG Maker, and a bunch of other tools — as if the gap between me and the game I wanted to make was just a set of tools. But soon enough, I knew that wasn't true. I knew nothing about code. Unrealscript reads like gibberish to me, node based Kismet doesn't make any sense to me. I could just drag and drop some entities here and there. I started reading tons of books on design, but I was still clueless and lost.
+Making games and playing games quickly became my new norm. I tried Unreal Engine 3 (UDK), CryEngine, Unity, RPG Maker, and a bunch of other tools — as if the gap between me and the game I wanted to make was just a set of tools. But soon enough, I knew that wasn't true. I knew nothing about code. UnrealScript read like gibberish, and node-based Kismet didn't make any sense. I could just drag and drop some entities here and there. I started reading tons of books on design, but I was still clueless and lost.
 
 One night, I asked myself a question: how do I imagine myself at 30, and 40, and 80? Could I imagine myself being someone working on spreadsheets and feeling excited? A doctor? A bus driver? Or a game developer? The last one was the only thing that made me feel something. So I vaguely came up with a 60-year roadmap — at each 10-year mark, what should I accomplish? It was hazy with no real detail, but I felt, blurrily, that games — which had already shaped my view of the world — would also be the light in my storm.
 
@@ -79,7 +79,7 @@ One night, I asked myself a question: how do I imagine myself at 30, and 40, and
 
 In 2014, a paper called "Neural Machine Translation by Jointly Learning to Align and Translate" introduced the attention mechanism. Three years later, we got *the* cornerstone paper: "Attention Is All You Need."
 
-For me, those three years of college passed blazing fast. I spent very little time on coursework — the classes weren't difficult, and I had plenty of time. So I poured all my effort into games. I was lucky enough to join NVIDIA for an internship. The work wasn't easy, but the experience was extremely precious. There I met a bunch of great friends, some I'm still in touch with today. I wish everyone the best. By 2017, I felt that I needed answers I couldn't get from books. I needed methodology for game development. And I believed that the answer was in the United States — the country with the best gaming industry in the world at that time.
+For me, those years of college passed blazing fast. I spent very little time on coursework — the classes weren't difficult, and I had plenty of time. So I poured all my effort into games. I was lucky enough to join NVIDIA for an internship. The work wasn't easy, but the experience was extremely precious. There I met a bunch of great friends, some I'm still in touch with today. I wish everyone the best. By 2017, I felt that I needed answers I couldn't get from books. I needed methodology for game development. And I believed that the answer was in the United States — the country with the best gaming industry in the world at that time.
 
 Before departure, one of our professors introduced a senior designer who'd been working in the gaming industry for decades. We had a chat. I said I didn't want to make grinding games. I wanted to make games that move people and touch people. The real art.
 
@@ -89,7 +89,7 @@ With that, I started my master's journey in America. Plano, a small town north o
 
 ---
 
-Same year, on the other side of the world, GPT-1 launched — a model trained on internet text, predicting the next word out of a sequential stream. The utilization of the attention mechanism itself didn't raise much attention. BERT was published. OpenAI Five beat the Dota 2 world champions OG 2-0. AlphaFold v1 came out.
+Same year, GPT-1 launched — a model trained on internet text, predicting the next word out of a sequential stream. The utilization of the attention mechanism itself didn't raise much attention. BERT was published. OpenAI Five beat the Dota 2 world champions OG 2-0. AlphaFold v1 came out.
 
 The two-year journey in the States was extremely fruitful. I'd been learning programming, rendering, design — really everything about games, systematically. I had the chance to experiment and explore, to build things that had been lying in my mind. When nobody forced me to learn, I felt an exceptional freedom to explore the world. As if the curiosity that was buried inside me, extinguished by the education system back home, reignited — brighter than ever. It was the first time I realized that nothing was really blocking me from doing anything I wanted, and that no place on this planet is more than 15 hours' flight away. Two years ago, the world was huge to me. Yet after flying over the Pacific Ocean multiple times a year, it felt way smaller than I had ever anticipated.
 
@@ -119,7 +119,7 @@ I have no idea where humanity will go, nor is it really my concern. Maybe everyt
 
 ---
 
-Since Ada Lovelace wrote the first algorithm, to "Attention Is All You Need," to the first small "Sparks of Artificial General Intelligence" til today — 180 years of threads, started with a simple dream, woven by countless hands across generations. And all of it, the history of humanity, of nations, of families, aggregated into me, standing on the metro in a cold night, reading a blog post — a blog post from Sam Altman, written on his 30th birthday, 10 years ago, looking back on his life. The title reads: *"The days are long but the decades are short."*
+Since Ada Lovelace wrote the first algorithm, to "Attention Is All You Need," to the first small "Sparks of Artificial General Intelligence" til today — 180 years of threads, started with a simple dream, woven by countless hands across generations. And all of it, the history of humanity, of nations, of families, aggregated into me, standing on the metro in a cold night, reading a blog post — a blog post from Sam Altman, written on his 30th birthday, 10 years ago, looking back on his life. The title reads: *"The days are long but the decades are short."* I don't know how many points he still remembers today, now that he's 41.
 
 Today is my 30th birthday. And I write to myself, to the younger me and every older me:
 
@@ -129,4 +129,4 @@ So here's my note to the 40-year-old me. I see the world's evolution through the
 
 I'm already living in this shift. The throughput AI gives me dwarfs what I could do alone just a few years ago. But I've realized something: I am the bottleneck now. Not because I'm slow — because it's fast. My review, my judgment, my context-switching — that's where things stall. The brain wasn't built for parallelism. We have shared memory across every project, tiny short-term cache, and brutal context-switch penalties. Every time I swap between tasks, I'm hitting biological cache misses. GPUs solved this for silicon — decouple independent tasks, offload to CUDA, run SIMD. Humans haven't solved it yet. That's my problem for the next decade: how to parallelize a biological processor that was never designed for concurrency.
 
-With, I've done my 10-year lap, and I'll be passing the baton to you. and see you in my 40s.
+With, I've done my 10-year lap, and I'll be passing the baton to you. And see you in my 40s.
