@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "晨昏漫长，数秩未几，浮生燐燦"
+title: "晨昏迟漫，数秩未几，浮生燐燦"
 description: >-
   回顾我的前30年
 date: 2026-04-11 00:00 +0800
@@ -121,7 +121,7 @@ media_subpath: /assets/img/post-data/life/decades-are-short-and-human-is-a-spark
 
 ---
 
-从Ada Lovelace写下第一个算法，到"Attention Is All You Need"，到那一小束"Sparks of Artificial General Intelligence"，直至今天——180年的线索，始于一个朴素的梦想，由无数双手跨越世代编织而成。而这一切，人类的历史、国家的兴衰、家族的命运，最终汇聚到我身上，站在一个寒冷夜晚的地铁里，读一篇博客 —— Sam Altman，在距今11年前的30岁生日写下：*"The days are long but the decades are short."* 晨昏漫长，而十载须臾，不知如今41岁的他，还记得多少当时那些灼灼自勉
+从Ada Lovelace写下第一个算法，到"Attention Is All You Need"，到那一小束"Sparks of Artificial General Intelligence"，直至今天——180年的线索，始于一个朴素的梦想，由无数双手跨越世代编织而成。而这一切，人类的历史、国家的兴衰、家族的命运，最终汇聚到我身上，站在一个寒冷夜晚的地铁里，读一篇博客 —— Sam Altman，在距今11年前的30岁生日写下：*"The days are long but the decades are short."* 晨昏迟漫，而十载须臾，不知如今41岁的他，还记得多少当时那些灼灼自勉
 
 今天，是我三十岁生日。我写给自己，写给更年轻的自己，与未来的每个我：
 
