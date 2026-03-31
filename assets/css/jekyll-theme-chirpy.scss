@@ -65,16 +65,6 @@
   justify-content: space-between;
   backdrop-filter: blur(10px);
 
-  nav {
-    overflow-y: auto;
-    min-height: 0;
-
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 
   .profile-wrapper {
     padding-top: 1.5rem !important;
