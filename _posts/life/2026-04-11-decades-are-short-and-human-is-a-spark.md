@@ -101,7 +101,7 @@ The rest is well known by now. Generative AI soon slid through every industry. A
 
 Almost six years have passed since graduation. Looking back, I am standing at an intersection of life. I can clearly see the 18-year-old me behind me, and he can't see me staring. There will be more intersections ahead. I peer into the fog the same way — not seeing anyone — yet the 40-year-old me will clearly see me tonight. And so on, and so forth.
 
-But what I hope, when we look back, is that we see that 18-year-old and say: "Your job was to make an outlandish dream. The rest is on us."
+But what I hope, when we look back, we can still feel what the boy felt, a heart filled with wonder and uncertainty. And let's don't let him down.
 
 Has my thought changed since that question? Yes and no. I'm no longer the naive kid who believed games are pure art untouched by commerce. But I never bought into the grinding, cash-cow playbook. I still hold tight with the 18-year-old me on what matters. That thread didn't break for now. If I were to die tomorrow, I'd rather have a *Proudly Presents* on my epitaph, than 10 grind cash printers everyone hates.
 
