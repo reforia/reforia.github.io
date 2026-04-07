@@ -26,5 +26,11 @@ package-lock.json
 _sass/vendors
 assets/js/dist
 
+# macOS
+.DS_Store
+
+# VS Code Counter
+.VSCodeCounter
+
 # Claude Code local settings
 .claude/settings.local.json
