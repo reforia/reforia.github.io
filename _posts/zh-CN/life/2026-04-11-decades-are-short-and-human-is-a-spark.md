@@ -122,7 +122,7 @@ media_subpath: /assets/img/post-data/life/decades-are-short-and-human-is-a-spark
 
 ---
 
-而这一切——人类的历史、国家的兴衰、家族的命运——最终汇聚到我身上，在一个微凉的夜晚，读一篇博客。——Sam Altman在他的三十岁生日那天写下：“The days are long but the decades are short.” 晨昏迟漫，而十载须臾。不知如今四十岁的他，还记得多少当年那些灼灼自勉。
+而这一切——人类的历史、国家的兴衰、家族的命运——最终汇聚到我身上，在一个微凉的夜晚，读一篇博客——Sam Altman在他的三十岁生日那天写下：“The days are long but the decades are short.” 晨昏迟漫，而十载须臾。不知如今四十岁的他，还记得多少当年那些灼灼自勉。
 
 今天，是我三十岁的生日。我写给自己，写给更年轻的自己，也写给未来的每一个我：
 
