@@ -6,125 +6,147 @@ description: >-
 date: 2026-04-11 00:00 +0800
 categories: [Life]
 tags: [personal]
-published: false
+published: true
 lang: en
 media_subpath: /assets/img/post-data/life/decades-are-short-and-human-is-a-spark/
 ---
 
-A still cold evening, end of March, 2023. I was reading a blog post on the metro. OpenAI had become the superstar on the world stage in a remarkably short time under Sam Altman's leadership — GPT-3.5 had hit a million users in 5 days back in November, and GPT-4 had just dropped a couple of weeks ago. I'd been loosely tracking the GenAI trend since GPT-3, though back then, the media hadn't exploded like what we were seeing that spring. The world had just come out of a global pandemic. Things seemed to be healing, but also full of uncertainty. One thing, however, was unmistakable: everybody had the feeling that something was submerging beneath the surface, something huge. You could almost see a giant, unsettling silhouette under the horizon. We didn't know it yet, but the future was never going to be the same. I finished reading the post, on a peaceful night before dawn.
+In late March of 2023, on a cool night, I was sitting on the subway reading a blog post. The air was crisp and still, yet it could not muffle a topic that had become incandescent across the world: under Sam Altman’s leadership, OpenAI had already risen rapidly onto the global stage. GPT-3.5 had launched the previous November and reached a million users in five days; GPT-4 had been out for only a matter of weeks. Although I had been following generative AI here and there since the GPT-3 era, I had never seen the media frenzy surge the way it did that spring. The world had only just emerged from the shadow of the pandemic. Everything seemed to be healing, and yet everything also felt uncertain. Only one thing was unmistakably clear: everyone could feel that something was stirring below the horizon, a vast and uneasy silhouette.
 
-Eight months later, Sam Altman was fired from OpenAI. The boardroom crisis lasted only days before he returned — but the fracture was visible. OpenAI seemed to drift further from what it was started for. Anthropic, Google, and others sharpened their stakes; competition intensified by the week. We know the rest of the story.
+At the time, we did not yet know—but the future had already been set on a different course. I finished that article and fell into thought. I was twenty-seven that year.
 
----
+Eight months later, Sam Altman was fired by OpenAI’s board. The upheaval lasted only a few days before ending with his return—but the fracture had become visible. After that, OpenAI seemed to drift further and further from its original ideals, its aura no longer quite the same. Anthropic, Google, and a host of others pushed harder, and the competition in the field only grew more brutal. The rest is familiar enough, and need not be retold.
 
-Humans have been trying to create machines that can execute commands and do things way back since 1843, when Ada Lovelace wrote the first program — an algorithm for Charles Babbage's Analytical Engine, a machine that was never even built. A hundred years later, machine code and assembly appeared. Then Turing dreamt of a machine that possessed "intelligence", that could do beyond what we explicitly told it to do. In the 1950s through the 1980s, Symbolicism dominated. Everyone believed the world could be represented by rules and logic, clear boundaries. It certainly solved a lot of problems. By cascading complex trees of *if* and *then*, we achieved old-school intelligence — or the fairy dust foreshadowing of it.
-
-Everyone believed this, except for a small group of people. They imagined something closer to how the biological brain works. A thing that can *learn*. A thing that accepts a few signals and outputs another — a perceptron. When connected together, they believed, we could achieve what mother nature had achieved: *intelligence*. Perceptrons connected together, hence Connectionism. They called this aggregated form a "neural network."
-
-Then... nothing. With decades of hard work, we'd had Behaviorism, Evolutionism, Bayesianism, yet people just couldn't see the light at the end of the tunnel. The AI Winter was real. Intelligence seemed nothing but merely a human's wet dream.
-
-Over half a century, the frontline stalled, yet exploration never ended. In 2010, DeepMind was founded. ReLU was introduced. The ImageNet competition was there, aiming to benchmark machine intelligence. GPUs, for the first time, were showing strong capabilities in deep learning tasks. Things didn't change much, yet.
+But if we turn the clock back ten years, I did not care about any of this. I did not even know such things existed—models, papers, or the names that would one day change everything. I cared about exactly one thing: games.
 
 ---
 
-2011. I was 15, fresh out of middle school. Shanghai's spring was warm and bright — the Expo had just ended, queues everywhere, foreigners on the road. I didn't really know what the world looked like, but looking at those exhibitions, it must be huge, it must be vivid. It felt like the symbol of prosperity, of a cohesive and promising future. The world seemed enormous from where I stood.
+Humanity’s desire to create machines that can follow instructions and do work can be traced back to 1843. That was the year Ada Lovelace wrote the first program—an algorithm designed for Charles Babbage’s Analytical Engine, a machine that was never actually built. A century later came machine code and assembly. Then came Turing, imagining a machine endowed with something like “intelligence,” capable of going beyond the limits of our explicit instructions. From the 1950s through the 1980s, symbolic AI dominated the field. People believed the world could be represented through rules and logic, through sharply defined boundaries. That path did solve many problems. By stacking layer upon layer of complex if-then trees, we achieved an old-fashioned kind of intelligence—or rather, a primitive outline of one.
 
-The spring for AI was late by 60 years. In 2012, AlexNet crushed the ImageNet competition with a deep convolutional neural network. Soon, the three authors — Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton — became the AI giants of our age.
+Almost everyone believed in that path, save for a small minority. They imagined something closer to the way a biological brain might work: a machine that could *learn*. Take in signals, emit another signal—that was the perceptron. They believed that by connecting enough of these perceptrons together, one might approach the miracle nature had already performed: intelligence. Perceptrons linked together became “connectionism.” The aggregate form they took came to be called the neural network.
 
-Soon enough, I started high school in late summer of 2012. Like most high schoolers, skipping class on weekends and hiding in internet cafes, playing games day and night — that was my daily norm. One evening after school, a friend casually told me, "Hey, you should play this game called Assassin's Creed II." I'd never heard of it. He was like, "You gotta play it, man." So I grabbed the pirated copy that Friday from a small stall, booted it up. That was the first AAA game I had ever played. The experience shocked me so much that I didn't even believe such a game could technically exist. In its opening scene, Ezio and his brother Federico stood atop the tower overlooking Florence, tender moonlight brushing across the rooftops and their shoulders: *"It is a good life we lead, brother." "The best. May it never change." "And may it never change us."* When I played that, I genuinely felt the devs who wrote that line meant it from the bottom of their hearts.
+And then came silence.
 
-It quickly became my favorite game. I went back to play AC1, then Brotherhood and Revelations. In just a few years, Ezio went from a dashing young nobleman to a grizzled old man, and to me, it felt like I truly walked through a lifetime with him — from Jerusalem, Masyaf, Venice, Rome, the Tuscan countryside, back to Damascus. In the library, Altair's and Ezio's footsteps overlapped, completing a cycle of legacy. To this day, I still clearly remember the numerous fade-in logos of global co-dev studios after the beach prologue. I just felt that the company was so cool. At that time, Ubisoft meant rebel to me. They dared to create things that nobody thought possible. There was a special spirit there.
+After decades of labor, we saw behaviorism, evolutionism, Bayesianism—but the light at the end of the tunnel never truly appeared. The AI winter was not a metaphor. It was real. “Intelligence” itself began to feel like nothing more than a glorious daydream.
 
-The realm of fantasy spans endlessly. In spring, I was parkouring across the rooftops of Florence. At the hottest summer, climbing up High Hrothgar and roaring at the peak of Skyrim. When the leaves fell, we were done dealing with Deathwing, ready to cross the mist into Pandaria. At that time, the sky outside the window was all I knew about the real world. The walls of the school and the road home were where my feet would land. But the world inside that small, bulky 14-inch monitor — that's where I really lived.
-
-What is studying and testing really for? What do these boring subjects do for me other than imprison me in a classroom? Games are so fun, and reality can't compare. I tried to imagine what my 30th birthday would look like, in a sub-second thought, but I just couldn't. And today is my 30th. Looking back, the seemingly "worst" times for 16-year-old me were indeed some of the best times of my life.
+For more than half a century, the frontier all but stalled, yet exploration never stopped. In 2010, DeepMind was founded; the ReLU activation function emerged; the ImageNet competition began, attempting to establish a real benchmark for machine intelligence; and for the first time, GPUs revealed their immense potential in deep learning tasks. The age had not yet changed, but something beneath it had already begun to move.
 
 ---
 
-2013 was a pivotal year — for mankind, and for me. The famous "king - man + woman = queen" example was introduced by Word2Vec. Variational Autoencoders came out that same year. Yann LeCun joined Facebook to lead FAIR. Hinton joined Google. The following year, GANs arrived. These were impressive papers and events, but just like high-school me, nobody could see where these threads would lead.
+In 2011, I was fifteen and had just graduated from middle school. Spring in Shanghai was especially warm and bright that year. The Expo had only just ended; attractions were still packed, and you could still see foreigners everywhere in the streets. I knew very little of the world then, but looking at those pavilions, I always felt that the world must be vast and alive. It seemed like a symbol of prosperity, of a future gathering itself into form and promise. From where I stood, the world felt boundless.
 
-As a third-year high school student, the tension rose. The countdown on the blackboard updated every morning. The college entrance exam became a real thing. But I just wanted to escape all of it. School was not something I wanted to stay in for a second. Sneak out before evening class? Love it. Playing card games during class? Count me in. And of course, let's not forget — games were everything. My battlefield was in Azeroth and Los Santos, not the classroom. Life went on.
+The springtime of AI, however, had arrived sixty years late. In 2012, AlexNet, powered by deep convolutional neural networks, crushed every competitor in the ImageNet competition. Very quickly, its three authors—Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton—became titanic figures in the age of AI.
+
+That same late summer of 2012, I entered high school. Like most teenagers, I skipped class on weekends, disappeared into internet cafés, and played games day and night—that was my life. One evening after school, a friend casually asked me, “Have you played *Assassin’s Creed II*?” I said, “What’s that?” He replied, “Holy shit, you have to. This game is insane.” On the road home at dusk, he described an open world so vivid it sounded almost impossible. I was immediately restless with curiosity, and that Friday I went to a street stall and bought a pirated disc. It was the first AAA game of my life.
+
+In the opening scene, Ezio and his brother Federico stand atop a tower in Florence, bathed in tender moonlight falling across the rooftops and over their shoulders:
+
+> “It is a good life we lead, brother.”  
+> “The best. May it never change.”  
+> “And may it never change us.”
+
+That game very quickly became my favorite. I went back and immediately finished AC1, *Brotherhood*, and *Revelations*. Over just a few short years, Ezio grew from a charming young man into a weary old one with a beard. But to me, it felt as if I had truly lived a whole life alongside him, witnessing the full arc—from Jerusalem, Masyaf, Venice, Rome, and the Tuscan countryside, all the way back to Damascus. In the library, Altair’s footsteps overlapped with Ezio’s, and one legacy passed into another. Even now, I can still vividly remember those logos of studios from around the world fading in one by one after the beach prologue. Back then, I only thought one thing: this company was impossibly cool. Ubisoft, in my mind, was practically synonymous with rebellion. They dared to create things others thought impossible. There was something fiercely distinctive about their spirit.
+
+In imagined worlds, there were no horizons. In spring, I freeran across the rooftops of Florence. At the height of summer, I shouted on the peak of High Hrothgar in Skyrim. When autumn leaves began to fall, we had just defeated Deathwing and were preparing to cross the mists into Pandaria. Back then, the sky outside my window was almost my entire understanding of the real world. The school walls and the road home were the full extent of where my feet could carry me. The world inside that bulky fourteen-inch monitor was where I truly lived.
+
+What, exactly, were studying and exams for? What did those tedious subjects mean, other than locking me inside a classroom? Games were simply too compelling; reality could not compare. There was one fleeting moment when I tried to imagine what my thirtieth birthday might look like, but the thought passed and dissolved before I could grasp it. And now, I am thirty. Looking back, those days at sixteen that felt like the “worst” of my life were, in truth, among the best.
+
+---
+
+2013 was a turning point—for humanity, and for me. The famous example “king - man + woman = queen” arrived with Word2Vec. That same year, the variational autoencoder (VAE) was born. Yann LeCun joined Facebook and took charge of FAIR. Hinton joined Google. The year after that, GANs appeared. These were all striking papers and events, but just as with my high-school self, almost no one then could foresee where these threads would ultimately lead.
+
+As a high-school senior, the pressure mounted with every passing day. The countdown on the classroom blackboard was updated daily; the gaokao was no longer an abstraction but something rushing straight toward us. But all I wanted was to escape. School was not a place I wanted to stay in for even one more second than necessary. You might not always find me in the classroom, but if there was a group sneaking out before evening study hall, or huddled together playing cards during class, odds were high I was among them. And of course, never forget: games were everything. My battlefield was in Azeroth and Los Santos, not in a classroom. And so the days passed.
 
 Until two things changed me.
 
-A regular afternoon, the latest biology monthly test result had just come out. I was last — if not second to last — in my class. During break, I was hanging out with my friends as usual. And one of them told me: "Man, the other classes are mandatory and boring, and you messed them up. And you *chose* this major out of three. And you're still messing it up. Man, that's so you." We all laughed, but that conversation planted a seed.
+One was an ordinary afternoon when the results of the latest biology monthly exam were posted. I ranked dead last in the class—or if not last, then second to last. During the break, I was joking around with friends as usual when one of them said, “Sure, the required subjects are boring, so failing those is whatever—but failing an elective you *chose*? Damn, bro. Looks like this mage doesn’t actually have much INT.” We all burst out laughing, but that conversation planted a seed in me.
 
-And second, I went through a breakup — though really, I was just a douchebag back then. That was the first time I started to think: what about after graduation? And what do I actually want to do?
+The second was a breakup—though in fairness, I had accomplished absolutely nothing at that point in my life. It was the first time I seriously began to ask myself: what happens after graduation? What is it that I actually want to do?
 
-It didn't take me very long to become genuinely interested in biology and get good scores on tests. So naturally I thought: maybe I should be a doctor. But a professor told me not to — it's such a hard path, and I wasn't sure it was truly the career for me. I appreciated the honesty.
+Not long after, I genuinely became fascinated by biology, and my grades rose to the top of the class. It felt natural, then, to think that maybe I should become a doctor. At the time, I was especially captivated by neuroscience. But my teacher advised me not to go down that path—she said it was too hard, and she was not sure it was truly the life I wanted. To this day, I remain grateful for her honesty.
 
-I turned 18 in 2014, and just like everyone else at 18, on the edge of adulthood, massive anxiety surrounded me. I started escaping into internet cafes again, but didn't really feel like playing anything. I looked at the game list, scouting around, only to find that I'd played most of them. They all kind of looked similar. But I still missed the old Call of Duty and Assassin's Creed days, so I glanced at the Ubisoft logo and hesitated.
+In 2014, I turned eighteen. Like anyone standing at the threshold of adulthood, I felt enormous anxiety closing in around me. I returned to hiding out in internet cafés, but now I could no longer summon any excitement for games. I scrolled through game lists in a daze and realized I had already played most of them. They even began to resemble one another. Still, I missed the days when *Call of Duty* and *Assassin’s Creed* had once electrified me, and as my eyes passed over Ubisoft’s logo, I paused for just a moment.
 
-And then, out of nowhere, an ad popped in — "Unity 4.6 is out."
+Then, without warning, a pop-up ad appeared:
 
-For some reason, I clicked into it. It was the first time I'd ever heard the words "game engine." It was a Pandora's box where magic could happen. That taboo feeling of sneaking inside the backstage gave me an enormous curiosity. It drove all my attention immediately.
+**Unity 4.6 is now available.**
 
-"Man, I want to be in that opening credit one day."
+Almost against my own will, I clicked it.
 
-I told myself that, and suddenly everything prior had led to this point. And everything afterward started that afternoon. I changed a lot that year. Soon enough — university.
+It was the first time I had ever heard the term “game engine.” It felt like a Pandora’s box that could make magic happen. The forbidden sensation of slipping behind the curtain seized me with enormous force, and in almost a single instant, it took hold of my full attention.
 
----
+> “One day, I’m going to make my name appear in those opening credits.”
 
-In the last summer of high school, the college entrance exam had ended. It was the first summer vacation with no study pressures whatsoever. Nobody would tell you the correct answer on that paper. Nobody even bothered to explain anything. It was like the first 18 years of my life had all been for this single point — a point whose formal weight meant more than it should have. Yesterday, it would have been a big deal if you got a multiple-choice question wrong. Today, so be it. Everything we'd learned in those 18 years suddenly felt disposable. Nobody would wake you up. Nobody cared if you were late. Then what does tomorrow look like?
+That was what I told myself.
 
-The summer felt hollower than I thought.
-
-Making games and playing games quickly became my new norm. I tried Unreal Engine 3 (UDK), CryEngine, Unity, RPG Maker, and a bunch of other tools — as if the gap between me and the game I wanted to make was just a set of tools. But soon enough, I knew that wasn't true. I knew nothing about code. UnrealScript read like gibberish, and node-based Kismet didn't make any sense. I could just drag and drop some entities here and there. I started reading tons of books on design, but I was still clueless and lost.
-
-One night, I asked myself a question: how do I imagine myself at 30, and 40, and 80? Could I imagine myself being someone working on spreadsheets and feeling excited? A doctor? A bus driver? Or a game developer? The last one was the only thing that made me feel something. So I vaguely came up with a 60-year roadmap — at each 10-year mark, what should I accomplish? It was hazy with no real detail, but I felt, blurrily, that games — which had already shaped my view of the world — would also be the light in my storm.
+It felt as though everything before had been leading toward that moment, and everything after would begin from that afternoon. I changed a great deal that year. Before long, university arrived.
 
 ---
 
-In 2014, a paper called "Neural Machine Translation by Jointly Learning to Align and Translate" introduced the attention mechanism. Three years later, we got *the* cornerstone paper: "Attention Is All You Need."
+The final summer after the gaokao was the first vacation of my life completely free of academic pressure. No one would ever again tell you the correct answer on an exam paper. No one would even bother explaining questions to you anymore. It was as if everything you had learned in the first eighteen years of your life had all converged upon one single formal checkpoint—one that had been given far more weight than it deserved. Yesterday, getting a multiple-choice question wrong still mattered. Today, it meant nothing. Everything I had studied for eighteen years suddenly felt disposable. No one would wake you up. No one cared if you were late. So what, then, would tomorrow look like?
 
-For me, those years of college passed blazing fast. I spent very little time on coursework — the classes weren't difficult, and I had plenty of time. So I poured all my effort into games. I was lucky enough to join NVIDIA for an internship. The work wasn't easy, but the experience was extremely precious. There I met a bunch of great friends, some I'm still in touch with today. I wish everyone the best. By 2017, I felt that I needed answers I couldn't get from books. I needed methodology for game development. And I believed that the answer was in the United States — the country with the best gaming industry in the world at that time.
+That summer was emptier than I had imagined.
 
-Before departure, one of our professors introduced a senior designer who'd been working in the gaming industry for decades. We had a chat. I said I didn't want to make grinding games. I wanted to make games that move people and touch people. The real art.
+Making games and playing games quickly became my new routine. I tried Unreal 3 (UDK), CryEngine, Unity, RPG Maker, and a dozen other tools, as though the only thing standing between me and the games of my dreams was the right set of software. But I soon realized that was not true. I knew nothing about code. UnrealScript looked like scripture in an unknown language. Kismet’s nodes made no intuitive sense to me. All I could really do was drag objects around. I began reading large numbers of design books, yet still felt lost.
 
-He said, "I wish you'll have the same thought in 10 years."
-
-With that, I started my master's journey in America. Plano, a small town north of Dallas, TX, where I met numerous seniors, industry professors, and many friends. It was like a big family of gamers. School and homework — the things I'd hated so much at 16 — became paradise for me. The courses were tough, pressures were high, yet they drove me to wake up at 8 in the morning and sleep at 2 the next day. For the first time, I felt sleep was a burden, because there were so many things I loved to learn. The excitement gave me endless energy.
+One night, I asked myself a question: how did I imagine myself at thirty, forty, eighty? Could I imagine myself becoming someone excited by Excel and Word? A doctor? A bus driver? Or a game developer? Only the last possibility stirred something in me. So I sketched, clumsily, a rough sixty-year roadmap for my life—one milestone per decade, each decade meant to arrive somewhere. It was blurry and had no detail, but I vaguely felt that the games which had already shaped my view of the world would also become the beacons guiding me through the storm.
 
 ---
 
-Same year, GPT-1 launched — a model trained on internet text, predicting the next word out of a sequential stream. The utilization of the attention mechanism itself didn't raise much attention. BERT was published. AlphaFold v1 came out. The following year, OpenAI Five beat the Dota 2 world champions OG 2-0.
+In 2014, a paper titled *Neural Machine Translation by Jointly Learning to Align and Translate* introduced attention. Three years later came the foundational work that would change the world: *Attention Is All You Need*.
 
-The two-year journey in the States was extremely fruitful. I'd been learning programming, rendering, design — really everything about games, systematically. I had the chance to experiment and explore, to build things that had been lying in my mind. When nobody forced me to learn, I felt an exceptional freedom to explore the world. As if the curiosity that was buried inside me, extinguished by the education system back home, reignited — brighter than ever. It was the first time I realized that nothing was really blocking me from doing anything I wanted, and that no place on this planet is more than 15 hours' flight away. Two years ago, the world was huge to me. Yet after flying over the Pacific Ocean multiple times a year, it felt way smaller than I had ever anticipated.
+For me, my university years flew by. I spent little time on coursework—the classes were not terribly difficult, and I had time to spare. So I poured all of myself into games. In my senior year, I was fortunate enough to intern at NVIDIA. The work was not easy, but the experience was immensely valuable. I met a group of friends there, some of whom I still keep in touch with. I wish them all well. By 2017, I gradually realized that I needed answers I could not find in books. I needed a methodology for game development. I believed those answers were in America—at the time, still the most advanced game industry in the world.
 
-2020 was turbulent. Covid had become serious, the economic structure was shifting fast. It was another hot summer in Texas, and god pressed the fast-forward button. The semester closed on a hurried schedule, thesis defense was held online, and with that, I graduated. I never really thought I'd join Ubisoft, yet it happened — almost like a scripted drama. It felt like all the dots were connected now. Ever since that afternoon in high school, every day was my "best time ever," and I wished — *may it never change, and may it never change us.*
+Before I left, a professor introduced me to a veteran designer who had spent decades in the game industry. We talked. I told him I did not want to make pay-to-win games. I wanted to make games that could move people, touch something in them. Real art.
 
-Then Covid hit hard. War broke out, tensions rose everywhere, alliances frayed. The glorious gaming industry of the 2010s gathered dust. The company whose logo once gave a 16-year-old goosebumps was no longer the same — no Assassin's Creed could move me anymore. The reality is: things never stopped changing. To the world. To us.
+He said, “I hope you still feel that way ten years from now.”
 
-The rest is well known by now. Generative AI soon slid through every industry. A new tech is in its tomb after a few hours. The fantasy of "AGI" came within sight. Post-pandemic brought massive economic recession. Joblessness became too common for any media to find interesting anymore.
-
----
-
-Almost six years have passed since graduation. Looking back, I am standing at an intersection of life. I can clearly see the 18-year-old me behind me, and he can't see me staring. There will be more intersections ahead. I peer into the fog the same way — not seeing anyone — yet the 40-year-old me will clearly see me tonight. And so on, and so forth.
-
-But what I hope, when we look back, we can still feel what the boy felt, a heart filled with wonder and uncertainty. And let's don't let him down.
-
-Has my thought changed since that question? Yes and no. I'm no longer the naive kid who believed games are pure art untouched by commerce. But I never bought into the grinding, cash-cow playbook. I still hold tight with the 18-year-old me on what matters. That thread didn't break for now. If I were to die tomorrow, I'd rather have a *Proudly Presents* on my epitaph, than 10 grind cash printers everyone hates.
-
-I haven't let that kid down in the past 12 years. I lived every second to the best I could. Didn't force myself working on things I hate and waste the time.
+With that sentence, I began my graduate journey to the United States. Plano, a small town north of Dallas. There I met countless seniors, professors from the industry, and many friends. It felt like a giant family made up of game players. Schoolwork—the very thing my sixteen-year-old self had once despised—became a paradise. The courses were difficult and the pressure intense, yet they drove me to wake up at eight every morning and stay up until two in the morning. For the first time in my life, sleep felt like a burden, because there was simply too much that I loved and wanted to learn. That excitement gave me almost inexhaustible energy.
 
 ---
 
-When I started writing this, I thought the world had accelerated dramatically in recent years compared to the past. That's true, but the past wasn't stalled, and we didn't arrive here from nowhere. Doing the research, the evidence is clear: the world has always been evolving. Big events happen every day. It wasn't the world that was stalling before — it was the past me that couldn't see the world. Caged behind a window, stretched across a small LED panel, trying to capture something to fill an empty and timid heart.
+That same year, GPT-1 appeared—a model trained on internet text to predict the next word in a sequence. At first, attention itself did not attract that much notice. Then came BERT and AlphaFold v1. The year after, OpenAI Five defeated Dota 2 world champions OG, 2–0.
 
-And when we look back, all these seemingly contradictory theories, the disagreements, the circular debates, the winters, the hopeless and devastating nights, the decades upon decades of work — all these threads flow into a single point, one after another. With countless researchers and papers, we arrived at a world that unites all modalities in latent space, that represents digital information as tokens, that for the first time grasps the softness of human knowledge and language — breaking free from the prison of rigid *if-else* boundaries that had caged us for 70 years. And finally, finally — the humble dream in Turing's mind has come true.
+Those two years in America yielded a great deal. I systematically studied programming, rendering, design—almost everything related to games. I had the opportunity to experiment, to explore, to build the ideas that had lived in my head for years. When no one forced me to study, I felt for the first time an extraordinary freedom in exploring the world. It was as though the curiosity that had once been extinguished by an educational system reignited here, burning even more fiercely than before. For the first time in my life, I realized that there was, in truth, very little preventing me from doing anything I wanted—and that nowhere on Earth was more than fifteen hours away by plane. Two years earlier, the world had still seemed immeasurably vast to me; after crossing the Pacific several times a year, it suddenly became much smaller than I had imagined.
 
-I have no idea where humanity will go, nor is it really my concern. Maybe everything we do on this pale blue dot is in vain. Maybe we are the bootstrap of silicon-based life. Yet here we are — brakes off, pedal to the floor, driving through the unknown. What makes humans different? My answer, at this moment, would be: curiosity. Curiosity is a curse. It beats timidity, lets the beauty of the universe and nature easily lure a naive species into its trap. It equips weak bipeds with the bravery to step into the darkest abyss. Entropy rises exponentially, yet countless pioneers make the cosmos slightly shinier in a snap — a spark in the Orion Spur, in the endless expanse of space-time.
+2020 was a turbulent year. The pandemic raged. Economic structures shifted violently. In the Texas heat, it felt as though God had pressed fast-forward. The semester was hurriedly wrapped up. My thesis defense happened online. I graduated. I had never imagined I would actually join Ubisoft, and yet it happened—as if the script had already been written. I felt that all the scattered stars had finally connected into a line. Ever since that afternoon in high school, every day had been my “best of times,” and I silently prayed:
+
+> “May it never change. And may it never change us.”
+
+Then the pandemic deepened, war broke out, global tensions rose, and alliances began to fracture. The glittering game industry of the 2010s slowly gathered dust. The company that had once given a sixteen-year-old boy goosebumps was no longer what it had been. Not a single *Assassin’s Creed* since had truly moved me. The reality is simple: nothing ever stops changing. Not the world. Not us.
+
+The rest of the story is widely known. Generative AI swept through every industry. A new technology became old news in a matter of hours. The fantasy of AGI suddenly seemed close enough to touch. The post-pandemic era brought large-scale economic decline, soaring unemployment, and eventually the media lost interest in reporting any of it.
 
 ---
 
-Since Ada Lovelace wrote the first algorithm, to "Attention Is All You Need," to the first small "Sparks of Artificial General Intelligence" til today — 180 years of threads, started with a simple dream, woven by countless hands across generations. And all of it, the history of humanity, of nations, of families, aggregated into me, on a cold night, reading a blog post — a blog post from Sam Altman, written on his 30th birthday, 11 years ago, looking back on his life. The title reads: *"The days are long but the decades are short."* I don't know how many points he still remembers today, now that he's 40.
+It has now been nearly six years since graduation. Looking back on the road behind me, I find myself standing at a crossroads. I can clearly see the eighteen-year-old version of myself behind me, though he cannot see the one who now watches him. There will be more crossroads ahead. I, too, look into empty fog—yet my forty-year-old self can already see me tonight. And so it repeats, without end.
 
-Today is my 30th birthday. And I write to myself, to the younger me and every older me:
+But I hope that every time we look back, even when we are old and frail, we can still clearly feel that younger self sitting in a room, clutching a computer, filled with both longing and confusion about the world. I hope we do not let him down.
 
-*A decade is short, and life is a spark.*
+Exactly ten years have passed since that question. Have my thoughts changed? Yes and no. I am no longer the child who naively believed games were pure art, untouched by commerce. But I have never accepted the kind of design in which every system is built around monetization. On the question of what truly matters, I am still holding hands tightly with my eighteen-year-old self. That thread has not broken. If I were to die tomorrow, I would want to leave behind an epitaph that reads **Proudly Presents**, not a few crude money-printing machines despised by everyone.
 
-So here's my note to the me ten years from now. I see the world's evolution through the lens of information bandwidth — the throughput of each signal multiplied by how many can run in parallel. We went from letters carried on foot, to vehicles and satellites, to the web where thoughts become bytestreams traveling through topology. Then we digitalized everything — novels, songs, images, movies, games — compressing modalities into signals, boosting both throughput and concurrency. And now, with generative AI, we've abstracted modality itself. A machine no longer just moves bytes — it grasps what they mean.
+Over the past twelve years, I feel I have not betrayed that boy. Every second, I have tried to live as well as I could. I have never forced myself to do what I hated, nor have I wasted my time.
 
-I'm already living in this shift. The throughput AI gives me dwarfs what I could do alone just a few years ago. But I've realized something: I am the bottleneck now. Not because I'm slow — because it's fast. My review, my judgment, my context-switching — that's where things stall. The root cause: the brain wasn't built for parallelism. We have shared memory across every project, tiny short-term cache, and brutal context-switch penalties. Every time I swap between tasks, I'm hitting biological cache misses. GPUs solved this for silicon — decouple independent tasks, offload to CUDA, run massive parallel computations. Humans haven't solved it yet. That's my problem for the next decade: how to parallelize a biological processor that was never designed for parallelism.
+---
 
-With that, I've done my 10-year lap, and I'll be passing the baton to you. And see you in my 40s.
+When I first sat down to write this, I thought the pace of the world in recent years had accelerated far beyond anything in the past. That is true—but the past never stood still either. We did not arrive here out of nowhere. Look closely enough, and the threads begin to resolve: the world has always rushed forward, and history’s great moments were always happening. It was not that the old world had been static—it was that the old me could not yet see it. I sat behind a window, staring through a small LED screen, trying to catch hold of something that might fill the emptiness and timidity inside me.
+
+And when we look back, all those apparently contradictory theories, divisions, cyclical arguments, winters, nights of despair and heartbreak, and decades of tireless labor all converge upon a single point. From Ada Lovelace writing the first algorithm for a machine that was never built, to *Attention Is All You Need*, and then to that small burst called *Sparks of Artificial General Intelligence*—this thread of one hundred and eighty years began with a simple dream, woven across generations by countless hands. We went from messages carried on foot, to horses and carts, to satellites, and then to networks, turning thought itself into streams of bytes moving through topology. Then we digitized everything—novels, songs, images, films, games—compressing every modality into signal. And now, through generative AI, we have abstracted “modality” itself. Machines no longer merely transport and process bytes—they are beginning to grasp the meaning behind them. In that latent space where all modalities can be unified into token representation, the machine touches, for the first time, the soft inner fabric of human knowledge and language, and at last breaks the if-then cage that confined it for seventy years. And so, finally—finally—the mad and romantic dream in Turing’s heart has come true.
+
+I do not know where humanity is headed, nor is that what truly concerns me. Perhaps everything we do on this pale blue dot is ultimately futile; perhaps we are merely the bootstrap program for a silicon-based lifeform. And yet here we are—releasing the brake, flooring the accelerator, racing into the unknown. What is it that makes humanity different from every other living thing? At this moment, my answer would be: curiosity. Curiosity is a merciless curse. It overcomes timidity and fear, and lets the grandeur of the universe and nature lure this innocent species into the trap with ease. It grants those frail, two-legged creatures the courage to face death and descend into the darkest abyss. Thus entropy grows exponentially, and countless pioneers hurl themselves forward like moths into flame—and so emperors and ministers across the ages, here on a single arm of the Orion Spur in this nearly boundless time and space, strike one brief spark.
+
+---
+
+And all of this—the history of humankind, the rise and fall of nations, the fate of families—eventually converged upon me, in one cool night, reading a blog post. On his thirtieth birthday, Sam Altman wrote:
+
+> “The days are long but the decades are short.”
+
+Days are slow in passing, but ten years vanish in an instant. I wonder how much of those fervent words of self-exhortation he still remembers now, at forty.
+
+Today is my thirtieth birthday. I write this for myself, for my younger self, and for every future version of me:
+
+> “The decades are short but the life is a spark.”
+
+Years are few, and life flickers bright.
+
+At this point, I have finished my own ten-year leg of the relay and passed the baton to you. I’ll see you again at forty.
