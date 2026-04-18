@@ -6,6 +6,7 @@ description: >-
 date: 2026-04-18 12:00 +0800
 categories: [AI, GenAI]
 tags: [AI, GenAI, Multi-Agent, Self-Hosted, Open Source, Nebula, Indie Game Dev]
+media_subpath: /assets/img/post-data/ai/nebula/
 lang: en
 ---
 
@@ -45,6 +46,9 @@ The core idea in Nebula is simple — separate what an agent *is* from what an a
 
 This isn't a novel concept in distributed systems — separating state from compute is well-established. The contribution is applying it to LLM agent orchestration and seeing what patterns it enables.
 
+![Agent settings — the "soul" lives in the database, not the process](agent-settings-general.png)
+_Each agent's identity — role, runtime, model, allowed tools — is configured in the UI and persisted to SQLite._
+
 In practice, it means:
 - Agents survive container restarts without losing anything
 - I can swap an agent's backend from Claude Code to Gemini CLI in one click — no migration
@@ -65,6 +69,9 @@ Here's what actually runs every day:
 | **BM Pacman** | Windows Build Server | Headless Windows machine running TeamCity builds. Compiles, tests, packages projects |
 | **Mac M3 Max** | macOS Workstation | Intermittent macOS builds and tests, Xcode projects, development tasks |
 
+![The sidebar showing all 7 agents with status and notification badges](agent-sidebar.png){: width="250"}
+_The agent sidebar — each agent shows its latest activity and unread message count._
+
 The first five are "thinking" agents — they research, analyze, and produce reports. The last two are "doing" agents — physical machines that run builds via Nebula's remote agent feature (WebSocket bridge to a Tauri desktop app).
 
 ## What a Typical Day Looks Like
@@ -75,9 +82,15 @@ The first five are "thinking" agents — they research, analyze, and produce rep
 
 **Throughout the day** — I interact with agents as needed. If I want Marketing's take on a competitor launch, I talk to Secretary and it pulls Marketing into the conversation with `@Marketing`. The platform handles context composition — Marketing receives the last N messages of relevant context, processes the request, and the response flows back through Secretary.
 
+![The @mention autocomplete dropdown](mention-autocomplete.png){: width="350"}
+_Typing `@` brings up agent autocomplete — the platform handles routing and context injection._
+
 **Ad hoc** — When I push code, TeamCity triggers builds on BM Pacman. If a build fails, RnD picks it up in the next scan and flags it. If the failure is related to a plugin upgrade, Secretary coordinates between RnD (who understands the technical issue) and the relevant agent (who tracks the broader impact).
 
 **Evening** — Another scan cycle. Shorter — focused on what changed since morning. Secretary sends an evening briefing.
+
+![Monthly calendar view of all scheduled agent tasks](task-calendar.png)
+_The task calendar — every cron job across all agents, visible at a glance._
 
 ## What I Actually Learned
 
@@ -97,9 +110,15 @@ About 80% of what my agents produce is genuinely useful — it saves me hours of
 
 Running 7 agents with daily scans, ad-hoc conversations, and inter-agent routing costs roughly what you'd expect from heavy Claude API usage. The session compaction feature (summarizing long conversations to stay within context limits) helps significantly. The biggest cost driver isn't the scans — it's the inter-agent routing, where context gets duplicated across multiple agent invocations.
 
+![Usage dashboard showing 527 executions, 2.5M tokens, $387 over 30 days](usage-dashboard.png)
+_Real usage numbers from my deployment — 7 agents, 30 days._
+
 ### The agents improve themselves
 
 This sounds like hype, but it's literally true in a mundane way. Agents write their own CLAUDE.md files (persistent instructions), accumulate memory entries, and refine their skills based on feedback. My Secretary agent's CLAUDE.md started as a few lines and is now a detailed operational document with watchlists, flags, deadlines, and editorial guidelines — all written by the agent based on corrections I've made over weeks.
+
+![Agent memory editor with searchable entries](memory-editor.png){: width="450"}
+_Persistent memory — agents accumulate knowledge entries that survive across sessions._
 
 ## The Paper
 
@@ -126,6 +145,9 @@ docker compose up -d
 ```
 
 You need at least one CLI runtime installed (Claude Code, OpenCode, Codex CLI, or Gemini CLI). The setup wizard walks you through creating your first agent.
+
+![Setup wizard — account creation step](setup-wizard.png){: width="500"}
+_The setup wizard guides you through account creation, runtime detection, and first agent setup._
 
 GitHub: [reforia/Nebula](https://github.com/reforia/Nebula)
 
