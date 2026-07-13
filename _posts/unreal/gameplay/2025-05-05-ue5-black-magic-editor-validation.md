@@ -3,6 +3,8 @@ layout: post
 title: "Lyra Breakdown - Editor Validation"
 description:
   A feature has been finished beautifully, and let's submit it and call it a day. Oh wait...
+tldr: >-
+  Lyra's UEditorValidator::ValidateCheckedOutContent gates source-control submits by validating checked-out packages and project settings before check-in, reporting results through FMessageDialog. The walkthrough covers scoped RAII helpers like FScopedSlowTask and the FOutputDevice-derived FLyraValidationMessageGatherer, a function-static FCachedNativeClasses cache in GetChangedAssetsForCode, and a `using` declaration that suppresses -Woverloaded-virtual on Epic's deprecated CanValidateAsset_Implementation signature.
 date: 2025-05-05 12:05 +0800
 categories: [Unreal, Gameplay]
 published: true

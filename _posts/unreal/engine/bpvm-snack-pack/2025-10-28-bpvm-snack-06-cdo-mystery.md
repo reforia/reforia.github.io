@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #6 - The CDO Mystery: Your Class's Secret Template"
 description: "Every Blueprint class has a hidden template object that nobody talks about. Meet the CDO - the mysterious instance that defines what 'default' really means."
+tldr: >-
+  Every Unreal class has a Class Default Object (CDO): a real instance created automatically when the class loads that acts as the template for all future spawns. Editing "Default" values in the Blueprint editor writes directly to the CDO, spawning copies its properties, and defaults survive recompilation because the old CDO's values are copied into the new one—never modify a CDO at runtime.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

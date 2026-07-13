@@ -3,6 +3,8 @@ layout: post
 title: "Lyra技术解析 - 编辑器验证"
 description:
   今日事，今日毕，写完功能代码提交一波美滋滋...等等...
+tldr: >-
+  Lyra 的 UEditorValidator::ValidateCheckedOutContent 在提交前对检出的数据包和项目设置进行校验，以此把关源代码控制的提交流程，并通过 FMessageDialog 反馈结果。文章剖析了 FScopedSlowTask、继承自 FOutputDevice 的 FLyraValidationMessageGatherer 等作用域 RAII 辅助类，GetChangedAssetsForCode 中的函数内静态结构体 FCachedNativeClasses 缓存，以及用 `using` 声明抑制 Epic 已弃用的 CanValidateAsset_Implementation 签名所引发的 -Woverloaded-virtual 警告。
 date: 2025-05-05 12:05 +0800
 categories: [Unreal, Gameplay]
 published: true

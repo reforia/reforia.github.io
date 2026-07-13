@@ -3,6 +3,8 @@ layout: post
 title: Control Player Tension with Dynamic Difficulty Adjustment
 description: >-
   Master thesis project on how to control player tension with dynamic difficulty adjustment in Divinity: Original Sin 2
+tldr: >-
+  A master thesis project modding Divinity: Original Sin 2 in The Divinity Engine 2 to control player tension through dynamic difficulty adjustment, adapting encounter challenge in real time to keep players in a target tension band. Includes a downloadable Steam Workshop mod, source code, a defense presentation, and a gameplay walkthrough.
 date: 2020-07-01 12:00 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]

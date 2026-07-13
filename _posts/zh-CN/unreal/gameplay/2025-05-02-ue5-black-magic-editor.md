@@ -3,6 +3,8 @@ layout: post
 title: "Lyra技术解析 - 编辑器模块"
 description:
   还能这么扩展编辑器和引擎？那我之前那波轮子不是白造了？
+tldr: >-
+  Epic的Lyra通过继承UUnrealEdEngine实现LyraEditorEngine来扩展虚幻编辑器，默认展开GameFeature插件目录并挂接PIE启动流程，进而叠加了config驱动的UDeveloperSettings、GetOptions下拉元数据、Slate Toast通知、自定义PlayToolBar按钮（Check Content、Common Maps）、集中式FSlateStyleSet单例，以及提升编译速度的UE_INLINE_GENERATED_CPP_BY_NAME宏。
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: true

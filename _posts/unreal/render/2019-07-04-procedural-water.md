@@ -3,6 +3,12 @@ layout: post
 title: Procedurally Generated Water Shader in UE4
 description: >-
   A procedural water shader based on GPU Gems
+tldr: >-
+  A UE4 water shader built from GPU Gems Chapter 1, blending multiple Gerstner
+  sine waves to displace surface vertices in real time. Normals come from the
+  cross product of binormal and tangent (via DDX/DDY of the height function),
+  with depth-interpolated base color, scene-color refraction, and distance-based
+  tessellation for seamless large-scale water at realtime performance.
 date: 2019-07-04 01:00 +0800
 categories: [Unreal, Render]
 tags: [Unreal, Render, Procedural, Water]

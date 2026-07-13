@@ -3,6 +3,8 @@ layout: post
 title: "Lyra技术解析 - 插件结构"
 description:
   本文深入研究了Lyra中的插件，所以您就不用再遭罪了。这些插件已与相关文档一起整理编译，方便搜索。
+tldr: >-
+  Epic的Lyra示例项目启用了数十个插件，涵盖编辑器工具、资产管理（DataRegistry、AssetSearch）、渲染、音频（MetaSound、AudioModulation）、网络（ReplicationGraph、OnlineSubsystem/OnlineServices）以及玩法（GAS、ModularGameplay、GameFeatures、StateTree）。本文逐一分类整理这些插件并附上说明与文档，随后将Lyra自身的源码模块划分为完全核心、核心扩展与完全扩展三个层级。
 date: 2025-05-08 1:18 +0800
 categories: [Unreal, Gameplay]
 published: true

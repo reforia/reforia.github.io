@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #20 - The Journey Ahead: Mastering Blueprint Internals"
 description: "You've learned how Blueprint compiles from nodes to bytecode. Here's what to explore next and how this knowledge empowers you as an Unreal developer."
+tldr: >-
+  Understanding the full Blueprint compilation pipeline—from skeleton classes and the CDO through node handlers, the DAG scheduler, and backend bytecode generation—lets you design faster Blueprints, pinpoint real performance bottlenecks, and read Unreal's KismetCompiler source. This finale of the 20-part BPVM Snack Pack points onward to UHT reflection, garbage collection, serialization, network replication, and the Gameplay Ability System.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

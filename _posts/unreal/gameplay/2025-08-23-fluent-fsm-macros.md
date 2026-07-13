@@ -3,6 +3,12 @@ layout: post
 title: "Fluent FSM - Building State Machines with Style"
 description:
   A deep dive into creating a fluent-style state machine framework for Unreal Engine with powerful macro-based syntax that handles nested replication and provides elegant builder patterns.
+tldr: >-
+  A fluent builder-pattern state machine framework for Unreal Engine chains
+  .From().To().When() calls into readable transition tables, while macros like
+  DECLARE_STATE_MACHINE eliminate boilerplate and generate type-safe accessors.
+  States are UObjects synchronized through nested subobject replication, giving
+  polymorphic, network-ready state management that UHT can reliably reflect.
 date: 2025-08-23 15:30 +0800
 categories: [Unreal, Gameplay]
 published: true

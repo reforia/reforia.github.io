@@ -3,6 +3,8 @@ layout: post
 title: "Lyra技术解析 - 项目配置"
 description:
   Target.cs, Build.cs, Configs, Modules, 哥们给我干哪来了？
+tldr: >-
+  Lyra 的六个构建目标（Editor、Client、Server、Game 及其 EOS 变体）由 Target.cs 和 Build.cs 驱动，UBT 会将它们编译进单个 ModuleRules.dll 程序集，使各目标能够互相调用如 ApplySharedLyraTargetSettings 这样的静态方法。文章还涵盖了 Monolithic 与 Modular 链接、Unique 与 Shared 构建环境、CustomConfig 分层 .ini 配置，以及 GameFeaturePlugin 的启用控制。
 date: 2025-05-06 19:07 +0800
 categories: [Unreal, Gameplay]
 published: true

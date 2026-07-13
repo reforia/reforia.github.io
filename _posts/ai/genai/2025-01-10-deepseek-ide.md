@@ -3,6 +3,11 @@ layout: post
 title: Embedding DeepSeek-v3 into JetBrains Rider and VS Code
 description: 
   A quick walkthrough on embedding deepseek-v3 into JetBrain Rider and VS Code
+tldr: >-
+  DeepSeek-V3 can be wired into JetBrains Rider via the CodeGPT plugin and into VS Code
+  via the Continue extension, using a custom OpenAI-compatible endpoint
+  (api.deepseek.com) for Copilot-style autocomplete and chat. It costs roughly 0.65 CNY
+  per million tokens — about 28x cheaper than OpenAI's GPT-4o.
 date: 2025-01-10 12:00 +0800
 categories: [Machine Learning, GenAI]
 tags: [OpenAI, DeepSeek, API, Machine Learning, GenAI, AI]

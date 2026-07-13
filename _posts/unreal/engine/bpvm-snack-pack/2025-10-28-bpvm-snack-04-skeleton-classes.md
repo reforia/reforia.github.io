@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #4 - Skeleton Classes: The Hidden Hero"
 description: "How does Blueprint A reference Blueprint B when B isn't compiled yet? The skeleton class - Blueprint's version of forward declarations."
+tldr: >-
+  Unreal breaks Blueprint circular dependencies with skeleton classes: during Stage VIII (Recompile Skeleton), it generates a header-like SKEL version of each class holding all variable declarations and function signatures but no bytecode. A two-pass compile builds every skeleton first so classes can reference one another, then fully compiles them.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

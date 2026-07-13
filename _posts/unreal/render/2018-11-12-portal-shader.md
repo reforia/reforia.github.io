@@ -3,6 +3,12 @@ layout: post
 title: Portal Shader - Unreal Engine 4
 description: >-
   a shader that can mimic an illusion of portal through which another world is behind
+tldr: >-
+  A UE4 portal illusion works by rendering an extra level into a render target,
+  then using the depth buffer to mask the portal region in a post-process material
+  before applying it to the portal surface. Extra fixes handle gamma correction,
+  tone mapping, and light channels; the render target can be sub-resolution to
+  optimize performance.
 date: 2018-11-12 09:00 +0800
 categories: [Unreal, Render]
 tags: [Unreal, Render, Portal]

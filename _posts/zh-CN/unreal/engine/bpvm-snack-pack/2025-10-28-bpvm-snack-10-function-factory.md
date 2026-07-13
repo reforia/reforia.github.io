@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #10 - 函数工厂:图表变成函数"
 description: "你的事件图在运行时实际上不是图表。它被转换成一个叫做 Ubergraph 的巨型函数。这就是函数工厂的魔法工作原理。"
+tldr: >-
+  蓝图编译器将所有事件图页面合并成一个 Ubergraph 函数,BeginPlay、Tick 等每个事件都只是一个
+  入口点函数桩。常规函数图、生成的函数图和接口函数图各自被处理成独立的函数,宏被内联展开后消失,
+  而每个函数都会获得一个 FKismetFunctionContext,保存它的终端、执行顺序和生成的语句。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

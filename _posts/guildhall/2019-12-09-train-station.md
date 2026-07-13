@@ -3,6 +3,13 @@ layout: post
 title: Train Station - Left4Dead
 description: >-
   The level "Train Station" belongs to the campaign "Finalstop", and is served as the first level. The whole campaign includes 4 levels, respectively they are Train Station, Sewer, Swamp, and Prison, here the blog is mainly focused on level 1 -- "Train Station".
+tldr: >-
+  "Train Station" is the opening level of the four-part Left4Dead campaign
+  "Finalstop," built in Hammer. Its postmortem credits early block-outs,
+  source control, and a Python one-click packaging script, while faulting weak
+  team-wide communication and time management. Key craft lessons: finalize
+  NavMesh before the aesthetic pass, and block long lines of sight to protect
+  LOD and performance.
 date: 2019-12-10 06:49 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]

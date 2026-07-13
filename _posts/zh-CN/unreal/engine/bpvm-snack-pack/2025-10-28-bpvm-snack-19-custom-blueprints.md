@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #19 - 自定义蓝图:扩展系统"
 description: "现在你理解了蓝图如何编译。想要创建你自己的具有特殊编译规则的自定义蓝图类型吗?这就是扩展系统的工作原理。"
+tldr: >-
+  动画蓝图、Widget 蓝图和游戏能力蓝图都通过自定义编译来扩展虚幻的蓝图系统。你也可以打造自己的类型:
+  继承 UBlueprint 派生自定义蓝图类,覆盖 FKismetCompilerContext 以掌控每个编译阶段,添加带节点处理器的
+  UK2Node 节点类型,注册 UBlueprintExtension 实现模块化行为,并自定义图表模式来约束允许的连接。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

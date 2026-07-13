@@ -3,6 +3,11 @@ layout: post
 title: Curve Based Exponential Fog
 description: >-
   a flexible and believable exponential fog in Unreal Engine 4 based on Direct3D 9's Exponential Fog Equation
+tldr: >-
+  Building a flexible exponential fog material in Unreal Engine 4 from Direct3D 9's
+  exponential fog equation: compute the fog factor, drive fog color by camera distance
+  through a curve, add a height-based mask so lower regions stay opaque, and blend the
+  result over the scene color.
 date: 2019-12-10 22:09 +0800
 categories: [Unreal, Render]
 tags: [Unreal, Render, Fog]

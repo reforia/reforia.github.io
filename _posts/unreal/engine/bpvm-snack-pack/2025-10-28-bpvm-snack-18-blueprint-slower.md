@@ -2,6 +2,13 @@
 layout: post
 title: "BPVM Snack Pack #18 - Why Blueprint is Slower: The Performance Truth"
 description: "Blueprint is slower than C++, but not for the reasons you might think. It's not the VM - it's the copying! Here's the real performance story."
+tldr: >-
+  Blueprint's slowness comes from data copying, not interpretation: it compiles to
+  bytecode, and the visual nodes vanish at compile time. The real cost is copying every
+  parameter on each function call, plus runtime stack management, type checking, and
+  reflection-based property access, roughly 5-10x overhead for simple operations. That
+  overhead is negligible for expensive work but brutal in tight loops, so keep hot paths
+  in C++ and high-level logic in Blueprint.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #1 - 蓝图到底是什么?"
 description: "你刚创建的蓝图?它其实不是类。更像是一份配方。这里揭示它背后的真实结构。"
+tldr: >-
+  你创建的蓝图是一个 UBlueprint 资产——一份编辑器时的配方——而不是类本身;编译时会生成一个独立的 UBlueprintGeneratedClass 在运行时执行。两者在 C++ 中都不真正从父类继承,父级关系是通过虚幻反射系统的 SetSuperStruct 指针模拟出来的。重新编译会重用同一个类对象而非创建新的,从而保持引用稳定。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

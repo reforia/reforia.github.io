@@ -3,6 +3,12 @@ layout: post
 title: "From Blueprint to Bytecode V - Bytecode and Game"
 description:
   "Great enemies fallen, the adventurers move forward. Deep down the castle, a humongous machine is working on countless tiny pieces, pointers jumping back and forth, carrying EExprToken around. We are so close to the heart of the secret - Bytecode"
+tldr: >-
+  Enabling CompileDisplaysBinaryBackend in DefaultEngine.ini dumps a Blueprint's
+  compiled bytecode as readable EExprTokens, revealing how execution starts at
+  ReceiveBeginPlay, pushes a stack into ExecuteUbergraph via a computed jump, and
+  calls CustomPrintString. It explains why every function ends in EX_Return with
+  EX_Nothing, and why MergeAdjacentStates strips the redundant EX_GotoReturn.
 date: 2024-12-29 11:27 +0800
 categories: [Unreal, Engine]
 published: true

@@ -2,6 +2,12 @@
 layout: post
 title: "BPVM Snack Pack #19 - Custom Blueprints: Extending the System"
 description: "Now you understand how Blueprint compiles. Want to create your own custom Blueprint types with special compilation rules? Here's how the extension system works."
+tldr: >-
+  Animation, Widget, and Gameplay Ability Blueprints all extend Unreal's Blueprint
+  system through custom compilation. Build your own by subclassing UBlueprint, overriding
+  FKismetCompilerContext to control each compilation stage, adding UK2Node types with
+  node handlers, registering UBlueprintExtensions for modular behavior, and customizing
+  the graph schema to gate allowed connections.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

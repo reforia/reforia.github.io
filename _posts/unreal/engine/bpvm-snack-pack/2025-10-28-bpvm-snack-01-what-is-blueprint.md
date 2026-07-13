@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #1 - What is a Blueprint, Really?"
 description: "That Blueprint you just created? It's not actually the class. It's more like a recipe. Here's the real structure behind it."
+tldr: >-
+  A Blueprint you create is a UBlueprint asset - an editor-time recipe - not the class itself; compiling generates a separate UBlueprintGeneratedClass that runs at runtime. Neither actually inherits from the parent C++ class; the parent relationship is simulated through Unreal's reflection system via SetSuperStruct pointers. Recompiling reuses the same class object rather than creating a new one, keeping references stable.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

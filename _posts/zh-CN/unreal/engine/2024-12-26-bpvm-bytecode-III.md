@@ -2,6 +2,11 @@
 layout: post
 title: "从蓝图到字节码 III - 解构类"
 description: "虚空向冒险者们展示了一系列阶段，彼此环环相扣。有些阶段格外耀眼——比如类编译阶段。"
+tldr: >-
+  虚幻引擎采用原地方式编译蓝图类：CleanAndSanitizeClass() 先将旧的属性和函数移入临时的"垃圾"类，
+  随后 CompileClassLayout() 重建类结构——从每个 FBPVariableDescription 创建 UProperty、
+  添加已实现的接口、将各事件图页面合并为单一 Ubergraph，并将每个函数预编译为 UFunction 骨架，
+  最终由 Bind() 和 StaticLink() 完成类头文件与 CDO 的构建。
 date: 2024-12-26 14:50 +0800
 categories: [Unreal, Engine]
 published: true

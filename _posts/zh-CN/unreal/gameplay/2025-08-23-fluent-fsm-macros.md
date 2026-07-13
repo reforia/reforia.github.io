@@ -3,6 +3,10 @@ layout: post
 title: "流式状态机 - 优雅的状态管理框架"
 description:
   深入探讨如何为虚幻引擎创建一个流式风格的状态机框架，使用强大的宏语法处理嵌套同步并提供优雅的建造者模式。
+tldr: >-
+  一个面向虚幻引擎的流式建造者模式状态机框架，通过链式调用 .From().To().When()
+  将状态转换写成可读的转换表，同时借助 DECLARE_STATE_MACHINE 等宏消除样板代码并生成类型安全的访问器。
+  状态本身是 UObject，通过嵌套子对象同步进行网络复制，从而实现支持多态、网络就绪且能被 UHT 正确反射的状态管理。
 date: 2025-08-23 15:30 +0800
 categories: [Unreal, Gameplay]
 published: true

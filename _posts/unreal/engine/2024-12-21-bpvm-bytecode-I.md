@@ -3,6 +3,8 @@ layout: post
 title: "From Blueprint to Bytecode I - But what is Blueprint? "
 description:
   Curiosity calls adventurers to embark towards an ancient castle - Blueprint. We've heard a lot about how to wield it's magical power over the decades. But little did we know what's actually beneath it. So buckle up, because we are going deep.
+tldr: >-
+  A Blueprint asset is a UBlueprint object that exists only in the editor and serializes to a .uasset; its runtime logic lives as bytecode in a separate UBlueprintGeneratedClass, not a subclass of the parent. FKismetCompilerContext drives compilation, translating UEdGraph nodes (UK2Nodes) into FBlueprintCompiledStatement intermediate representations via per-node FNodeHandlingFunctors before emitting VM bytecode.
 date: 2024-12-21 18:27 +0800
 categories: [Unreal, Engine]
 published: true

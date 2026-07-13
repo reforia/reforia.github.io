@@ -2,6 +2,8 @@
 layout: post
 title: "Black Myth: Sobol Sequence - Random Enemy Spawning"
 description: "A deep dive into quasi-random number generation, achieving low discrepancy distributed random enemy spawning in games"
+tldr: >-
+  Sobol sequences generate quasi-random, low-discrepancy points that spread evenly without the visible grid patterns of naive sampling, making them ideal for enemy spawning, particle emission, and Monte Carlo work. They combine primitive polynomials (for independent dimensions), Gray code (one bit flip per step), and XOR (reversible updates) over precomputed direction numbers, which Unreal exposes through its FSobol class.
 date: 2025-11-21 00:00 +0800
 categories: [Unreal, Engine]
 published: true

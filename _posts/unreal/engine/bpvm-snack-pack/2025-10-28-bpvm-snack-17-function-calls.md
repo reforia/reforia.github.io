@@ -2,6 +2,12 @@
 layout: post
 title: "BPVM Snack Pack #17 - Function Calls in Bytecode: The Calling Convention"
 description: "Function calls in Blueprint bytecode are complex! Parameters need copying, return values need handling, and the stack needs managing. Here's how it all works."
+tldr: >-
+  Blueprint function calls compile to EX_CallFunction bytecode, where the VM allocates a
+  temporary parameter buffer, copies every input into it, executes the function, then copies
+  the return value back. This copying overhead—worst for large structs like FHitResult—is
+  why Blueprint runs slower than C++. References and out parameters pass addresses to avoid
+  copies, and delegates use the separate EX_CallMulticastDelegate opcode.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

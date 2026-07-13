@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #13 - DAG 调度器:排序混沌"
 description: "你的蓝图节点可以以复杂的方式连接,但它们必须按顺序执行。DAG 调度器将你的节点网络转变为线性执行列表。"
+tldr: >-
+  蓝图编译器的 DAG 调度器通过拓扑排序，将相互连接的节点网络转变为虚拟机可逐步执行的单一
+  LinearExecutionList，同时兼顾执行引脚与数据引脚两类依赖关系。它对纯节点按需及时调度，
+  在编译期检测循环依赖，并将带分支的图表转换为使用跳转的线性代码。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

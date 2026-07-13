@@ -2,6 +2,13 @@
 layout: post
 title: "BPVM Snack Pack #10 - The Function Factory: Where Graphs Become Functions"
 description: "Your Event Graph isn't really a graph when it runs. It's transformed into a giant function called the Ubergraph. Here's how the function factory works its magic."
+tldr: >-
+  The Blueprint compiler merges all Event Graph pages into a single Ubergraph
+  function, where each event like BeginPlay or Tick becomes just an entry-point
+  stub. Regular, generated, and interface function graphs are each processed
+  into their own functions, macros expand inline and vanish, and every function
+  gets an FKismetFunctionContext holding its terminals, execution order, and
+  generated statements.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

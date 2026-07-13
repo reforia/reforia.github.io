@@ -3,6 +3,8 @@ layout: post
 title: "从蓝图到字节码 IV - 迈向核心"
 description:
     "在最终看到字节码之前，只剩下最后一个挑战了——那就是编译函数。本文将带您逐步完成这一关键步骤。"
+tldr: >-
+  Unreal 的 FKismetCompilerContext::CompileFunctions() 将蓝图编译为虚拟机字节码：先通过 CreateExecutionSchedule 对节点做拓扑排序生成 LinearExecutionList，再将每个节点编译为 FBlueprintCompiledStatement，并内联纯节点链；最后由 FKismetCompilerVMBackend 在 GenerateCodeForStatement() 的巨型 switch 中，将每个 KCST_ 语句分发到对应的 EmitXXX 函数，输出 EExprToken 操作码。
 date: 2024-12-27 21:45 +0800
 categories: [Unreal, Engine]
 published: true

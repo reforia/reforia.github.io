@@ -3,6 +3,8 @@ layout: post
 title: "Lyra技术解析 - 核心动画"
 description:
   长剑-斩击. 巨锤-猛砸. 手枪-射击. 弓箭-拉满. 法杖-吟唱. 大盾-格挡. 重拳-猛冲. 腿脚-踢击. 直觉又简单，这有什么问题？问题在于我们得把他们写出来，不，不是在 Character 类里写七个 if-switch，我们已经不这么干了。现在的规则，是一件复杂十倍的事——系好安全带吧。
+tldr: >-
+  Lyra 通过 Animation Linked Layer 与共享的 Animation Linked Interface 将动画逻辑与资源解耦，每把武器把自己的 Montage 和姿势注入到一个不引用任何资源的 AnimBP 框架中，实现按需加载。Locomotion 由状态机驱动，配合距离匹配、Stride 与 Orientation Warping、原地转向以及逐骨骼 IK 修正，全部通过 BlueprintThreadsafeUpdateAnimation 以线程安全的方式更新。
 date: 2025-05-18 19:05 +0800
 categories: [Unreal, Gameplay]
 published: true

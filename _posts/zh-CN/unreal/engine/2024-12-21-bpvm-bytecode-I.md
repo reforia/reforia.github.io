@@ -3,6 +3,8 @@ layout: post
 title: "从蓝图到字节码 I —— 所以蓝图到底是什么？"
 description:
   好奇心召唤着冒险者们前往一座古老城堡——Blueprint。几十年来，我们听过无数关于如何驾驭它神奇力量的故事。但很少有人真正了解它的内部奥秘。所以系好安全带，我们要深入探索了。
+tldr: >-
+  蓝图资产本质上是一个仅存在于编辑器、并序列化为 .uasset 的 UBlueprint 对象；其运行时逻辑则以字节码形式存放在独立的 UBlueprintGeneratedClass 中，而非父类的子类。FKismetCompilerContext 是编译流程的总指挥，它借助各节点专属的 FNodeHandlingFunctor，先将 UEdGraph 节点（UK2Node）翻译成 FBlueprintCompiledStatement 中间表示，再生成虚拟机字节码。
 date: 2024-12-21 18:27 +0800
 categories: [Unreal, Engine]
 published: true

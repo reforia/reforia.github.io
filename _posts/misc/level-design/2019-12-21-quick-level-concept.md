@@ -2,6 +2,10 @@
 layout: post
 title: Speed Level Concept Composition
 description: A quick level concept composition practice using Flowscape, showcasing two atmospheric scenes created in 1.5 hours for rapid prototyping workflow.
+tldr: >-
+  Two atmospheric level concept scenes composed in Flowscape, each in about 1.5
+  hours. A speed-composition exercise demonstrating how Flowscape enables rapid
+  environment blockouts and mood prototyping without a full 3D production pipeline.
 date: 2019-12-21 12:00 +0800
 categories: [Misc, Level Design]
 tags: [Archived]

@@ -3,6 +3,8 @@ layout: post
 title: Advanced Marker Kit - Unreal Marketplace
 description: 
   An Ability Framework in Unreal Engine 4 that fully supports Networks. The framework is intended for Designers to expand with and create new abilities without worrying about network and basic setups. The system should work on LAN and/or other Online Subsystems (Steam etc.)
+tldr: >-
+  The Advanced Marker Kit is a network-replicated Unreal Engine 4 HUD marker framework (20 Blueprints) that lets designers add on-screen and off-screen actor indicators — custom textures, text, distance functions, guide lines, outliner effects, and an icon generator — across single-player and multiplayer without writing networking code.
 date: 2017-12-01 11:00 +0800
 image:
   path: amk_1.webp

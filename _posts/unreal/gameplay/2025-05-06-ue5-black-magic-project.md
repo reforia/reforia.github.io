@@ -3,6 +3,8 @@ layout: post
 title: "Lyra Breakdown - Project Build Config"
 description:
   Target.cs, Build.cs, Configs, Modules, what in the world is going on?
+tldr: >-
+  Lyra's six build targets (Editor, Client, Server, Game, and their EOS variants) are driven by Target.cs and Build.cs, which UBT compiles into a single ModuleRules.dll assembly—letting targets call each other's static methods like ApplySharedLyraTargetSettings. Covers Monolithic vs Modular linking, Unique vs Shared build environments, CustomConfig-layered .ini files, and GameFeaturePlugin gating.
 date: 2025-05-06 19:07 +0800
 categories: [Unreal, Gameplay]
 published: true

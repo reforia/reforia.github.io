@@ -3,6 +3,8 @@ layout: post
 title: Network Ability Framework in Unreal Engine 4
 description: 
   An Ability Framework in Unreal Engine 4 that fully supports Networks. The framework is intended for Designers to expand with and create new abilities without worrying about network and basic setups. The system should work on LAN and/or other Online Subsystems (Steam etc.)
+tldr: >-
+  A GAS-inspired, fully network-replicated ability framework for Unreal Engine 4 that lets designers author new abilities without touching networking. Abilities run a server-validated activation chain (ActivatePrecheck, CostPrecheck, CommitAbility, ApplyCost), while modifiers apply status and attribute changes to targets through UModifierTargetComp with a full LifeCycleHandler and OnPreExpire/OnReadyToExpire teardown, working over LAN or Online Subsystems like Steam.
 date: 2020-08-20 12:00 +0800
 categories: [Unreal, Network]
 tags: [Unreal, Network]

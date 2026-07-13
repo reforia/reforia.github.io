@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #7 - Node Handlers: The Translation Squad"
 description: "Every node in your Blueprint needs a translator. Meet the Node Handlers - the unsung heroes that turn your visual nodes into executable code."
+tldr: >-
+  Every Blueprint node type gets a dedicated Node Handler (like FKCHandler_Select) that translates it in two phases: RegisterNets reserves an FBPTerminal for each pin, then Compile emits intermediate FBlueprintCompiledStatement objects. Splitting the work into two passes guarantees every variable exists before any node references it, and the backend later converts those statements into actual bytecode.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

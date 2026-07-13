@@ -2,6 +2,11 @@
 layout: post
 title: "BPVM 小食包 #15 - 优化:让你的蓝图更快"
 description: "编译器不只是翻译你的节点 - 它还优化它们!了解让编译后的蓝图运行更快的巧妙技巧。"
+tldr: >-
+  虚幻的蓝图编译器会在 ResolveStatements 中运行一个自动优化过程,应用
+  MergeAdjacentStates、死代码消除、冗余跳转与跳转链折叠、常量折叠以及纯节点内联。
+  这些免费的变换通常可带来 10-20% 更快的执行速度和 20-30% 更小的字节码,不过外部调用、
+  动态转换和断点不会被优化。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

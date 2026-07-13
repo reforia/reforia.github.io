@@ -2,6 +2,13 @@
 layout: post
 title: "BPVM Snack Pack #8 - Clean and Sanitize: The Memory Recycling Trick"
 description: "Blueprint classes don't get deleted and recreated during compilation. They get cleaned and reused like a whiteboard. Here's the clever trick that makes hot reload possible."
+tldr: >-
+  Unreal recompiles a Blueprint by cleaning and sanitizing its existing
+  UBlueprintGeneratedClass in place instead of deleting and recreating it: old
+  properties and functions are moved to a transient TRASHCLASS, the CDO is
+  preserved to copy default values forward, and the memory address stays fixed.
+  This keeps every pointer valid, resolves circular dependencies, and enables
+  hot reload without crashes.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

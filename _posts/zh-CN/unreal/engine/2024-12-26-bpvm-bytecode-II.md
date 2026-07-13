@@ -3,6 +3,12 @@ layout: post
 title: "从蓝图到字节码 II - 编译完毕，准备出发"
 description:
   "尽管在术语迷宫中历尽艰险，冒险者们终于抵达了篝火营地。但黑暗中还潜伏着另一头猛兽——编译过程"
+tldr: >-
+  点击蓝图编辑器中的"编译"按钮，会经由 FBlueprintEditor::Compile 与
+  FKismetEditorUtilities::CompileBlueprint 一路进入 FBlueprintCompilationManager 的
+  FlushCompilationQueueImpl——这个长达 1200 行的函数按顺序执行 16 个阶段（采集、过滤、排序、
+  重新编译骨架、编译类布局与函数、再到重新实例化），将蓝图节点图转化为字节码。随后的
+  FlushReinstancingQueueImpl 则负责替换类的现有实例，使运行时对象与重新编译后的类保持一致。
 date: 2024-12-26 01:04 +0800
 categories: [Unreal, Engine]
 published: true

@@ -2,6 +2,13 @@
 layout: post
 title: "BPVM Snack Pack #15 - Optimizations: Making Your Blueprint Faster"
 description: "The compiler doesn't just translate your nodes - it optimizes them! Learn about the clever tricks that make your compiled Blueprint run faster."
+tldr: >-
+  Unreal's Blueprint compiler runs an automatic optimization pass in
+  ResolveStatements, applying MergeAdjacentStates, dead code elimination,
+  redundant-jump and jump-chain collapsing, constant folding, and pure-node
+  inlining. These free transforms typically yield 10-20% faster execution and
+  20-30% smaller bytecode, though external calls, dynamic casts, and breakpoints
+  stay untouched.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

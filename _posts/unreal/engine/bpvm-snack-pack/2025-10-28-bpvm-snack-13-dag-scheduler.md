@@ -2,6 +2,12 @@
 layout: post
 title: "BPVM Snack Pack #13 - The DAG Scheduler: Ordering Chaos"
 description: "Your Blueprint nodes can connect in complex ways, but they must execute in order. The DAG Scheduler turns your web of nodes into a linear execution list."
+tldr: >-
+  The Blueprint compiler's DAG Scheduler applies a topological sort to turn a
+  web of connected nodes into a single LinearExecutionList the VM can run
+  step-by-step, respecting both execution-pin and data-pin dependencies. It
+  schedules pure nodes just-in-time, detects cyclic dependencies at compile
+  time, and converts branching graphs into linear code with jumps.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

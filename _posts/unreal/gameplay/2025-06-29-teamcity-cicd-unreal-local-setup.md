@@ -3,6 +3,12 @@ layout: post
 title: "Free Local CI/CD for Indie Project with TeamCity and why it matters"
 description:
   Every indie game developer knows the pain of packaging and deploying their game. This post explores how to set up a free local CI/CD pipeline using TeamCity to streamline your project workflow.
+tldr: >-
+  TeamCity's free on-premise license lets indie Unreal developers run a full
+  local CI/CD pipeline: a local build agent backed by PostgreSQL, a Perforce
+  VCS trigger that fires on every changelist, and a RunUAT BuildCookRun step to
+  compile, cook, and package the game, plus Gauntlet autotests parsed as JUnit
+  XML and email notifications on build status.
 date: 2025-06-29 10:16 +0800
 categories: [Unreal, Gameplay]
 published: true

@@ -2,6 +2,12 @@
 layout: post
 title: "BPVM Snack Pack #5 - SuperStruct: Pointer-Based Inheritance"
 description: "Blueprint classes don't use C++ inheritance. They use a pointer-based system through SuperStruct. Here's why that design matters."
+tldr: >-
+  Blueprint classes don't use C++ inheritance. UBlueprintGeneratedClass inherits
+  from UClass and stores a pointer to its parent via SetSuperStruct(), forming a
+  linked list resolved at runtime through GetSuperClass(). This composition-and-delegation
+  model trades native performance for flexibility, enabling hot reloading, runtime
+  class creation, and circular-dependency detection.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

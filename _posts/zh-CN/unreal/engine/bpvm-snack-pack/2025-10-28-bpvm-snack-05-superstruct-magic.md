@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #5 - SuperStruct: 基于指针的继承"
 description: "蓝图类不使用 C++ 继承。它们通过 SuperStruct 使用基于指针的系统。这里解释为什么这种设计很重要。"
+tldr: >-
+  蓝图类并不使用 C++ 继承。UBlueprintGeneratedClass 继承自 UClass,通过 SetSuperStruct()
+  存储指向父级的指针,形成一条在运行时经由 GetSuperClass() 解析的链表。这种组合加委托的模型
+  以原生性能换取灵活性,从而支持热重载、运行时类创建以及循环依赖检测。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

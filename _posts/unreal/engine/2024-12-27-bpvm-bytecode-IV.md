@@ -3,6 +3,8 @@ layout: post
 title: "From Blueprint to Bytecode IV - Road to the Root"
 description:
     "There's only one last challenge left before we can finally see the bytecode, and that is to compile the functions. In this post, we will go through this very step."
+tldr: >-
+  Unreal's FKismetCompilerContext::CompileFunctions() turns a Blueprint into VM bytecode by topologically sorting nodes into a LinearExecutionList (CreateExecutionSchedule), compiling each node into FBlueprintCompiledStatements, inlining pure-node chains, then letting FKismetCompilerVMBackend walk a giant switch in GenerateCodeForStatement() that dispatches each KCST_ statement to an EmitXXX function emitting EExprToken opcodes.
 date: 2024-12-27 21:45 +0800
 categories: [Unreal, Engine]
 published: true

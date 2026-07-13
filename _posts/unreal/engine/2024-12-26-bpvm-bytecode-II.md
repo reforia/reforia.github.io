@@ -3,6 +3,14 @@ layout: post
 title: "From Blueprint to Bytecode II - Compile and Good to Go"
 description:
   "Despite the exhausted challenges faced in the chamber of terminologies, the adventurers managed to reach their bonfire. However, another monster is waiting in the darkness - Compilation"
+tldr: >-
+  Clicking Compile in the Blueprint editor routes through FBlueprintEditor::Compile
+  and FKismetEditorUtilities::CompileBlueprint into FBlueprintCompilationManager's
+  FlushCompilationQueueImpl, a 1200-line function that runs 16 ordered stages—GATHER,
+  FILTER, SORT, skeleton recompile, class-layout and function compilation, then
+  reinstancing—to turn Blueprint graphs into bytecode. A following
+  FlushReinstancingQueueImpl then replaces existing instances so live objects match
+  the recompiled class.
 date: 2024-12-26 01:04 +0800
 categories: [Unreal, Engine]
 published: true

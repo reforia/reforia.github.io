@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #14 - Backend Magic: Statements Become Bytecode"
 description: "The backend is where statements finally become executable bytecode. It's the final compiler stage that creates the actual instructions the VM will run."
+tldr: >-
+  FKismetCompilerVMBackend is Blueprint compilation's final stage, turning statements into raw bytecode: FScriptBuilderBase emits opcodes like EX_CallFunc and EX_Let into a UFunction's Script byte array, resolves jump labels into concrete byte offsets, and applies last-pass optimizations. Swappable backends can instead emit C++ (nativization) or debug info from the same statements.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

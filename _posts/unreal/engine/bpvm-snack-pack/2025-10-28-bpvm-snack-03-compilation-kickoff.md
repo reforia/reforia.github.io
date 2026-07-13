@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #3 - Compilation Kick-Off"
 description: "You hit 'Compile'. Behind that button is a 16-stage pipeline that handles dependencies, generates code, and updates live instances. Here's how it works."
+tldr: >-
+  Clicking Compile triggers FBlueprintEditor::Compile(), which queues your Blueprint into FBlueprintCompilationManager and runs FlushCompilationQueueImpl() — a 16-stage pipeline that gathers and topologically sorts dependencies, then generates UProperties, UFunctions, and bytecode in stages XII and XIII before reinstancing existing objects.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

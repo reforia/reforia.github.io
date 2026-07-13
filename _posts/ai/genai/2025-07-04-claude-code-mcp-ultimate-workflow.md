@@ -3,6 +3,12 @@ layout: post
 title: "Exploring Claude Code + MCP Integration: Reality vs. Expectations for P4, Git, Jira & Confluence"
 description:
   An honest exploration of setting up Claude Code with MCP servers for development tool integration, including real-world challenges, limitations, and what actually works in practice.
+tldr: >-
+  Only Atlassian's official MCP server delivers reliable Jira/Confluence
+  integration in Claude Code; Perforce has no official server and demands a
+  custom-built command wrapper, cross-tool operations break on auth and API
+  rate limits, and realistic setup runs weeks to months—making native
+  integrations and traditional automation the safer bet for enterprise.
 date: 2025-07-04 15:30 +0800
 categories: [AI, GenAI]
 published: true

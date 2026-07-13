@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #17 - 字节码中的函数调用:调用约定"
 description: "蓝图字节码中的函数调用很复杂!参数需要复制,返回值需要处理,栈需要管理。这就是它的工作原理。"
+tldr: >-
+  蓝图函数调用会编译成 EX_CallFunction 字节码:虚拟机先分配一块临时参数缓冲区,把每个输入参数复制进去,
+  执行函数,再把返回值复制回来。这种复制开销——在 FHitResult 这类大结构体上尤为明显——正是蓝图比 C++ 慢的原因。
+  引用和 Out 参数通过传递地址来避免复制,而委托则使用独立的 EX_CallMulticastDelegate 操作码。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

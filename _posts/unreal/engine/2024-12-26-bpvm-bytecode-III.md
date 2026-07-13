@@ -2,6 +2,13 @@
 layout: post
 title: "From Blueprint to Bytecode III - Tear a Class Apart"
 description: "A series of stages were presented to the adventurers from the void, each leading to the next. Some were more shiny than others - Class Compilation."
+tldr: >-
+  Unreal compiles a Blueprint class in place: CleanAndSanitizeClass() moves the
+  old properties and functions off to a transient "trash" class, then
+  CompileClassLayout() rebuilds it — creating UProperties from each
+  FBPVariableDescription, adding implemented interfaces, merging the event graph
+  pages into one Ubergraph, and precompiling every function into a UFunction skeleton
+  before Bind() and StaticLink() finalize the class header and CDO.
 date: 2024-12-26 14:50 +0800
 categories: [Unreal, Engine]
 published: true

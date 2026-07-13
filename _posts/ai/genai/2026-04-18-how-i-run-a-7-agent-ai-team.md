@@ -3,6 +3,11 @@ layout: post
 title: "How I Run a 7-Agent AI Team for My Indie Game Studio"
 description: >-
   A practical account of building and running Nebula — an open-source platform where 7 AI agents handle daily operations for a real indie game studio. Architecture decisions, what works, what doesn't, and what I learned.
+tldr: >-
+  Nebula, an open-source self-hosted platform, runs 7 specialized AI agents that handle daily
+  operations for a solo indie game studio. Its soul/body architecture stores each agent's identity
+  in SQLite while spawning disposable CLI processes (Claude Code, Codex, Gemini) as compute,
+  enabling persistent memory, one-click backend swaps, and @mention inter-agent routing.
 date: 2026-04-18 12:00 +0800
 categories: [AI, GenAI]
 tags: [AI, GenAI, Multi-Agent, Self-Hosted, Open Source, Nebula, Indie Game Dev]

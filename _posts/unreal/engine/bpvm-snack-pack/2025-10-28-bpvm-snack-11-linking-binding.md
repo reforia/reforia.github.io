@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #11 - Linking and Binding: The Final Assembly"
 description: "After creating properties and functions, they're just loose parts. Linking and Binding connects everything together into a working class. Here's the final assembly line."
+tldr: >-
+  Unreal finalizes a compiled Blueprint class with two operations: Bind() locates the C++ constructor, VTable helper, and static functions, while StaticLink() chains the properties into a linked list, computes each one's memory offset and total size, and applies alignment. Both recurse up the inheritance chain, turning loose parts into a working class.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

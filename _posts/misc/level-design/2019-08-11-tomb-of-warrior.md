@@ -3,6 +3,12 @@ layout: post
 title: Tomb of Warrior
 description: >-
   The Tomb of Warrior is a speedmap practice focus on lighting and level composition.
+tldr: >-
+  Tomb of Warrior is a 6-hour Unreal Engine 4.22 speedmap built to practice lighting
+  and level composition using Maya, Quixel Bridge/Mixer, and Photoshop. Key takeaways:
+  block out in Maya rather than BSP (which lacks UV0 lightmap channels), disable auto-exposure
+  for unbiased lighting, and fake sunlight with point lights at windows when the directional
+  light is too weak.
 date: 2019-08-11 00:31 +0800
 categories: [Misc, Level Design]
 tags: [Archived]

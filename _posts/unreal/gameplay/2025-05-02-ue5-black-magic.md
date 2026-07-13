@@ -3,6 +3,12 @@ layout: post
 title: "Lyra Breakdown - "
 description:
   This is a note about what I've learned from the transition from UE4 to UE5. Most of the knowledge are from the Lyra Starter Game.
+tldr: >-
+  Lyra's UE5 architecture is data-driven through PrimaryDataAssets: an Experience
+  Definition composes Game Feature Plugins, Pawn Data, and GameFeatureActions,
+  while Pawn Data decouples input, camera, and capabilities via GAS. Ability Sets
+  grant abilities, effects, and attribute sets, coupling input tags to abilities
+  at the data level rather than in code.
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: false

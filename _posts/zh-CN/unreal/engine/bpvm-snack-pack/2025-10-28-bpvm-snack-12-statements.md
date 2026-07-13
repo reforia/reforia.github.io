@@ -2,6 +2,11 @@
 layout: post
 title: "BPVM 小食包 #12 - 语句 101:字节码之前的语言"
 description: "在节点变成字节码之前,它们会变成语句。把它们想象成可视化节点和机器代码之间的中间语言。"
+tldr: >-
+  蓝图编译会把可视化节点转换成 FBlueprintCompiledStatement 对象,这是一种介于节点和
+  字节码之间的中间语言。每条语句都带有一个类型(KCST_CallFunction、KCST_Assignment、
+  KCST_GotoIfNot 等)、一个 LHS 输出终端和若干 RHS 输入终端。这一层让优化、平台无关的
+  输出生成以及字节码生成前的验证成为可能。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

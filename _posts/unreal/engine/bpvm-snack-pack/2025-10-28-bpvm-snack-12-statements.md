@@ -2,6 +2,13 @@
 layout: post
 title: "BPVM Snack Pack #12 - Statements 101: The Language Before Bytecode"
 description: "Before your nodes become bytecode, they become statements. Think of them as the intermediate language between visual nodes and machine code."
+tldr: >-
+  Blueprint compilation turns visual nodes into FBlueprintCompiledStatement
+  objects, an intermediate language sitting between nodes and bytecode. Each
+  statement carries a type (KCST_CallFunction, KCST_Assignment, KCST_GotoIfNot,
+  etc.), an LHS output terminal, and RHS input terminals. This layer enables
+  optimization, platform-independent output, and validation before bytecode
+  generation.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

@@ -3,6 +3,10 @@ layout: post
 title: "探索Claude Code + MCP集成：P4、Git、Jira和Confluence的现实与期望"
 description:
   诚实探索使用Claude Code配置MCP服务器进行开发工具集成，包括现实世界的挑战、局限性以及实际可行的方案。
+tldr: >-
+  在Claude Code中，只有Atlassian官方MCP服务器能提供可靠的Jira/Confluence集成；Perforce
+  没有官方服务器，需要自行构建命令包装器，跨工具操作常因身份验证和API速率限制而失败，实际配置耗时数周至数月——因此对企业工作流而言，
+  原生工具集成与传统自动化才是更稳妥的选择。
 date: 2025-07-04 15:30 +0800
 categories: [AI, GenAI]
 published: true

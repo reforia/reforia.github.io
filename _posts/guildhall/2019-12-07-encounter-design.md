@@ -3,6 +3,12 @@ layout: post
 title: Encounter Design - Doom (2016)
 description: >-
   A onboarding level for Doom 2016 encounter and level design practice
+tldr: >-
+  A one-month Doom 2016 onboarding level built in the Snap Editor (~65 hours),
+  using a Transition-Arena-Transition rhythm plus pickups, lighting, color, and
+  guidelines to pace combat and steer players through the space. Post-mortem
+  flags pickup clipping, FX-driven framerate loss, and too many line-of-sight
+  blockers breaking AI navigation.
 date: 2019-12-07 06:09 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]

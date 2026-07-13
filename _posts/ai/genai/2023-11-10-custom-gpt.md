@@ -3,6 +3,12 @@ layout: post
 title: Create a simple custom GPT with YouTrack Rest API
 description: 
   A simple custom GPT with YouTrack Rest API, which can be used to generate a list of issues in a specific project
+tldr: >-
+  Building a custom GPT that queries YouTrack issues comes down to defining an
+  OpenAPI 3.1.0 Actions schema pointing at the YouTrack REST API's /issues GET
+  endpoint, authenticating with a Bearer API token, and adding instructions that
+  teach the agent to map natural-language terms to query and fields parameters
+  like 'id,summary,project(name),description'.
 date: 2023-11-10 12:00 +0800
 categories: [Machine Learning, GenAI]
 tags: [OpenAI, GPT, YouTrack, API, OpenAPI, Rest, Machine Learning, GenAI, AI]

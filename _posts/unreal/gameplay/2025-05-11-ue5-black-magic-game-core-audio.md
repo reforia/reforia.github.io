@@ -3,6 +3,12 @@ layout: post
 title: "Lyra Breakdown - Game Core Audio"
 description:
   Digital sound is a signal, and it's all about signal processing.
+tldr: >-
+  Unreal Engine 5 replaces UE4's reliance on external engines like Wwise with a built-in
+  MetaSound DSP graph, routing audio through a four-stage pipeline: sound sources, Submix
+  mixing with effect chains, Control Bus modulation, and output. Lyra's implementation
+  showcases runtime HDR/LDR submix switching (compressor versus limiter), gunfire-driven
+  early-reflection ray tracing, and Parameter Patch volume control.
 date: 2025-05-11 20:50 +0800
 categories: [Unreal, Gameplay]
 published: true

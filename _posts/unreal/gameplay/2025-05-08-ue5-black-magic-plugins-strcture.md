@@ -3,6 +3,8 @@ layout: post
 title: "Lyra Breakdown - Plugins Structure"
 description:
   Looked into the Plugins in Lyra so you don't have to. They were compiled together with related documentations to ease searching 
+tldr: >-
+  Epic's Lyra sample project enables dozens of plugins spanning editor tools, asset management (DataRegistry, AssetSearch), rendering, audio (MetaSound, AudioModulation), networking (ReplicationGraph, OnlineSubsystem/OnlineServices), and gameplay (GAS, ModularGameplay, GameFeatures, StateTree). This catalog groups each plugin with descriptions and docs, then maps Lyra's own source modules into Full Core, Core Extension, and Full Extension tiers.
 date: 2025-05-08 1:18 +0800
 categories: [Unreal, Gameplay]
 published: true

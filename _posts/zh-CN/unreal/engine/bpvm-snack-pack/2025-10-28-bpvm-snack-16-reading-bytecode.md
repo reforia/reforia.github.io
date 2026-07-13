@@ -2,6 +2,11 @@
 layout: post
 title: "BPVM 小食包 #16 - 阅读字节码:矩阵揭秘"
 description: "曾经想知道你编译的蓝图实际是什么样子吗?这里教你如何阅读字节码输出并理解你的节点变成了什么。"
+tldr: >-
+  在 [Kismet] 配置下设置 CompileDisplaysBinaryBackend=True，即可将编译后的蓝图字节码
+  以可读的反汇编形式输出到日志:其中 $XX 十六进制标记是 EExprToken 操作码(如 $44
+  EX_CallFunction),Label_0xXX 按字节偏移标记跳转目标,而每个 Ubergraph 都以一张计算跳转表
+  开头,在这台栈机器虚拟机上将各事件路由到对应的入口点。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

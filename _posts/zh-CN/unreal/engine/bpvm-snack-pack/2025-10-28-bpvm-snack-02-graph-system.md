@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #2 - 图表系统解码"
 description: "你看到的节点图表实际上是两个系统:数据 (UEdGraph) 和渲染 (Slate)。这里解释为什么这种分离很重要。"
+tldr: >-
+  蓝图节点图表实际上是遵循 MVC 分离的两个系统:UEdGraph 保存纯粹的节点与引脚数据(模型),而 SGraphEditor 这个 Slate 控件负责渲染和编辑(视图)。UEdGraphSchema 负责强制连接规则与类型安全。打包时视觉层会被剥离,因此最终发布的只有 UEdGraph 编译后的字节码。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

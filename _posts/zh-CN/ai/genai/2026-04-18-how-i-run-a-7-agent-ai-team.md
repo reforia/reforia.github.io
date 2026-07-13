@@ -3,6 +3,10 @@ layout: post
 title: "我如何用 7 个 AI 智能体运营独立游戏工作室"
 description: >-
   一个关于构建和运行 Nebula 的实际记录 — 一个开源平台，7 个 AI 智能体为一个真实的独立游戏工作室处理日常运营。架构决策、哪些有效、哪些无效，以及我学到了什么。
+tldr: >-
+  Nebula 是一个开源、自托管的平台，用 7 个各司其职的 AI 智能体为一家单人独立游戏工作室处理日常运营。
+  其"灵魂/躯体"架构把每个智能体的身份存储在 SQLite 中，同时以用完即弃的 CLI 进程（Claude Code、Codex、Gemini）
+  作为算力，从而实现持久记忆、一键切换后端，以及基于 @mention 的智能体间路由。
 date: 2026-04-18 12:00 +0800
 categories: [AI, GenAI]
 tags: [AI, GenAI, Multi-Agent, Self-Hosted, Open Source, Nebula, Indie Game Dev]

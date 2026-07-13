@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #7 - 节点处理器:翻译小队"
 description: "你的蓝图中的每个节点都需要一个翻译器。认识节点处理器——将你的可视节点转换为可执行代码的无名英雄。"
+tldr: >-
+  每种蓝图节点类型都有一个专用的节点处理器(如 FKCHandler_Select),它分两个阶段完成翻译:RegisterNets 为每个引脚预留一个 FBPTerminal,随后 Compile 生成中间的 FBlueprintCompiledStatement 语句。拆成两趟处理可以保证在任何节点引用变量之前所有变量都已存在,而后端会在稍后把这些语句转换为真正的字节码。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

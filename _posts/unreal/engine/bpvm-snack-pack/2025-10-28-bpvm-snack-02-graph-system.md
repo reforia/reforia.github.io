@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #2 - The Graph System Decoded"
 description: "The node graph you see is actually two systems: the data (UEdGraph) and the rendering (Slate). Here's why that separation matters."
+tldr: >-
+  A Blueprint node graph is really two separated systems in an MVC split: UEdGraph holds the pure node and pin data (the Model), while SGraphEditor, a Slate widget, renders and edits it (the View). UEdGraphSchema enforces connection rules and type safety. Packaging strips the visual layer, so only the UEdGraph's compiled bytecode ships.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

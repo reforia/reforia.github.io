@@ -3,6 +3,8 @@ layout: post
 title: "Lyra Breakdown - Editor Module"
 description:
   You can extend the editor and engine like that? What about all the wheels I reinvented?
+tldr: >-
+  Epic's Lyra extends the Unreal editor by subclassing UUnrealEdEngine as LyraEditorEngine to auto-show GameFeature plugin folders and hook PIE startup, then layers on config-driven UDeveloperSettings, GetOptions dropdown metadata, Slate toast notifications, custom PlayToolBar buttons (Check Content, Common Maps), a centralized FSlateStyleSet singleton, and the UE_INLINE_GENERATED_CPP_BY_NAME compile-speed macro.
 date: 2025-05-02 15:24 +0800
 categories: [Unreal, Gameplay]
 published: true

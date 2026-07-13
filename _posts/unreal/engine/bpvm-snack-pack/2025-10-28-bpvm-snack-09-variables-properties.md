@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM Snack Pack #9 - Variables Become Properties: The Transformation"
 description: "When you create a variable in Blueprint, it's not really a variable yet. It's just a description waiting to become a real property. Here's the metamorphosis."
+tldr: >-
+  Blueprint variables begin life as FBPVariableDescription metadata, not real memory; during compilation CreateClassVariablesFromBlueprint() transforms each into a live FProperty. The two-step split keeps editing fast and hot-reload-safe, sorts properties by size for cache-efficient layout, and lets special types like Timelines and components expand into multiple properties.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

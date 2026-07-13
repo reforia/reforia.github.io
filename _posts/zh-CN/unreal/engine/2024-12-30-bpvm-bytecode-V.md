@@ -3,6 +3,11 @@ layout: post
 title: "从蓝图到字节码 V - 字节码与游戏实战"
 description:
   "强大的敌人已然倒下，冒险者们继续前进。城堡深处，一台巨型机器正处理着无数微小零件，指针来回跳动，搬运着EExprToken。我们即将触及这个秘密的核心——字节码"
+tldr: >-
+  在 DefaultEngine.ini 中启用 CompileDisplaysBinaryBackend，即可将蓝图编译后的字节码以可读的
+  EExprToken 形式输出，进而追踪其执行流程：从 ReceiveBeginPlay 起步，通过计算跳转压入新栈进入
+  ExecuteUbergraph，再调用 CustomPrintString。文中还解释了为何每个函数都以 EX_Return 搭配
+  EX_Nothing 收尾，以及 MergeAdjacentStates 为何会移除冗余的 EX_GotoReturn。
 date: 2024-12-29 11:27 +0800
 categories: [Unreal, Engine]
 published: true

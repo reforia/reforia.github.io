@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #14 - 后端魔法:语句变成字节码"
 description: "后端是语句最终变成可执行字节码的地方。这是创建虚拟机将运行的实际指令的最终编译阶段。"
+tldr: >-
+  FKismetCompilerVMBackend 是蓝图编译的最终阶段,负责将语句转换为原始字节码:FScriptBuilderBase 把 EX_CallFunc、EX_Let 等操作码写入 UFunction 的 Script 字节数组,将跳转标签解析为具体的字节偏移量,并在生成时执行最后一轮优化。可替换的后端还能从相同的语句生成 C++(本地化)或调试信息。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

@@ -3,6 +3,8 @@ layout: post
 title: "Lyra Breakdown - Game Core Animation"
 description:
   Sword? Slash. Hammer? Smash. Gun? Shoot. Bow? Draw. Staff? Cast. Shield? Block. Fist? Punch. Foot? Kick. Intuitive and simple, what's the problem? Well we need to program it, no, not 7 if-switches in Character class, we don't do that anymore, instead, we are doing something 10x more complicated, buckle up.
+tldr: >-
+  Lyra decouples animation logic from assets using Animation Linked Layers and a shared Animation Linked Interface, so each weapon injects its own montages and poses into an asset-free AnimBP framework that only loads content when needed. Locomotion runs through a state machine with distance matching, stride and orientation warping, turn-in-place, and per-bone IK fixup, all driven thread-safely via BlueprintThreadsafeUpdateAnimation.
 date: 2025-05-18 19:05 +0800
 categories: [Unreal, Gameplay]
 published: true

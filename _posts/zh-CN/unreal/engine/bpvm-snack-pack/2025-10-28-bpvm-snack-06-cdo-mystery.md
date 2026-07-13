@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #6 - CDO 之谜:你的类的秘密模板"
 description: "每个蓝图类都有一个没人谈论的隐藏模板对象。认识 CDO——定义'默认'真正含义的神秘实例。"
+tldr: >-
+  每个虚幻类都有一个类默认对象 (CDO):一个在类加载时自动创建的真实实例,充当所有未来生成实例的模板。在蓝图编辑器中编辑"默认"值时,你其实是在直接写入 CDO;生成 actor 会从中复制属性;默认值能在重新编译后保留,是因为旧 CDO 的值被拷贝到了新 CDO——切勿在运行时修改 CDO。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

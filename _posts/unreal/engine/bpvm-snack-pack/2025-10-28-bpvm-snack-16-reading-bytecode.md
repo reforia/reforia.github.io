@@ -2,6 +2,12 @@
 layout: post
 title: "BPVM Snack Pack #16 - Reading Bytecode: The Matrix Revealed"
 description: "Ever wondered what your compiled Blueprint actually looks like? Here's how to read the bytecode output and understand what your nodes became."
+tldr: >-
+  Setting CompileDisplaysBinaryBackend=True under [Kismet] dumps compiled Blueprint
+  bytecode to the output log as readable disassembly, where $XX hex tokens are
+  EExprToken opcodes (like $44 EX_CallFunction), Label_0xXX marks jump targets by
+  byte offset, and each Ubergraph opens with a computed jump table routing events to
+  their entry points on this stack-machine VM.
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

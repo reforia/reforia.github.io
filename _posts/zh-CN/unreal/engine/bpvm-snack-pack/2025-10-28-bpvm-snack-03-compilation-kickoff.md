@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #3 - 编译启动"
 description: "你点击'编译'。这个按钮背后是一个处理依赖、生成代码和更新实时实例的16阶段流水线。这里介绍它的工作原理。"
+tldr: >-
+  点击"编译"会触发 FBlueprintEditor::Compile()，它将蓝图加入 FBlueprintCompilationManager 队列并运行 FlushCompilationQueueImpl()——一个 16 阶段流水线：先收集并按拓扑顺序排序依赖，再在阶段 XII 和 XIII 生成 UProperties、UFunctions 和字节码，最后重新实例化现有对象。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

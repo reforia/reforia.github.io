@@ -2,6 +2,8 @@
 layout: post
 title: "BPVM 小食包 #9 - 变量变成属性:转变过程"
 description: "当你在蓝图中创建一个变量时,它还不是真正的变量。它只是一个等待变成真正属性的描述。这就是它的蜕变过程。"
+tldr: >-
+  蓝图变量最初只是 FBPVariableDescription 元数据,而非真实内存;编译期间 CreateClassVariablesFromBlueprint() 会将每个描述转换为真正的 FProperty。这种两步式拆分让编辑保持快速、热重载安全,并按大小排序属性以获得缓存友好的内存布局,同时让 Timeline、组件等特殊类型展开为多个属性。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

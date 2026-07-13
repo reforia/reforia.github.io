@@ -3,6 +3,11 @@ layout: post
 title: "为独立项目打造免费的本地 CI/CD：基于 TeamCity 的解决方案及其重要性"
 description:
   每位独立游戏开发者都懂得打包和部署的痛苦。本篇文章将带你一步步搭建一个基于 TeamCity 的免费本地 CI/CD 流程，以优化你的项目工作流。
+tldr: >-
+  借助 TeamCity 的免费本地授权，独立 Unreal 开发者也能搭建一套完整的本地 CI/CD 流水线：以本机作为
+  Build Agent、用 PostgreSQL 作数据库，配置 Perforce VCS 触发器在每次提交 CL 时自动构建，并通过
+  RunUAT 的 BuildCookRun 步骤完成编译、Cook 与打包，再辅以 Gauntlet 自动化测试（以 JUnit XML
+  解析结果）和构建状态的邮件通知。
 date: 2025-06-29 10:16 +0800
 categories: [Unreal, Gameplay]
 published: true

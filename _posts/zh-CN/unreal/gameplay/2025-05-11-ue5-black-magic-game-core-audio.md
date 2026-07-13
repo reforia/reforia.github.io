@@ -3,6 +3,10 @@ layout: post
 title: "Lyra技术解析 - 核心音频"
 description:
   音频的本质是信号，音频调制的本质是信号处理。
+tldr: >-
+  UE5 用内置的 MetaSound DSP 图取代了 UE4 对 Wwise 等外部音频引擎的依赖，音频信号经四级流程处理：音源、
+  带效果链的 Submix 混音、Control Bus 调制，最终输出。Lyra 的实现展示了运行时 HDR/LDR 子混音切换（压缩器与限制器）、
+  由开火射线检测驱动的早期反射，以及基于 Parameter Patch 的音量调制。
 date: 2025-05-11 20:50 +0800
 categories: [Unreal, Gameplay]
 published: true

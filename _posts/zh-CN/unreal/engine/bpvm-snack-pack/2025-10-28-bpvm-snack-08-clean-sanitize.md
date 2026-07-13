@@ -2,6 +2,10 @@
 layout: post
 title: "BPVM 小食包 #8 - 清理和净化:内存回收技巧"
 description: "蓝图类在编译期间不会被删除和重新创建。它们像白板一样被清理和重用。这里介绍使热重载成为可能的聪明技巧。"
+tldr: >-
+  重新编译蓝图时,虚幻不会删除并重建类,而是就地清理和净化现有的
+  UBlueprintGeneratedClass:旧属性和函数被移入瞬态 TRASHCLASS,CDO 被保留以将默认值向前复制,
+  内存地址保持不变。这让所有指针继续有效,解决循环依赖,并使热重载不会崩溃。
 date: 2025-10-28 00:00 +0800
 categories: [Unreal, Engine]
 published: true

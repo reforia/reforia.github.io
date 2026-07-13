@@ -3,6 +3,8 @@ layout: post
 title: Underneath Shadow - Fallout 4
 description: >-
   “Underneath Shadow” is a 10 - 20 minutes long quest line for a level 15 player about a tragedy and discuss humanity under the big picture of Fallout 4’s post-war setting.
+tldr: >-
+  "Underneath Shadow" is a 10-20 minute Fallout 4 quest for a level 15 player, casting a family's plea to silence a creepy neighbor as the tragedy of Dr. Naphtali hiding his ghoul-infected daughter. The optional-investigation design uses oil-lamp warm light and dark-scene contrast to guide players toward hidden story clues and the true ending.
 date: 2019-06-17 01:22 +0800
 categories: [Archived Projects, Guildhall]
 tags: [Archived]
