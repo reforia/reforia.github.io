@@ -4,7 +4,32 @@ permalink: /robots.txt
 ---
 
 User-agent: *
+Disallow: /norobots/
 
+# ── AI crawlers & answer engines: explicitly welcome ──────────────
+# Answer / live-retrieval bots (cite the page in AI answers)
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-Web
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: Meta-ExternalAgent
+User-agent: Meta-ExternalFetcher
+# Training / dataset crawlers
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: cohere-ai
+User-agent: Bytespider
+User-agent: Diffbot
+User-agent: Timpibot
+Allow: /
 Disallow: /norobots/
 
 Sitemap: {{ '/sitemapindex.xml' | absolute_url }}

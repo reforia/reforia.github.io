@@ -1,0 +1,42 @@
+{%- comment -%}
+  Per-post citation footer, injected at the end of post content by
+  _plugins/geo-post-hook.rb. Gives humans a ready-made reference and AI
+  engines an explicit, attributable citation string. Metadata is the post's
+  own; the URL is rebuilt to carry the Polyglot language prefix.
+{%- endcomment -%}
+{%- assign canonical_path = page.url -%}
+{%- unless site.active_lang == site.default_lang -%}
+  {%- assign lang_prefix = '/' | append: site.active_lang -%}
+  {%- unless page.url contains lang_prefix -%}
+    {%- assign canonical_path = page.url | prepend: lang_prefix -%}
+  {%- endunless -%}
+{%- endunless -%}
+{%- assign canonical_url = canonical_path | prepend: site.url -%}
+{%- assign year = page.date | date: '%Y' -%}
+{%- assign ob = '{' -%}
+{%- assign cb = '}' -%}
+{%- if site.active_lang == 'zh-CN' -%}
+  {%- assign cite_label = '引用本文' -%}
+{%- else -%}
+  {%- assign cite_label = 'Cite this post' -%}
+{%- endif -%}
+<div class="geo-citation card mt-5 mb-3" markdown="0">
+  <div class="card-body px-3 py-3">
+    <p class="mb-2"><strong>{{ cite_label }}</strong></p>
+    <p class="text-muted mb-2" style="font-size:.9rem;">
+      {{ site.social.name }}. &ldquo;{{ page.title | escape }}.&rdquo;
+      <em>{{ site.social.name }}&rsquo;s Blog</em>, {{ page.date | date: '%B %-d, %Y' }}.
+      <a href="{{ canonical_url }}">{{ canonical_url }}</a>
+    </p>
+    <details>
+      <summary style="cursor:pointer;font-size:.9rem;">BibTeX</summary>
+<pre><code>@misc{{ ob }}{{ page.slug }}{{ year }},
+  author = {{ ob }}{{ site.social.name }}{{ cb }},
+  title  = {{ ob }}{{ page.title | escape }}{{ cb }},
+  year   = {{ ob }}{{ year }}{{ cb }},
+  url    = {{ ob }}{{ canonical_url }}{{ cb }},
+  note   = {{ ob }}{{ site.social.name }}&rsquo;s Blog{{ cb }}
+{{ cb }}</code></pre>
+    </details>
+  </div>
+</div>

@@ -48,6 +48,9 @@ title: "Post Title"
 description: >-
   A brief description of the post content.
   Can span multiple lines with >- syntax.
+tldr: >-
+  Answer-first summary (1-3 sentences) auto-rendered as a TL;DR box at the top
+  of the post and fed into JSON-LD + llms.txt. See "Writing for GEO" below.
 date: YYYY-MM-DD HH:MM +0800
 categories: [Category1, Category2]
 tags: [tag1, tag2, tag3]
@@ -68,6 +71,7 @@ media_subpath: /assets/img/post-data/category/subcategory/slug-name/
 | `categories` | Yes | Array format: `[Main, Sub]` |
 | `tags` | Yes | Array format: `[tag1, tag2]` |
 | `published` | Yes | `true` or `false` |
+| `tldr` | Rec. | Answer-first summary; auto-renders a TL;DR box + feeds JSON-LD/llms.txt |
 | `lang` | Yes | `en` for English, `zh-CN` for Chinese |
 | `media_subpath` | Yes | Path to post's image folder |
 | `math` | No | Set `true` if using LaTeX notation |
@@ -141,6 +145,47 @@ media_subpath: /assets/img/post-data/category/subcategory/slug-name/
 - [ ] Set `math: true` if using LaTeX
 - [ ] Create zh-CN translation with same filename structure
 - [ ] Verify `published: true` when ready to publish
+- [ ] Write a `tldr` (answer-first summary) in frontmatter — see GEO guide below
+
+## Writing for GEO (Generative Engine Optimization)
+
+GEO is making posts easy for generative engines (ChatGPT, Perplexity, Claude,
+Google AI Overviews, Gemini) to parse, quote, and **cite**. The site already
+handles the machine layer — JSON-LD (`BlogPosting` + `BreadcrumbList` + author
+`Person` entity), `hreflang`, `sitemapindex`, `/llms.txt`, and an AI-crawler
+allowlist in `robots.txt`. It also **auto-scaffolds every post**: the
+`_plugins/geo-post-hook.rb` hook injects a TL;DR box at the top (from the `tldr`
+frontmatter, via `_includes/post-tldr.html`) and a citation footer at the bottom
+(`_includes/post-citation.html`). You never add those by hand — you only supply
+the `tldr` text. The rest is writing discipline.
+
+**The one field you must write — `tldr`:**
+
+- 1–3 sentences, self-contained, answer-first: what the post covers **and** its
+  key takeaway, in language a reader (or an LLM) could quote verbatim.
+- Auto-renders as a TL;DR callout at the top of the post, and feeds JSON-LD
+  `abstract` + the `/llms.txt` listing. Omit it and no box renders (legacy posts
+  are unaffected), but every new post should have one.
+- Write it for **both** language versions so `/llms.txt` and `/zh-CN/llms.txt`
+  stay equivalent.
+
+**Body-writing practices (apply while drafting):**
+
+1. **Sharp `description`.** Keep the frontmatter `description` a standalone,
+   factual one-liner (it's the meta description). `tldr` can be longer/richer.
+   Avoid vague teasers ("some thoughts on…"); say concretely what's inside.
+2. **Question-shaped H2/H3 headings.** Phrase section headings the way a user
+   would ask ("How does the Blueprint VM execute bytecode?") rather than terse
+   labels ("Execution"). Engines match headings to queries.
+3. **Definitional first sentences.** Under each heading, lead with a
+   self-contained declarative sentence ("Bytecode is …", "The `FFrame` holds …")
+   so the chunk stands alone when lifted out of context.
+4. **Front-load specifics.** Concrete facts, version numbers, function names,
+   and short code identifiers inline make a passage more citable than prose.
+
+**What NOT to do:** don't keyword-stuff, don't add hidden text, and don't bury
+the point below the fold — generative engines reward clarity and structure, not
+density.
 
 ## Local Development
 

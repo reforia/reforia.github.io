@@ -1,0 +1,11 @@
+{%- comment -%}
+  Answer-first summary box, rendered from the post's `tldr` front matter.
+  Renders nothing when `tldr` is absent, so legacy posts are unaffected.
+  Injected at the top of post content by _plugins/geo-post-hook.rb.
+{%- endcomment -%}
+{%- if page.tldr -%}
+{%- assign tldr_label = 'TL;DR' -%}
+<blockquote class="prompt-tip geo-tldr" markdown="0">
+  <p><strong>{{ tldr_label }}</strong>&nbsp;&mdash;&nbsp;{{ page.tldr | markdownify | remove: '<p>' | remove: '</p>' | strip }}</p>
+</blockquote>
+{%- endif -%}

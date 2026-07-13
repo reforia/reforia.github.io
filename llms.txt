@@ -1,0 +1,31 @@
+---
+permalink: /llms.txt
+sitemap: false
+---
+{%- assign lang = site.active_lang -%}
+{%- if lang == site.default_lang -%}{%- assign url_prefix = '' -%}{%- else -%}{%- assign url_prefix = '/' | append: lang -%}{%- endif -%}
+{%- assign posts_for_lang = site.posts | where: "lang", lang -%}
+# {{ site.social.name }} — {{ site.title }}
+
+> {{ site.site_description[lang] }}
+
+Personal blog by {{ site.social.name }}, a game developer. Posts are long-form technical deep-dives on Unreal Engine internals (Blueprint VM, bytecode, reflection), gameplay programming, rendering, networking, level design, and AI / generative AI. Many posts belong to multi-part series. Content is written in English and Simplified Chinese; this index lists the {{ lang }} versions.
+
+- Author: {{ site.social.name }}
+- Site: {{ site.url }}{{ url_prefix }}/
+- English index: {{ site.url }}/llms.txt
+- 简体中文 index: {{ site.url }}/zh-CN/llms.txt
+- RSS feed: {{ site.url }}/feed.xml
+- Sitemap: {{ site.url }}/sitemapindex.xml
+
+## Posts
+{% assign ordered = posts_for_lang | sort: "date" | reverse -%}
+{%- assign cat_list = "" | split: "" -%}
+{%- for post in ordered -%}
+  {%- assign top = post.categories[0] | default: "Other" -%}
+  {%- unless cat_list contains top -%}{%- assign cat_list = cat_list | push: top -%}{%- endunless -%}
+{%- endfor -%}
+{% for cat in cat_list %}
+### {{ cat }}
+{% for post in ordered %}{% if post.categories[0] == cat or post.categories == empty and cat == "Other" %}{% assign blurb = post.tldr | default: post.description %}- [{{ post.title }}]({{ site.url }}{{ url_prefix }}{{ post.url }}){% if blurb %}: {{ blurb | strip_html | strip_newlines | normalize_whitespace | strip }}{% endif %} ({{ post.categories | join: " / " }}, {{ post.date | date: "%Y-%m-%d" }})
+{% endif %}{% endfor %}{% endfor %}

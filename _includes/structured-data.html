@@ -1,11 +1,30 @@
-<!-- Structured Data for SEO -->
+<!-- Structured Data for SEO / GEO -->
+
+{%- comment -%} Polyglot: page.url lacks the language prefix on non-default builds; rebuild the canonical URL so JSON-LD @id/url match the real page. {%- endcomment -%}
+{%- assign canonical_path = page.url -%}
+{%- unless site.active_lang == site.default_lang -%}
+  {%- assign lang_prefix = '/' | append: site.active_lang -%}
+  {%- unless page.url contains lang_prefix -%}
+    {%- assign canonical_path = page.url | prepend: lang_prefix -%}
+  {%- endunless -%}
+{%- endunless -%}
+{%- assign canonical_url = canonical_path | prepend: site.url -%}
+{%- if site.active_lang == site.default_lang -%}
+  {%- assign home_url = site.url | append: '/' -%}
+{%- else -%}
+  {%- assign home_url = site.url | append: '/' | append: site.active_lang | append: '/' -%}
+{%- endif -%}
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   {% if page.layout == "post" %}
-  "@type": "Article",
+  "@type": "BlogPosting",
   "headline": "{{ page.title | escape }}",
   "description": "{{ page.description | default: site.site_description[site.active_lang] | escape }}",
+  {% if page.tldr %}"abstract": "{{ page.tldr | strip_newlines | normalize_whitespace | escape }}",
+  {% endif %}"inLanguage": "{{ page.lang | default: site.active_lang }}",
+  "wordCount": {{ page.content | strip_html | number_of_words }},
   "image": {
     "@type": "ImageObject",
     {% if page.image %}
@@ -23,11 +42,13 @@
   },
   "author": {
     "@type": "Person",
+    "@id": "{{ site.url }}/#person",
     "name": "{{ site.social.name }}",
     "url": "{{ site.social.links[0] }}"
   },
   "publisher": {
     "@type": "Person",
+    "@id": "{{ site.url }}/#person",
     "name": "{{ site.social.name }}",
     "logo": {
       "@type": "ImageObject",
@@ -38,39 +59,80 @@
   "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "{{ page.url | absolute_url }}"
+    "@id": "{{ canonical_url }}"
   },
-  "url": "{{ page.url | absolute_url }}",
+  "isPartOf": {
+    "@type": "Blog",
+    "@id": "{{ site.url }}/#blog",
+    "name": "{{ site.title }}"
+  },
+  "url": "{{ canonical_url }}",
   "articleSection": "{{ page.categories | join: ', ' }}",
   "keywords": "{{ page.tags | join: ', ' }}"
   {% elsif page.layout == "page" or page.layout == "home" %}
   "@type": "WebSite",
+  "@id": "{{ site.url }}/#website",
   "name": "{{ site.title }}",
   "description": "{{ site.site_description[site.active_lang] | escape }}",
+  "inLanguage": "{{ site.active_lang }}",
   "url": "{{ site.url }}",
   "author": {
     "@type": "Person",
+    "@id": "{{ site.url }}/#person",
     "name": "{{ site.social.name }}",
     "url": "{{ site.social.links[0] }}"
   },
   "publisher": {
     "@type": "Person",
+    "@id": "{{ site.url }}/#person",
     "name": "{{ site.social.name }}"
   }
   {% else %}
   "@type": "WebPage",
   "name": "{{ page.title | default: site.title }}",
   "description": "{{ page.description | default: site.site_description[site.active_lang] | escape }}",
-  "url": "{{ page.url | absolute_url }}"
+  "inLanguage": "{{ site.active_lang }}",
+  "url": "{{ canonical_url }}"
   {% endif %}
 }
 </script>
 
-<!-- Organization Schema -->
+{% if page.layout == "post" %}
+<!-- Breadcrumb trail -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ home_url }}"
+    }{% for cat in page.categories %},
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.index | plus: 1 }},
+      "name": "{{ cat | escape }}",
+      "item": "{{ site.url }}/categories/{{ cat | slugify }}/"
+    }{% endfor %},
+    {
+      "@type": "ListItem",
+      "position": {{ page.categories | size | plus: 2 }},
+      "name": "{{ page.title | escape }}",
+      "item": "{{ canonical_url }}"
+    }
+  ]
+}
+</script>
+{% endif %}
+
+<!-- Author entity -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "{{ site.url }}/#person",
   "name": "{{ site.social.name }}",
   "url": "{{ site.url }}",
   "sameAs": {{ site.social.links | jsonify }},

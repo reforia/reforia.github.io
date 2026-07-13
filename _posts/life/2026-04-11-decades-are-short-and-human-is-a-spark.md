@@ -3,6 +3,12 @@ layout: post
 title: "A Day is Long, Decades Are Short, and Life Is a Spark"
 description: >-
   A reflection on turning 30
+tldr: >-
+  A personal essay written on turning 30 that weaves six decades of AI history
+  together with the author's own life — from a teenager who lived inside games
+  like Assassin's Creed to a game developer watching the generative-AI era
+  erupt. Its through-line: a human life is short and fragile, a brief spark, and
+  that very brevity is what makes it worth something.
 date: 2026-04-11 00:00 +0800
 categories: [Life]
 tags: [personal]
